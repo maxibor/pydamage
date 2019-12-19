@@ -2,18 +2,17 @@
 
 
 def ct_al(reference, query, cigartuple, wlen, print_al):
+    """Compute CtoT mutations for a single alignment
 
-"""Compute CtoT mutations for a single alignment
-
-Args:
-    reference (string): reference sequence
-    query (string): query sequence
-    cigartuple (tuple): cigar tuple (pysam)
-    wlen (int): window length
-    print_al (bool): print alignment
-Returns:
-    CT (list): list of CtoT positions
-"""
+    Args:
+        reference (string): reference sequence
+        query (string): query sequence
+        cigartuple (tuple): cigar tuple (pysam)
+        wlen (int): window length
+        print_al (bool): print alignment
+    Returns:
+        CT (list): list of CtoT positions
+    """
     r_pos = 0
     q_pos = 0
     r_string = ""
