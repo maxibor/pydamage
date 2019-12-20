@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
-import numpy as np
 import pysam
-from parse_ct import ct_al
-from vuong import vuong_closeness
-import utils
-import models
+from .parse_ct import ct_al
+from .vuong import vuong_closeness
+from . import models
 
 
 class al_to_ct():

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import click
-from main import main
+from .main import main
 
 
 @click.command()

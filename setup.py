@@ -11,7 +11,7 @@ setup(
     long_description_content_type="text/markdown",
     license='GNU-GPLv3',
     python_requires=">=3.6",
-    packages=find_packages(),
+    packages=find_packages(include=['pydamage']),
     entry_points={
         'console_scripts': [
             'pydamage = pydamage.cli:cli'

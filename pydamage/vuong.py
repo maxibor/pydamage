@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy.stats import norm
-from optim import optim
+from .optim import optim
 
 
 def vuong_closeness(model_A, model_B, data):

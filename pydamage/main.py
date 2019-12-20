@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import pysam
-import utils
+from . import utils
 import multiprocessing
 from functools import partial
-import damage
+from . import damage
 import pandas as pd
 
 
