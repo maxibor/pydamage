@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-def ct_al(reference, query, cigartuple, wlen, print_al):
+def ct_al(reference, query, cigartuple, wlen, show_al):
     """Compute CtoT mutations for a single alignment
 
     Args:
@@ -17,8 +17,9 @@ def ct_al(reference, query, cigartuple, wlen, print_al):
     q_pos = 0
     r_string = ""
     q_string = ""
+    res = ""
     CT = []
-   for c in cigartuple:
+    for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
         if c[0] in [0, 7, 8]:
             r_string += reference[r_pos:r_pos+c[1]]
@@ -38,14 +39,14 @@ def ct_al(reference, query, cigartuple, wlen, print_al):
             r_pos += c[1]
             q_pos = q_pos
 
-    for i in range(0, min(nb_nuc, len(r_string))):
+    for i in range(0, min(wlen, len(r_string))):
         r_char = r_string[i].upper()
         q_char = q_string[i].upper()
         if r_char != q_char:
             if r_char == "C" and q_char == "T":
                 CT.append(i)
 
-    if print_al:
+    if show_al:
         res += "R " + r_string + "\n  "
         for i in range(0, min(len(r_string), len(q_string))):
             if r_string[i] == q_string[i]:
