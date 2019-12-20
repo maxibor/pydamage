@@ -18,7 +18,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        conda install -c bioconda samtools
+        conda install -c bioconda pysam
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Lint with flake8
