@@ -2,9 +2,11 @@
 
 import click
 from .main import main
+from . import __version__
 
 
 @click.command()
+@click.version_option(__version__)
 @click.argument('bam', type=click.Path(exists=True))
 @click.option('-w',
               '--wlen',
@@ -28,6 +30,7 @@ from .main import main
               '--show_al',
               is_flag=True,
               help='Show alignments representations')
+@click.option('--verbose', is_flag=True, help='Verbose mode')
 @click.option('-o',
               '--output',
               type=click.Path(writable=True),

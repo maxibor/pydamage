@@ -5,7 +5,7 @@ from scipy.stats import norm
 from .optim import optim
 
 
-def vuong_closeness(model_A, model_B, data):
+def vuong_closeness(ref, model_A, model_B, data, verbose):
     xdata, counts = np.unique(np.sort(data), return_counts=True)
     ydata = counts/counts.sum()
     res = {}
@@ -27,10 +27,12 @@ def vuong_closeness(model_A, model_B, data):
     omega = np.std(LA-LB)
     Z = LR/(np.sqrt(len(data))*omega)
     pval = norm.cdf(Z)
-    print(f"Vuong closeness test Z-score: {round(Z, 4)}")
-    print(f"Vuong closeness test p-value: {round(pval, 4)}")
-    print(f"Model A parameters: {optim_A}")
-    print(f"Model B parameters: {optim_B}")
+    if verbose:
+        print(f"\nReference: {ref}")
+        print(f"Vuong closeness test Z-score: {round(Z, 4)}")
+        print(f"Vuong closeness test p-value: {round(pval, 4)}")
+        print(f"Model A parameters: {optim_A}")
+        print(f"Model B parameters: {optim_B}")
     res.update(optim_A)
     res.update(optim_B)
     res.update({'pvalue': pval})

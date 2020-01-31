@@ -46,7 +46,7 @@ class al_to_ct():
         return(all_ct)
 
 
-def test_ct(ref, bam, mode, wlen, show_al, min_al, process):
+def test_ct(ref, bam, mode, wlen, show_al, min_al, process, verbose):
     al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
     if al_handle.count(contig=ref) > min_al:
         al = al_to_ct(reference=ref, al_handle=al_handle)
@@ -54,10 +54,8 @@ def test_ct(ref, bam, mode, wlen, show_al, min_al, process):
         if ct_data:
             model_A = models.unif_mod()
             model_B = models.geom_mod()
-            print(f"=====\n{ref}\n")
             test_res = vuong_closeness(
-                model_A=model_A, model_B=model_B, data=ct_data)
-            print(f"\n=====")
+                ref=ref, model_A=model_A, model_B=model_B, data=ct_data, verbose=verbose)
             test_res['reference'] = ref
             return(test_res)
     else:
