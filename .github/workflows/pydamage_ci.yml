@@ -32,5 +32,5 @@ jobs:
         pytest
     - name: Install pydamage and check CLI
       run: |
-        pip install pydamage
+        python setup.py install
         pydamage --help
