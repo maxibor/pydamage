@@ -1,0 +1,44 @@
+name: pydamage
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bzip2=1.0.8
+  - ca-certificates=2019.11.28
+  - certifi=2019.11.28
+  - click=7.0
+  - curl=7.65.3
+  - krb5=1.16.4
+  - libblas=3.8.0
+  - libcblas=3.8.0
+  - libcurl=7.65.3
+  - libcxx=9.0.1
+  - libdeflate=1.5
+  - libedit=3.1.20170329
+  - libffi=3.2.1
+  - libgfortran=4.0.0
+  - liblapack=3.8.0
+  - libopenblas=0.3.7
+  - libssh2=1.8.2
+  - llvm-openmp=9.0.1
+  - ncurses=6.1
+  - numpy=1.17.5
+  - openssl=1.1.1d
+  - pandas=1.0.0
+  - pip=20.0.2
+  - pysam=0.15.4
+  - python=3.7.6
+  - python-dateutil=2.8.1
+  - pytz=2019.3
+  - readline=8.0
+  - scipy=1.4.1
+  - setuptools=45.1.0
+  - six=1.14.0
+  - sqlite=3.30.1
+  - tk=8.6.10
+  - wheel=0.34.2
+  - xz=5.2.4
+  - zlib=1.2.11
+prefix: /Users/borry/miniconda3/envs/pydamage
+
