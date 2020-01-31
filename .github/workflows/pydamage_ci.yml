@@ -26,7 +26,11 @@ jobs:
           pip install -e .
           pip install pytest
           pytest
-      - name: Check pydamage CLI
+      - name: Check pydamage help message
         shell: bash -l {0}
         run: |
           pydamage --help
+      - name: Check pydamage on test data
+        shell: bash -l {0}
+        run: |
+          pydamage --verbose tests/data/aligned.bam
