@@ -4,28 +4,28 @@ on: [push]
 
 
 jobs:
-    build:
-        runs-on: 'ubuntu-latest'
-
-        steps:
-        - uses: actions/checkout@v2
-        - uses: goanpeca/setup-miniconda@v1
-            with:
-              activate-environment: anaconda-client-env
-              environment-file: environment.yml
-              python-version: 3.7
-              auto-activate-base: false
-        - name: Lint with flake8
-            shell: bash -l {0}
-            run: |
-            flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        - name: Test with pytest
-            shell: bash -l {0}
-            run: |
-            pip install pytest
-            pytest
-        - name: Install pydamage and check CLI
-            shell: bash -l {0}
-            run: |
-            python setup.py install
-            pydamage --help
+  pydamage_ci:
+    name: pydamage_ci
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: anaconda-client-env
+          environment-file: environment.yml
+          python-version: 3.7
+          auto-activate-base: false
+      - name: Lint with flake8
+        shell: bash -l {0}
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: Test with pytest
+        shell: bash -l {0}
+        run: |
+          pip install pytest
+          pytest
+      - name: Install pydamage and check CLI
+        shell: bash -l {0}
+        run: |
+          python setup.py install
+          pydamage --help
