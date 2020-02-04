@@ -43,7 +43,6 @@ def main(bam, wlen, show_al, mini, process, output, verbose):
         res = p.map(test_ct_partial, refs)
         filt_res = [i for i in res if i]
     df = pd.DataFrame(filt_res)
-    multipletests(df['pvalue'], method='fdr_bh')
     df['qvalue'] = multipletests(df['pvalue'], method='fdr_bh')[1]
     df = df[['unif_pmin', 'geom_p', 'geom_pmin',
              'geom_pmax', 'pvalue', 'qvalue', 'reference']]
