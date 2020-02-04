@@ -47,4 +47,5 @@ def main(bam, wlen, show_al, mini, process, output, verbose):
     df['qvalue'] = multipletests(df['pvalue'], method='fdr_bh')[1]
     df = df[['unif_pmin', 'geom_p', 'geom_pmin',
              'geom_pmax', 'pvalue', 'qvalue', 'reference']]
+    df.sort_values(by=['qvalue'], inplace=True)
     df.to_csv(output)
