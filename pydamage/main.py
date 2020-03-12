@@ -8,15 +8,22 @@ from . import damage
 import pandas as pd
 
 
-def main(bam, wlen, show_al, mini, process, output, verbose):
-    """Main function
+def analyze(bam, wlen=30, show_al=False, mini=2000, process=1, output="", verbose=False):
+    """Runs the pydamage analysis
 
     Args:
-        bam (str): Path to alignment (sam/bam/cram) file
-        wlen (int): window length
+        bam(str): Path to alignment (sam/bam/cram) file
+        wlen(int): window length
         show_al(bool): print alignments representations
+        mini(int):  Minimum numbers of reads aligned  to consider contigs
+        process(int):  Number of  processes for parellel computing
+        output(str): Path to output basename. No output written to disk if empty
         verbose(bool): verbose mode
+    Returns:
+        df(pd.DataFrame): pandas DataFrame containg pydamage results
+
     """
+
     mode = utils.check_extension(bam)
     alf = pysam.AlignmentFile(bam, mode)
     refs = list(alf.references)
@@ -47,4 +54,7 @@ def main(bam, wlen, show_al, mini, process, output, verbose):
     df = df[['unif_pmin', 'geom_p', 'geom_pmin',
              'geom_pmax', 'pvalue', 'qvalue', 'reference']]
     df.sort_values(by=['qvalue'], inplace=True)
-    df.to_csv(output)
+    df.set_index("reference", inplace=True)
+    if output:
+        df.to_csv(output+'.csv')
+    return(df)

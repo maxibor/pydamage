@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import click
-from .main import main
+from .main import analyze
 from . import __version__
 
 
@@ -34,11 +34,11 @@ from . import __version__
 @click.option('-o',
               '--output',
               type=click.Path(writable=True),
-              default="./contigs.csv",
+              default="./pydamage_contigs",
               show_default=True,
-              help="Output file")
+              help="Output file basename")
 def cli(no_args_is_help=True, **kwargs):
-    main(**kwargs)
+    analyze(**kwargs)
 
 
 if __name__ == "__main__":
