@@ -48,15 +48,21 @@ class al_to_ct():
 
 def test_ct(ref, bam, mode, wlen, show_al, min_al, process, verbose):
     al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
-    if al_handle.count(contig=ref) > min_al:
-        al = al_to_ct(reference=ref, al_handle=al_handle)
-        ct_data = al.get_ct(wlen=wlen, show_al=show_al)
-        if ct_data:
-            model_A = models.unif_mod()
-            model_B = models.geom_mod()
-            test_res = vuong_closeness(
-                ref=ref, model_A=model_A, model_B=model_B, data=ct_data, verbose=verbose)
-            test_res['reference'] = ref
-            return(test_res)
-    else:
+    try:
+        nb_reads_aligned = al_handle.count(contig=ref)
+        if nb_reads_aligned > min_al:
+            al = al_to_ct(reference=ref, al_handle=al_handle)
+            ct_data = al.get_ct(wlen=wlen, show_al=show_al)
+            if ct_data:
+                model_A = models.unif_mod()
+                model_B = models.geom_mod()
+                test_res = vuong_closeness(
+                    ref=ref, model_A=model_A, model_B=model_B, data=ct_data, verbose=verbose)
+                test_res['reference'] = ref
+                test_res['nb_reads_aligned'] = nb_reads_aligned
+                return(test_res)
+        else:
+            pass
+    except ValueError:
+        print(f"Could not fit a model for {ref} because of too few reads aligned ({nb_reads_aligned})")
         pass

@@ -52,7 +52,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, process=1, output="", verbos
     df = pd.DataFrame(filt_res)
     df['qvalue'] = multipletests(df['pvalue'], method='fdr_bh')[1]
     df = df[['unif_pmin', 'geom_p', 'geom_pmin',
-             'geom_pmax', 'pvalue', 'qvalue', 'reference']]
+             'geom_pmax', 'pvalue', 'qvalue', 'reference','nb_reads_aligned']]
     df.sort_values(by=['qvalue'], inplace=True)
     df.set_index("reference", inplace=True)
     if output:
