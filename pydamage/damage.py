@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import pysam
-from .parse_ct import ct_al
-from .vuong import vuong_closeness
-from . import models
+from pydamage.parse_ct import ct_al
+from pydamage.vuong import vuong_closeness
+from pydamage import models
 
 
 class al_to_ct():

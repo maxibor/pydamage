@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import pysam
-from . import utils
+from pydamage import utils
 import multiprocessing
 from functools import partial
 from statsmodels.stats.multitest import multipletests

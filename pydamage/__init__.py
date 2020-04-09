@@ -1,2 +1,2 @@
 __version__ = '0.0.1'
-from .main import analyze
+from pydamage.main import analyze

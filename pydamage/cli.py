@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import click
-from .main import analyze
-from . import __version__
+from pydamage.main import analyze
+from pydamage import __version__
 
 
 @click.command()

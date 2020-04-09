@@ -3,7 +3,7 @@
 import numpy as np
 from scipy.stats import norm
 import termplotlib as tpl
-from .optim import optim
+from pydamage.optim import optim
 
 
 def vuong_closeness(ref, model_A, model_B, data, wlen, verbose):
