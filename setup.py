@@ -15,7 +15,6 @@ setup(
         'click',
         'numpy',
         'pandas',
-        'pip',
         'pysam',
         'scipy',
         'statsmodels',
