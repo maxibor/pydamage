@@ -2,7 +2,6 @@
 
 import numpy as np
 from scipy.stats import norm
-import termplotlib as tpl
 from pydamage.optim import optim
 
 
@@ -30,6 +29,7 @@ def vuong_closeness(ref, model_A, model_B, data, wlen, verbose):
     Z = LR/(np.sqrt(len(data))*omega)
     pval = norm.cdf(Z)
     if verbose:
+        import termplotlib as tpl
         print(f"\nReference: {ref}")
         print(f"Vuong closeness test Z-score for {ref}: {round(Z, 4)}")
         print(f"Vuong closeness test p-value for {ref}: {round(pval, 4)}")
