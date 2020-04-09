@@ -6,6 +6,7 @@ from functools import partial
 from statsmodels.stats.multitest import multipletests
 from . import damage
 import pandas as pd
+import sys
 
 
 def analyze(bam, wlen=30, show_al=False, mini=2000, process=1, output="", verbose=False):
@@ -26,6 +27,12 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, process=1, output="", verbos
 
     mode = utils.check_extension(bam)
     alf = pysam.AlignmentFile(bam, mode)
+
+    if not alf.has_index():
+        print(f"BAM file {bam} has no index. Sort BAM file and provide index "
+               "before running pydamage.")
+        sys.exit(1)
+
     refs = list(alf.references)
 
     if len(refs) == 0:
