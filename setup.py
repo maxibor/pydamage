@@ -11,6 +11,16 @@ setup(
     long_description_content_type="text/markdown",
     license='GNU-GPLv3',
     python_requires=">=3.6",
+    install_requires=[
+        'click',
+        'numpy',
+        'pandas',
+        'pip',
+        'pysam',
+        'scipy',
+        'statsmodels',
+        'termplotlib'
+    ],
     packages=find_packages(include=['pydamage']),
     entry_points={
         'console_scripts': [
