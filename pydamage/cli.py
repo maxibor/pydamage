@@ -10,7 +10,7 @@ from . import __version__
 @click.argument('bam', type=click.Path(exists=True))
 @click.option('-w',
               '--wlen',
-              default=30,
+              default=20,
               type=int,
               show_default=True,
               help='Window length from beginning of read')
