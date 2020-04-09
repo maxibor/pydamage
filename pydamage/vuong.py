@@ -2,12 +2,14 @@
 
 import numpy as np
 from scipy.stats import norm
+import termplotlib as tpl
 from .optim import optim
 
 
-def vuong_closeness(ref, model_A, model_B, data, verbose):
+def vuong_closeness(ref, model_A, model_B, data, wlen, verbose):
     xdata, counts = np.unique(np.sort(data), return_counts=True)
-    ydata = counts/counts.sum()
+    ydata = list(counts/counts.sum())
+    ydata_counts = {i:c for i,c in enumerate(ydata)}
     res = {}
     optim_A = optim(function=model_A.pmf,
                     parameters=model_A.kwds,
@@ -29,10 +31,14 @@ def vuong_closeness(ref, model_A, model_B, data, verbose):
     pval = norm.cdf(Z)
     if verbose:
         print(f"\nReference: {ref}")
-        print(f"Vuong closeness test Z-score: {round(Z, 4)}")
-        print(f"Vuong closeness test p-value: {round(pval, 4)}")
-        print(f"Model A parameters: {optim_A}")
-        print(f"Model B parameters: {optim_B}")
+        print(f"Vuong closeness test Z-score for {ref}: {round(Z, 4)}")
+        print(f"Vuong closeness test p-value for {ref}: {round(pval, 4)}")
+        print(f"Model A parameters for {ref}: {optim_A}")
+        print(f"Model B parameters for {ref}: {optim_B}")
+        fig = tpl.figure()
+        fig.plot(list(ydata_counts.keys()), list(ydata_counts.values()), title=ref, width=50, height=15, )
+        fig.show()
+    res.update(ydata_counts)
     res.update(optim_A)
     res.update(optim_B)
     res.update({'pvalue': pval})

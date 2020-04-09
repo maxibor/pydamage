@@ -28,7 +28,7 @@ class al_to_ct():
 
         Args:
             wlen (int): window length
-            print_al(bool): print alignments representations
+            show_al(bool): print alignments representations
         """
 
         all_ct = []
@@ -56,8 +56,12 @@ def test_ct(ref, bam, mode, wlen, show_al, min_al, process, verbose):
             if ct_data:
                 model_A = models.unif_mod()
                 model_B = models.geom_mod()
-                test_res = vuong_closeness(
-                    ref=ref, model_A=model_A, model_B=model_B, data=ct_data, verbose=verbose)
+                test_res = vuong_closeness(ref=ref, 
+                                           model_A=model_A, 
+                                           model_B=model_B, 
+                                           data=ct_data, 
+                                           wlen=wlen, 
+                                           verbose=verbose)
                 test_res['reference'] = ref
                 test_res['nb_reads_aligned'] = nb_reads_aligned
                 return(test_res)
