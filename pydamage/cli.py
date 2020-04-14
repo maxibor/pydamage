@@ -19,13 +19,13 @@ from pydamage import __version__
               default=2,
               type=int,
               show_default=True,
-              help='Number of processes')
+              help='Number of processes/CPUs to use')
 @click.option('-m',
               '--mini',
               default=2000,
               type=int,
               show_default=True,
-              help='Minimum reads aligned to consider reference')
+              help='Minimum reads required to be aligned to a reference to estimate damage')
 @click.option('-s',
               '--show_al',
               is_flag=True,
