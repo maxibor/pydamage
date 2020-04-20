@@ -26,6 +26,12 @@ from pydamage import __version__
               type=int,
               show_default=True,
               help='Minimum reads aligned to consider reference')
+@click.option('-c',
+              '--cov',
+              default=0.5,
+              type=float,
+              show_default=True,
+              help='Minimum coverage to consider reference')
 @click.option('-s',
               '--show_al',
               is_flag=True,

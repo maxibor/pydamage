@@ -9,7 +9,7 @@ import pandas as pd
 import sys
 
 
-def analyze(bam, wlen=30, show_al=False, mini=2000, process=1, output="", verbose=False):
+def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, output="", verbose=False):
     """Runs the pydamage analysis
 
     Args:
@@ -53,7 +53,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, process=1, output="", verbos
     # print(all_res)
 
     test_ct_partial = partial(damage.test_ct, bam=bam, wlen=wlen,
-                              min_al=mini, show_al=show_al,
+                              min_al=mini, min_cov=cov, show_al=show_al,
                               mode=mode, process=process, verbose=verbose)
     with multiprocessing.Pool(proc) as p:
         res = p.map(test_ct_partial, refs)

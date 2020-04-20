@@ -4,7 +4,7 @@ import pysam
 from pydamage.parse_ct import ct_al
 from pydamage.vuong import vuong_closeness
 from pydamage import models
-
+import numpy as np
 
 class al_to_ct():
 
@@ -46,11 +46,22 @@ class al_to_ct():
         return(all_ct)
 
 
-def test_ct(ref, bam, mode, wlen, show_al, min_al, process, verbose):
+def avg_coverage(pysam_cov):
+    A = np.array(pysam_cov[0], dtype=int)
+    C = np.array(pysam_cov[1], dtype=int)
+    G = np.array(pysam_cov[2], dtype=int)
+    T = np.array(pysam_cov[3], dtype=int)
+    cov_all_bases = A + C + G + T
+    cov = np.mean(cov_all_bases)
+    return(cov)
+
+def test_ct(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose):
     al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
     try:
+        cov = avg_coverage(al_handle.count_coverage(contig=ref))
         nb_reads_aligned = al_handle.count(contig=ref)
-        if nb_reads_aligned > min_al:
+        
+        if nb_reads_aligned >= min_al or cov >= min_cov:
             al = al_to_ct(reference=ref, al_handle=al_handle)
             ct_data = al.get_ct(wlen=wlen, show_al=show_al)
             if ct_data:
