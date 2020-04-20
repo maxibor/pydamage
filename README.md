@@ -40,13 +40,18 @@ Usage: pydamage [OPTIONS] BAM
 
 Options:
   --version              Show the version and exit.
-  -w, --wlen INTEGER     Window length from beginning of read  [default: 30]
+  -w, --wlen INTEGER     Window length from beginning of read  [default: 20]
   -p, --process INTEGER  Number of processes  [default: 2]
   -m, --mini INTEGER     Minimum reads aligned to consider reference
                          [default: 2000]
+
+  -c, --cov FLOAT        Minimum coverage to consider reference  [default:
+                         0.5]
+
   -s, --show_al          Show alignments representations
   --verbose              Verbose mode
-  -o, --output PATH      Output file  [default: ./contigs.csv]
+  -o, --output PATH      Output file basename  [default: ./pydamage_contigs]
   --help                 Show this message and exit.
 ```
 
+> **pydamage logic: `n_reads >=minimum reads OR coverage >= minimum coverage`**

@@ -17,6 +17,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, output="
         wlen(int): window length
         show_al(bool): print alignments representations
         mini(int):  Minimum numbers of reads aligned  to consider contigs
+        cov(float): Minimum coverage to consider contig
         process(int):  Number of  processes for parellel computing
         output(str): Path to output basename. No output written to disk if empty
         verbose(bool): verbose mode
