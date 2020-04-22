@@ -9,6 +9,9 @@ def vuong_closeness(ref, model_A, model_B, data, wlen, verbose):
     xdata, counts = np.unique(np.sort(data), return_counts=True)
     ydata = list(counts/counts.sum())
     ydata_counts = {i:c for i,c in enumerate(ydata)}
+    for i in range(wlen):
+        if i not in ydata_counts:
+            ydata_counts[i] = np.nan
     res = {}
     optim_A = optim(function=model_A.pmf,
                     parameters=model_A.kwds,
@@ -36,7 +39,7 @@ def vuong_closeness(ref, model_A, model_B, data, wlen, verbose):
         print(f"Model A parameters for {ref}: {optim_A}")
         print(f"Model B parameters for {ref}: {optim_B}")
         fig = tpl.figure()
-        fig.plot(list(ydata_counts.keys()), list(ydata_counts.values()), title=ref, width=50, height=15, )
+        fig.plot(list(ydata_counts.keys()), list(ydata_counts.values()), title=ref, width=50, height=15)
         fig.show()
     res.update(ydata_counts)
     res.update(optim_A)
