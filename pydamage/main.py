@@ -4,12 +4,15 @@ from pydamage import utils
 import multiprocessing
 from functools import partial
 from statsmodels.stats.multitest import multipletests
-from . import damage
+from pydamage import damage
+from pydamage import plot as dmplot
 import pandas as pd
 import sys
+from tqdm import tqdm
+from os import makedirs
 
 
-def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, output="", verbose=False):
+def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="", plot = False, verbose=False):
     """Runs the pydamage analysis
 
     Args:
@@ -19,7 +22,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, output="
         mini(int):  Minimum numbers of reads aligned  to consider contigs
         cov(float): Minimum coverage to consider contig
         process(int):  Number of  processes for parellel computing
-        output(str): Path to output basename. No output written to disk if empty
+        outdir(str): Path to output directory
         verbose(bool): verbose mode
     Returns:
         df(pd.DataFrame): pandas DataFrame containg pydamage results
@@ -61,10 +64,24 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, output="
         filt_res = [i for i in res if i]
     df = pd.DataFrame(filt_res)
     df['qvalue'] = multipletests(df['pvalue'], method='fdr_bh')[1]
-    df = df[['unif_pmin', 'geom_p', 'geom_pmin',
-             'geom_pmax', 'pvalue', 'qvalue', 'reference','nb_reads_aligned']+[i for i in range(wlen)]]
+    df = df[['unif_pmin', 'unif_pmin_stdev', 
+             'geom_p', 'geom_p_stdev',
+             'geom_pmin', 'geom_pmin_stdev',
+             'geom_pmax', 'geom_pmax_stdev',
+             'pvalue', 
+             'qvalue', 
+             'reference',
+             'nb_reads_aligned']+[i for i in range(wlen)]]
     df.sort_values(by=['qvalue'], inplace=True)
     df.set_index("reference", inplace=True)
-    if output:
-        df.to_csv(output+'.csv')
+
+    makedirs(outdir, exist_ok=True)
+    df.to_csv(f"{outdir}/pydamage_results.csv")
+    if plot:
+        makedirs(f"{outdir}/plots", exist_ok=True)
+        print("Generating plots")
+        for ref in tqdm(filt_res):
+            toplot = dmplot.extract_plot_data(ref, wlen)
+            dmplot.plot_damage(outdir = f"{outdir}/plots", **toplot)
     return(df)
+    

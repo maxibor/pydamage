@@ -36,13 +36,17 @@ from pydamage import __version__
               '--show_al',
               is_flag=True,
               help='Show alignments representations')
+@click.option('-pl',
+              '--plot',
+              is_flag=True,
+              help='Make the damage plots')
 @click.option('--verbose', is_flag=True, help='Verbose mode')
 @click.option('-o',
-              '--output',
+              '--outdir',
               type=click.Path(writable=True),
-              default="./pydamage_contigs",
+              default="pydamage_results",
               show_default=True,
-              help="Output file basename")
+              help="Output directory")
 def cli(no_args_is_help=True, **kwargs):
     analyze(**kwargs)
 
