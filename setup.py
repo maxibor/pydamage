@@ -18,7 +18,7 @@ setup(
         'pysam',
         'scipy',
         'statsmodels',
-        'termplotlib'
+        'matplotlib'
     ],
     packages=find_packages(include=['pydamage']),
     entry_points={
