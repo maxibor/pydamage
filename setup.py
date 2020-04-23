@@ -18,7 +18,8 @@ setup(
         'pysam',
         'scipy',
         'statsmodels',
-        'matplotlib'
+        'matplotlib',
+        'tqdm'
     ],
     packages=find_packages(include=['pydamage']),
     entry_points={
