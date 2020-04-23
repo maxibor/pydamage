@@ -36,11 +36,12 @@ def test_geom_log_pmf(generate_data):
 
 def test_geom_optim(generate_data):
     g = models.geom_mod()
-    o = optim(function=g.pmf,
+    o, e = optim(function=g.pmf,
               parameters=g.kwds,
               xdata=generate_data[1],
               ydata=generate_data[2],
-              bounds=g.bounds)
+              bounds=g.bounds,
+              loss='linear')
 
     target = {'geom_p': 0.6039535547658853,
               'geom_pmin': 0.03637474931290336,
@@ -66,11 +67,12 @@ def test_unif_log_pmf(generate_data):
 
 def test_unif_optim(generate_data):
     u = models.unif_mod()
-    o = optim(function=u.pmf,
+    o, e = optim(function=u.pmf,
               parameters=u.kwds,
               xdata=generate_data[1],
               ydata=generate_data[2],
-              bounds=u.bounds)
+              bounds=u.bounds,
+              loss='linear')
     assert o == {'unif_pmin': 0.1}
 
 
