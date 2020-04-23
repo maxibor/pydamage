@@ -49,8 +49,9 @@ Options:
                          0.5]
 
   -s, --show_al          Show alignments representations
+  -pl, --plot            Make the damage plots
   --verbose              Verbose mode
-  -o, --output PATH      Output file basename  [default: ./pydamage_contigs]
+  -o, --outdir PATH      Output directory  [default: pydamage_results]
   --help                 Show this message and exit.
 ```
 
