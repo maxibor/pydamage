@@ -2,6 +2,7 @@
 
 
 from scipy.optimize import curve_fit
+from numpy import sqrt, diag
 
 
 def optim(function, parameters, xdata, ydata, bounds, loss='huber'):
@@ -15,8 +16,12 @@ def optim(function, parameters, xdata, ydata, bounds, loss='huber'):
                     ((par1_min, par2_min), (par1_max, par2_max))
         loss (str): loss function. See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html#scipy.optimize.least_squares
     Returns:
-        (dict): 'parameter_name':'parameter_value'
+        popt_dict (dict): 'parameter_name':'parameter_value'
+        perr_dict (dict): 'parameter_name':'standard_deviation'
+
     """
-    op_par = curve_fit(function, xdata=xdata, ydata=ydata, bounds=bounds, loss=loss)
-    op_par_dict = {k: v for (k, v) in zip(parameters, op_par[0])}
-    return(op_par_dict)
+    popt, pcov = curve_fit(function, xdata=xdata, ydata=ydata, bounds=bounds, loss=loss)
+    perr = sqrt(diag(pcov))
+    popt_dict = {k: v for (k, v) in zip(parameters, popt)}
+    perr_dict = {f"{k}_stdev": v for (k, v) in zip(parameters, perr)}
+    return(popt_dict, perr_dict)

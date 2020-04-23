@@ -13,12 +13,12 @@ def vuong_closeness(ref, model_A, model_B, data, wlen, verbose):
         if i not in ydata_counts:
             ydata_counts[i] = np.nan
     res = {}
-    optim_A = optim(function=model_A.pmf,
+    optim_A, stdev_A = optim(function=model_A.pmf,
                     parameters=model_A.kwds,
                     xdata=xdata,
                     ydata=ydata,
                     bounds=model_A.bounds)
-    optim_B = optim(function=model_B.pmf,
+    optim_B, stdev_B = optim(function=model_B.pmf,
                     parameters=model_B.kwds,
                     xdata=xdata,
                     ydata=ydata,
@@ -32,17 +32,15 @@ def vuong_closeness(ref, model_A, model_B, data, wlen, verbose):
     Z = LR/(np.sqrt(len(data))*omega)
     pval = norm.cdf(Z)
     if verbose:
-        import termplotlib as tpl
         print(f"\nReference: {ref}")
         print(f"Vuong closeness test Z-score for {ref}: {round(Z, 4)}")
         print(f"Vuong closeness test p-value for {ref}: {round(pval, 4)}")
         print(f"Model A parameters for {ref}: {optim_A}")
         print(f"Model B parameters for {ref}: {optim_B}")
-        fig = tpl.figure()
-        fig.plot(list(ydata_counts.keys()), list(ydata_counts.values()), title=ref, width=50, height=15)
-        fig.show()
     res.update(ydata_counts)
     res.update(optim_A)
+    res.update(stdev_A)
     res.update(optim_B)
+    res.update(stdev_B)
     res.update({'pvalue': pval})
     return(res)
