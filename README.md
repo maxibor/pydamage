@@ -1,8 +1,8 @@
-[![](https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg)](https://github.com/maxibor/pydamage/actions)
+# ![pydamage logo](docs/img/logo.png)
 
-<img src="docs/img/logo.png" alt="pydamage logo" width="200"/>
+[![pydamage CI](https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg)](https://github.com/maxibor/pydamage/actions)
 
-Pydamage, is a Python software to automate the process of contig damage identification and estimation. 
+Pydamage, is a Python software to automate the process of contig damage identification and estimation.
 It uses a process akin to a likelihood ratio test to attempt to discriminate between truly ancient, and modern contigs originating from sample contamination.
 
 ## Install
@@ -22,13 +22,13 @@ conda activate pydamage
 
 - from source
 
-```
+```bash
 python setup.py install
 ```
 
 - from Github using pip
 
-```
+```bash
 pip install git+ssh://git@github.com/maxibor/pydamage.git
 ```
 
