@@ -1,6 +1,6 @@
 name: pydamage_ci
 
-on: [push]
+on: [push, pull_request]
 
 
 jobs:
