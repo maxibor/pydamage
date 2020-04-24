@@ -5,7 +5,7 @@ import multiprocessing
 from functools import partial
 from statsmodels.stats.multitest import multipletests
 from pydamage import damage
-from pydamage import plot as dmplot
+from pydamage.plot import damageplot
 import pandas as pd
 import sys
 from tqdm import tqdm
@@ -78,10 +78,10 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     makedirs(outdir, exist_ok=True)
     df.to_csv(f"{outdir}/pydamage_results.csv")
     if plot:
-        makedirs(f"{outdir}/plots", exist_ok=True)
-        print("Generating plots")
+        print("\nGenerating pydamage plots")
         for ref in tqdm(filt_res):
-            toplot = dmplot.extract_plot_data(ref, wlen)
-            dmplot.plot_damage(outdir = f"{outdir}/plots", **toplot)
+            dam_plot = damageplot(damage_dict=ref, wlen=wlen, outdir=outdir)
+            dam_plot.makedir()
+            dam_plot.draw()
     return(df)
     
