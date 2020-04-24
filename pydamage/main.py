@@ -48,7 +48,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     # Simple loop for debugging
     # all_res = []
     # for ref in refs:
-    #     res = damage.test_ct(bam=bam, ref=ref, wlen=wlen,
+    #     res = damage.test_damage(bam=bam, ref=ref, wlen=wlen,
     #                          min_al=mini, show_al=show_al,
     #                          mode=mode, process=process, verbose=verbose)
     #     if res:
@@ -56,11 +56,11 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     
     # print(all_res)
 
-    test_ct_partial = partial(damage.test_ct, bam=bam, wlen=wlen,
+    test_damage_partial = partial(damage.test_damage, bam=bam, wlen=wlen,
                               min_al=mini, min_cov=cov, show_al=show_al,
                               mode=mode, process=process, verbose=verbose)
     with multiprocessing.Pool(proc) as p:
-        res = p.map(test_ct_partial, refs)
+        res = p.map(test_damage_partial, refs)
         filt_res = [i for i in res if i]
     df = pd.DataFrame(filt_res)
     df['qvalue'] = multipletests(df['pvalue'], method='fdr_bh')[1]
@@ -71,7 +71,10 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
              'pvalue', 
              'qvalue', 
              'reference',
-             'nb_reads_aligned']+[i for i in range(wlen)]]
+             'nb_reads_aligned',
+             'coverage']+
+             [f"CtoT-{i}" for i in range(wlen)]+
+             [f"GtoA-{i}" for i in range(wlen)]]
     df.sort_values(by=['qvalue'], inplace=True)
     df.set_index("reference", inplace=True)
 

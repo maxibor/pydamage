@@ -16,6 +16,8 @@ class damageplot():
 
         self.x = np.array(range(wlen))
         self.y = np.array([damage_dict[i] for i in self.x])
+        self.c2t = np.array([damage_dict[f"CtoT-{i}"] for i in self.x])
+        self.g2a = np.array([damage_dict[f"GtoA-{i}"] for i in self.x])
         self.unif_pmin = damage_dict['unif_pmin']
         self.unif_pmin_stdev = damage_dict['unif_pmin_stdev']
         self.geom_p = damage_dict['geom_p']
@@ -23,8 +25,11 @@ class damageplot():
         self.geom_pmin_stdev = damage_dict['geom_pmin_stdev']
         self.geom_pmax = damage_dict['geom_pmax']
         self.geom_pmax_stdev = damage_dict['geom_pmax_stdev']
-        self.contig = damage_dict['reference'] 
+        self.contig = damage_dict['reference']
+        self.pvalue = damage_dict['pvalue']
+        self.coverage = damage_dict['coverage']
         self.outdir = outdir
+        
 
     def makedir(self):
         self.plotdir = f"{self.outdir}/plots"
@@ -33,6 +38,12 @@ class damageplot():
     def draw(self):
         """Draw pydamage plots
         """   
+
+        if self.pvalue < 0.001:
+            self.rpval = "<0.001"
+        else:
+            self.rpval = f"={round(self.pvalue,3)}"
+
 
         unif = unif_mod()
         unif_pmin_low = max(unif.bounds[0][0], self.unif_pmin - 2*self.unif_pmin_stdev)
@@ -56,10 +67,15 @@ class damageplot():
         ax.xaxis.labelpad = 20
         ax.yaxis.labelpad = 20
 
-        plt.plot(self.x, self.y,
-                'o',
-                label='Observed damage')
-        # plt.hold(True)
+        plt.plot(self.x, self.c2t,
+                color='red',
+                alpha=0.1,
+                label='C to T transitions')
+
+        plt.plot(self.x, self.g2a,
+                color='blue',
+                alpha=0.1,
+                label='G to A transitions')
 
         plt.plot(self.x, y_unif, 
             linewidth=2.5, 
@@ -84,9 +100,12 @@ class damageplot():
             alpha=0.1,
             label = 'Geometric CI (2 sigma)'
         )
+
         plt.xlabel("Base from 5'", fontsize=20)
         plt.ylabel("Damage proportion", fontsize=20)
-        plt.title(self.contig, fontsize=20)
-        ax.legend(fontsize=18)
+        plt.suptitle(f"{self.contig}", fontsize=20, y=0.95)
+        plt.title(f"coverage: {round(self.coverage,2)} | pvalue{self.rpval}",fontsize=12)
+        plt.xticks(rotation=45, fontsize=8)
+        ax.legend(fontsize=12)
         ax.set_xticks(self.x)
         plt.savefig(f"{self.plotdir}/{self.contig}.png", dpi=200)
