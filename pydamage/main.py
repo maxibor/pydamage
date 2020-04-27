@@ -24,7 +24,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
         verbose(bool): verbose mode
         force(bool): force overwriting of results directory
     Returns:
-        df(pd.DataFrame): pandas DataFrame containg pydamage results
+        pd.DataFrame: pandas DataFrame containg pydamage results
 
     """
     if verbose:

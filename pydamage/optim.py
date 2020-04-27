@@ -16,8 +16,8 @@ def optim(function, parameters, xdata, ydata, bounds, loss='huber'):
                     ((par1_min, par2_min), (par1_max, par2_max))
         loss (str): loss function. See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html#scipy.optimize.least_squares
     Returns:
-        popt_dict (dict): 'parameter_name':'parameter_value'
-        perr_dict (dict): 'parameter_name':'standard_deviation'
+        dict: popt_dict - 'parameter_name':'parameter_value'
+        dict: perr_dict - 'parameter_name':'standard_deviation'
 
     """
     popt, pcov = curve_fit(function, xdata=xdata, ydata=ydata, bounds=bounds, loss=loss)

@@ -31,7 +31,7 @@ class geom_mod():
             geom_pmin (float): min y value
             geom_pmax (float): max y value
         Returns:
-            (numpy array): PMF(x)
+            np.array: PMF(x)
         """
         base_geom = ((1-geom_p)**x)*geom_p
         xmin = min(base_geom)
@@ -49,7 +49,7 @@ class geom_mod():
             geom_pmin (float): min y value
             geom_pmax (float): max y value
         Returns:
-            (numpy array): LogPMF(x)
+            np.array: LogPMF(x)
         """
         return(np.log(self.pmf(x=x, geom_p=geom_p, geom_pmin=geom_pmin, geom_pmax=geom_pmax)))
 
@@ -76,7 +76,7 @@ class unif_mod():
             x (numpy array) data
             unif_pmin (float): target y value
         Returns:
-            (numpy array): PMF(x)
+            np.array: PMF(x)
         """
         return(np.array([unif_pmin]*len(x)))
 
@@ -87,6 +87,6 @@ class unif_mod():
             x (numpy array) data
             geom_pmin (float): target y value
         Returns:
-            (numpy array): LogPMF(x)
+            np.array: LogPMF(x)
         """
         return(np.log(self.pmf(x=x, unif_pmin=unif_pmin)))

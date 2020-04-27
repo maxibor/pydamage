@@ -30,8 +30,8 @@ class al_to_damage():
             wlen (int): window length
             show_al(bool): print alignments representations
         Returns:
-            all_ct(list): positions of reads with CtoT transitions
-            all_ga(list): positions of reads with GtoA transitions
+            list: all_ct - positions of reads with CtoT transitions
+            list: all_ga - positions of reads with GtoA transitions
         """
 
         all_ct = []

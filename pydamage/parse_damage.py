@@ -11,8 +11,7 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
         wlen (int): window length
         print_al (bool): print alignment
     Returns:
-        CT (list): list of CtoT positions
-        GA (list): list of GtoA positions
+        dict : {'CT': list of CtoT positions, 'GA': list of GtoA positions}
     """
     r_pos = 0
     q_pos = 0
