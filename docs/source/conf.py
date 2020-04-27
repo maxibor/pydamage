@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
+    'sphinx_click.ext',
     'recommonmark'
 ]
 

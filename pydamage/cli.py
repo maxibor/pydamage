@@ -4,7 +4,6 @@ import click
 from pydamage.main import analyze
 from pydamage import __version__
 
-
 @click.command()
 @click.version_option(__version__)
 @click.argument('bam', type=click.Path(exists=True))

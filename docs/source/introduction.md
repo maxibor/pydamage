@@ -32,3 +32,13 @@ python setup.py install
 ```bash
 pip install git+ssh://git@github.com/maxibor/pydamage.git
 ```
+
+## CLI help
+
+Command line interface help message
+
+```bash
+pydamage --help
+```
+
+See also [CLI](CLI)
