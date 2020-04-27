@@ -1,4 +1,4 @@
-# ![pydamage logo](docs/img/logo.png)
+# [![pydamage logo](docs/img/logo.png)](https://github.com/maxibor/pydamage)
 
 [![pydamage CI](https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg)](https://github.com/maxibor/pydamage/actions) [![Documentation Status](https://readthedocs.org/projects/pydamage/badge/?version=latest)](https://pydamage.readthedocs.io/en/latest/?badge=latest)
 
