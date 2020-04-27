@@ -41,7 +41,7 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
             r_pos += c[1]
             q_pos = q_pos
 
-    for i in range(0, min(wlen, len(r_string))):
+    for i in range(len(r_string)):
         r_char = r_string[i].upper()
         q_char = q_string[i].upper()
         if r_char != q_char:

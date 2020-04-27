@@ -8,6 +8,7 @@ from pydamage.optim import optim
 def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, wlen, verbose):
     xdata, counts = np.unique(np.sort(ct_data), return_counts=True)
     ydata = list(counts/counts.sum())
+    qlen = len(ydata)
     ydata_counts = {i:c for i,c in enumerate(ydata)}
     # print(ydata_counts)
     ctot_out = {f"CtoT-{k}":v for k,v in enumerate(ydata)}
@@ -17,13 +18,18 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, wlen, verbose):
     y_ga_counts = {i:c for i,c in enumerate(y_ga)}
     gtoa_out = {f"GtoA-{k}":v for k,v in enumerate(y_ga)}
 
-    for i in range(wlen):
+    for i in range(qlen):
         if i not in ydata_counts:
             ydata_counts[i] = np.nan
         if f"CtoT-{i}" not in ctot_out:
             ctot_out[f"CtoT-{i}"] = np.nan
         if f"GtoA-{i}" not in gtoa_out:
             gtoa_out[f"GtoA-{i}"] = np.nan
+
+    xdata = xdata[:wlen]
+    ydata = ydata[:wlen]
+    ct_data = np.array(ct_data)
+    ct_data = ct_data[ct_data<wlen]
 
     res = {}
     optim_A, stdev_A = optim(function=model_A.pmf,
@@ -58,4 +64,5 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, wlen, verbose):
     res.update(optim_B)
     res.update(stdev_B)
     res.update({'pvalue': pval})
+    res['qlen'] = qlen
     return(res)

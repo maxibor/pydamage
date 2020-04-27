@@ -73,17 +73,18 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
              'reference',
              'nb_reads_aligned',
              'coverage']+
-             [f"CtoT-{i}" for i in range(wlen)]+
-             [f"GtoA-{i}" for i in range(wlen)]]
+             [f"CtoT-{i}" for i in range(df['qlen'].max())]+
+             [f"GtoA-{i}" for i in range(df['qlen'].max())]]
     df.sort_values(by=['qvalue'], inplace=True)
     df.set_index("reference", inplace=True)
+    df.dropna(axis=1, how='all', inplace=True)
 
     makedirs(outdir, exist_ok=True)
     df.to_csv(f"{outdir}/pydamage_results.csv")
     if plot:
         print("\nGenerating pydamage plots")
         for ref in tqdm(filt_res):
-            dam_plot = damageplot(damage_dict=ref, wlen=wlen, outdir=outdir)
+            dam_plot = damageplot(damage_dict=ref, wlen=wlen, qlen = ref['qlen'], outdir=outdir)
             dam_plot.makedir()
             dam_plot.draw()
     return(df)

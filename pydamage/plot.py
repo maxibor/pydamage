@@ -5,19 +5,21 @@ from os import makedirs
 
 
 class damageplot():
-    def __init__(self, damage_dict, wlen, outdir):
+    def __init__(self, damage_dict, wlen, qlen, outdir):
         """Class constructor getting damage dict
         
         Args:
             damage_dict(dict): pydamage result dictionary
             wlen(int): window length
+            qlen(int): query length
             outdir(str): Pydamage result directory
         """        
 
         self.x = np.array(range(wlen))
+        self.qlen = np.array(range(qlen))
         self.y = np.array([damage_dict[i] for i in self.x])
-        self.c2t = np.array([damage_dict[f"CtoT-{i}"] for i in self.x])
-        self.g2a = np.array([damage_dict[f"GtoA-{i}"] for i in self.x])
+        self.c2t = np.array([damage_dict[f"CtoT-{i}"] for i in self.qlen])
+        self.g2a = np.array([damage_dict[f"GtoA-{i}"] for i in self.qlen])
         self.unif_pmin = damage_dict['unif_pmin']
         self.unif_pmin_stdev = damage_dict['unif_pmin_stdev']
         self.geom_p = damage_dict['geom_p']
@@ -67,39 +69,37 @@ class damageplot():
         ax.xaxis.labelpad = 20
         ax.yaxis.labelpad = 20
 
-        plt.plot(self.x, self.c2t,
-                color='red',
+        plt.plot(self.qlen, self.c2t,
+                color='#bd0d45',
                 alpha=0.1,
                 label='C to T transitions')
 
-        plt.plot(self.x, self.g2a,
-                color='blue',
+        plt.plot(self.qlen, self.g2a,
+                color='#236cf5',
                 alpha=0.1,
                 label='G to A transitions')
 
         plt.plot(self.x, y_unif, 
             linewidth=2.5, 
-            color = 'IndianRed',
+            color = 'DarkOliveGreen',
             alpha = 0.8,
-            label = 'Uniform model'
-        )
+            label = 'Uniform model')
+
         plt.fill_between(self.x, y_unif_low, y_unif_high,
-            color='IndianRed',
+            color='DarkOliveGreen',
             alpha=0.1,
-            label = 'Uniform CI (2 sigma)'
-        )
+            label = 'Uniform CI (2 sigma)')
 
         plt.plot(self.x, y_geom,
                 linewidth=2.5, 
-                color = 'DarkOliveGreen',
+                color = '#D7880F',
                 alpha = 0.8,
-                label = 'Geometric model'
-        )
+                label = 'Geometric model')
+
         plt.fill_between(self.x, y_geom_low, y_geom_high,
-            color='DarkOliveGreen',
+            color='#D7880F',
             alpha=0.1,
-            label = 'Geometric CI (2 sigma)'
-        )
+            label = 'Geometric CI (2 sigma)')
 
         plt.xlabel("Base from 5'", fontsize=20)
         plt.ylabel("Damage proportion", fontsize=20)
@@ -107,5 +107,5 @@ class damageplot():
         plt.title(f"coverage: {round(self.coverage,2)} | pvalue{self.rpval}",fontsize=12)
         plt.xticks(rotation=45, fontsize=8)
         ax.legend(fontsize=12)
-        ax.set_xticks(self.x)
+        ax.set_xticks(self.qlen)
         plt.savefig(f"{self.plotdir}/{self.contig}.png", dpi=200)
