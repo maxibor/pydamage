@@ -52,6 +52,14 @@ from pydamage import __version__
               help='Force overwriting of results directory')
     
 def cli(no_args_is_help=True, **kwargs):
+    """\b
+    PyDamage: Damage parameter estimation for ancient DNA
+    Author: Maxime Borry
+    Contact: <borry[at]shh.mpg.de>
+    Homepage & Documentation: github.com/maxibor/pydamage
+
+    BAM: path to BAM/SAM/CRAM alignment file
+    """
     analyze(**kwargs)
 
 
