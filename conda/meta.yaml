@@ -1,0 +1,42 @@
+{% set version = "0.1" %}
+
+package:
+  name: pydamage
+  version: {{ version }}
+
+source:
+  git_rev: {{ version }}
+  git_url: https://github.com/maxibor/pydamage.git
+
+build:
+  number: 0
+  skip: true  # [win and py27 or win32]
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - pip
+  run:
+    - python>=3.7.6
+    - click>=7.0
+    - numpy>=1.17.5
+    - pandas>=1.0.0
+    - pip>=20.0.2
+    - pysam>=0.15.4
+    - scipy>=1.4.1
+    - statsmodels>=0.11.0
+    - matplotlib>=3.1.1
+    - tqdm>=4.45.0
+    
+test:
+  commands:
+    - pydamage --help
+
+about:
+  home: https://github.com/maxibor/pydamage
+  license: GPL-3.0
+  summary: 'Damage parameter estimation for ancient DNA'
+
+# Build using: conda build .
