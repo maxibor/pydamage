@@ -15,6 +15,7 @@ __ homepage_
    :maxdepth: 2
    :caption: Contents:
 
+   introduction
    API
    CLI
 
