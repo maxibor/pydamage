@@ -3,16 +3,14 @@ import pysam
 from pydamage import utils
 import multiprocessing
 from functools import partial
-from statsmodels.stats.multitest import multipletests
 from pydamage import damage
 from pydamage.plot import damageplot
 import pandas as pd
 import sys
 from tqdm import tqdm
-from os import makedirs
+from pydamage import __version__
 
-
-def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="", plot = False, verbose=False):
+def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="", plot = False, verbose=False, force=False):
     """Runs the pydamage analysis
 
     Args:
@@ -24,10 +22,14 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
         process(int):  Number of  processes for parellel computing
         outdir(str): Path to output directory
         verbose(bool): verbose mode
+        force(bool): force overwriting of results directory
     Returns:
         df(pd.DataFrame): pandas DataFrame containg pydamage results
 
     """
+    if verbose:
+        print(f"Pydamage version {__version__}\n")
+    utils.makedir(outdir, force=force)
 
     mode = utils.check_extension(bam)
     alf = pysam.AlignmentFile(bam, mode)
@@ -62,30 +64,12 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     with multiprocessing.Pool(proc) as p:
         res = p.map(test_damage_partial, refs)
         filt_res = [i for i in res if i]
-    df = pd.DataFrame(filt_res)
-    df['qvalue'] = multipletests(df['pvalue'], method='fdr_bh')[1]
-    df = df[['unif_pmin', 'unif_pmin_stdev', 
-             'geom_p', 'geom_p_stdev',
-             'geom_pmin', 'geom_pmin_stdev',
-             'geom_pmax', 'geom_pmax_stdev',
-             'pvalue', 
-             'qvalue', 
-             'reference',
-             'nb_reads_aligned',
-             'coverage']+
-             [f"CtoT-{i}" for i in range(df['qlen'].max())]+
-             [f"GtoA-{i}" for i in range(df['qlen'].max())]]
-    df.sort_values(by=['qvalue'], inplace=True)
-    df.set_index("reference", inplace=True)
-    df.dropna(axis=1, how='all', inplace=True)
-
-    makedirs(outdir, exist_ok=True)
-    df.to_csv(f"{outdir}/pydamage_results.csv")
     if plot:
         print("\nGenerating pydamage plots")
         for ref in tqdm(filt_res):
             dam_plot = damageplot(damage_dict=ref, wlen=wlen, qlen = ref['qlen'], outdir=outdir)
             dam_plot.makedir()
             dam_plot.draw()
+    df = utils.pandas_processing(res_dict=filt_res, outdir=outdir)
     return(df)
     

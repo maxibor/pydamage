@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from pydamage.models import geom_mod, unif_mod
+from pydamage import utils
 import numpy as np
 from os import makedirs
 
@@ -35,7 +36,7 @@ class damageplot():
 
     def makedir(self):
         self.plotdir = f"{self.outdir}/plots"
-        makedirs(self.plotdir, exist_ok=True)
+        utils.makedir(self.plotdir, confirm=False)
 
     def draw(self):
         """Draw pydamage plots

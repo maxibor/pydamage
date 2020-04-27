@@ -13,7 +13,7 @@ from pydamage import __version__
               default=20,
               type=int,
               show_default=True,
-              help='Window length from beginning of read')
+              help='Window length for damage modeling')
 @click.option('-p',
               '--process',
               default=2,
@@ -43,10 +43,14 @@ from pydamage import __version__
 @click.option('--verbose', is_flag=True, help='Verbose mode')
 @click.option('-o',
               '--outdir',
-              type=click.Path(writable=True),
+              type=click.Path(writable=True, dir_okay=True),
               default="pydamage_results",
               show_default=True,
               help="Output directory")
+@click.option('--force', 
+              is_flag=True, 
+              help='Force overwriting of results directory')
+    
 def cli(no_args_is_help=True, **kwargs):
     analyze(**kwargs)
 
