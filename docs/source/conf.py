@@ -14,12 +14,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
-source_parsers = {
-    '.md': 'recommonmark.parser.CommonMarkParser',
-}
-
-
-
 # -- Project information -----------------------------------------------------
 
 project = 'pydamage'
