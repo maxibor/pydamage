@@ -34,6 +34,8 @@ def makedir(dirpath, confirm=True, force=False):
 
 def pandas_processing(res_dict, outdir):
     df = pd.DataFrame(res_dict)
+    if len(res_dict) == 0:
+        return(df)
     df['qvalue'] = multipletests(df['pvalue'], method='fdr_bh')[1]
     df = df[['unif_pmin', 'unif_pmin_stdev', 
              'geom_p', 'geom_p_stdev',

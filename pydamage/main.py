@@ -64,7 +64,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     with multiprocessing.Pool(proc) as p:
         res = p.map(test_damage_partial, refs)
         filt_res = [i for i in res if i]
-    if plot:
+    if plot and len(filt_res) > 0:
         print("\nGenerating pydamage plots")
         for ref in tqdm(filt_res):
             dam_plot = damageplot(damage_dict=ref, wlen=wlen, qlen = ref['qlen'], outdir=outdir)

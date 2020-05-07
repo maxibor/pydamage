@@ -6,7 +6,7 @@ import numpy as np
 class geom_mod():
     def __init__(self):
         self.kwds = ['geom_p', 'geom_pmin', 'geom_pmax']
-        self.bounds = ((0.01, 0., 0.01), (0.99, 0.2, 0.99))
+        self.bounds = ((0.001, 0.001, 0.001), (0.99, 0.2, 0.99))
 
     def __repr__(self):
         return(
@@ -57,7 +57,7 @@ class geom_mod():
 class unif_mod():
     def __init__(self):
         self.kwds = ('unif_pmin',)
-        self.bounds = ((0.,), (0.2,))
+        self.bounds = ((0.001,), (0.2,))
 
     def __repr__(self):
         return(

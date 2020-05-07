@@ -62,11 +62,22 @@ def avg_coverage(pysam_cov):
     cov = np.mean(cov_all_bases)
     return(cov)
 
+def check_model_fit(model_dict, wlen):
+    # Check that no fitted parameters or stdev are infinite
+    if np.inf in model_dict.values() or -np.inf in model_dict.values():
+        return(False)
+
+    # Check that references have at least reads aligned on the first n wlen bases
+    if not all(i in model_dict.keys() for i in list(range(wlen))):
+        return(False)
+    return(model_dict)
+
 def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose):
     al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
     try:
         cov = avg_coverage(al_handle.count_coverage(contig=ref))
         nb_reads_aligned = al_handle.count(contig=ref)
+        reflen = al_handle.get_reference_length(ref)
         
         if nb_reads_aligned >= min_al or cov >= min_cov:
             al = al_to_damage(reference=ref, al_handle=al_handle)
@@ -84,9 +95,11 @@ def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose
                 test_res['reference'] = ref
                 test_res['nb_reads_aligned'] = nb_reads_aligned
                 test_res['coverage'] = cov
-                return(test_res)
+                return(check_model_fit(test_res, wlen))
         else:
             pass
-    except ValueError:
-        print(f"Could not fit a model for {ref} because of too few reads aligned ({nb_reads_aligned})")
-        pass
+    except ValueError as e:
+        print(f"Could not fit a model for {ref} because of too few reads aligned")
+        print(f"Model fitting error: {e}")
+        print(f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
+        return(False)
