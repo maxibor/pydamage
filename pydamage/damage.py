@@ -97,9 +97,13 @@ def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose
                 test_res['coverage'] = cov
                 return(check_model_fit(test_res, wlen))
         else:
+            if verbose:
+                print(f"Did not attempt to fit a model to {ref} because of too few reads aligned")
+                print(f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
             pass
     except ValueError as e:
-        print(f"Could not fit a model for {ref} because of too few reads aligned")
-        print(f"Model fitting error: {e}")
-        print(f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
+        if verbose:
+            print(f"Model fitting for {ref} failed because of too few reads aligned")
+            print(f"Model fitting error: {e}")
+            print(f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
         return(False)

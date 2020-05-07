@@ -21,13 +21,13 @@ from pydamage import __version__
               help='Number of processes')
 @click.option('-m',
               '--mini',
-              default=2000,
+              default=1000,
               type=int,
               show_default=True,
               help='Minimum reads aligned to consider reference')
 @click.option('-c',
               '--cov',
-              default=0.5,
+              default=8,
               type=float,
               show_default=True,
               help='Minimum coverage to consider reference')

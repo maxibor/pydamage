@@ -8,6 +8,7 @@ from pydamage.plot import damageplot
 import pandas as pd
 import sys
 from tqdm import tqdm
+import warnings
 from pydamage import __version__
 
 def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="", plot = False, verbose=False, force=False):
@@ -30,6 +31,9 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     if verbose:
         print(f"Pydamage version {__version__}\n")
     utils.makedir(outdir, force=force)
+
+    if not verbose:
+        warnings.filterwarnings("ignore")
 
     mode = utils.check_extension(bam)
     alf = pysam.AlignmentFile(bam, mode)
@@ -61,8 +65,9 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     test_damage_partial = partial(damage.test_damage, bam=bam, wlen=wlen,
                               min_al=mini, min_cov=cov, show_al=show_al,
                               mode=mode, process=process, verbose=verbose)
+    print("Estimating and testing Damage")
     with multiprocessing.Pool(proc) as p:
-        res = p.map(test_damage_partial, refs)
+        res = tqdm(p.imap(test_damage_partial, refs), total = len(refs))
         filt_res = [i for i in res if i]
     if plot and len(filt_res) > 0:
         print("\nGenerating pydamage plots")

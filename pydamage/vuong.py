@@ -50,12 +50,12 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, wlen, verbose):
     omega = np.std(LA-LB)
     Z = LR/(np.sqrt(len(ct_data))*omega)
     pval = norm.cdf(Z)
-    if verbose:
-        print(f"\nReference: {ref}")
-        print(f"Vuong closeness test Z-score for {ref}: {round(Z, 4)}")
-        print(f"Vuong closeness test p-value for {ref}: {round(pval, 4)}")
-        print(f"Model A parameters for {ref}: {optim_A}")
-        print(f"Model B parameters for {ref}: {optim_B}")
+    # if verbose:
+    #     print(f"\nReference: {ref}")
+    #     print(f"Vuong closeness test Z-score for {ref}: {round(Z, 4)}")
+    #     print(f"Vuong closeness test p-value for {ref}: {round(pval, 4)}")
+    #     print(f"Model A parameters for {ref}: {optim_A}")
+    #     print(f"Model B parameters for {ref}: {optim_B}")
     res.update(ydata_counts)
     res.update(ctot_out)
     res.update(gtoa_out)
