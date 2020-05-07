@@ -31,12 +31,7 @@ class damageplot():
         self.contig = damage_dict['reference']
         self.pvalue = damage_dict['pvalue']
         self.coverage = damage_dict['coverage']
-        self.outdir = outdir
-        
-
-    def makedir(self):
-        self.plotdir = f"{self.outdir}/plots"
-        utils.makedir(self.plotdir, confirm=False)
+        self.plotdir = outdir
 
     def draw(self):
         """Draw pydamage plots

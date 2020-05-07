@@ -74,9 +74,11 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
 
     if plot and len(filt_res) > 0:
         print("\nGenerating Pydamage plots")
+        plotdir = f"{outdir}/plots"
+        utils.makedir(plotdir, confirm=False)
+
         for ref in tqdm(filt_res):
-            dam_plot = damageplot(damage_dict=ref, wlen=wlen, qlen = ref['qlen'], outdir=outdir)
-            dam_plot.makedir()
+            dam_plot = damageplot(damage_dict=ref, wlen=wlen, qlen = ref['qlen'], outdir=plotdir)
             dam_plot.draw()
     df = utils.pandas_processing(res_dict=filt_res, outdir=outdir)
     return(df)
