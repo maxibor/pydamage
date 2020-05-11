@@ -3,28 +3,62 @@
 import numpy as np
 from scipy.stats import norm
 from pydamage.optim import optim
+import collections
+from pydamage.utils import sort_dict_by_keys
 
+def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, verbose):
+    """Performs model fitting and runs Vuong's closeness test
 
-def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, wlen, verbose):
-    xdata, counts = np.unique(np.sort(ct_data), return_counts=True)
+    Args:
+        ref (str): name of referene in alignment file
+        model_A (pydamage.models): Pydamage H1 model
+        model_B (pydamage.models): Pydamage H0 model
+        ct_data (list of int): List of positions where CtoT transitions were observerd
+        ga_data (list of int): List of positions where GtoA transitions were observerd
+        all_bases (list of int): List of positions where a base is aligned
+        wlen (int): window length
+        verbose (bool): verbose mode
+    """
+    all_bases_pos, all_bases_counts = np.unique(np.sort(all_bases), return_counts=True)
+    c2t_pos, c2t_counts = np.unique(np.sort(ct_data), return_counts=True)
+    g2a_pos, g2a_counts = np.unique(np.sort(ga_data), return_counts=True)
+    c2t = dict(zip(c2t_pos, c2t_counts))
+    g2a = dict(zip(g2a_pos, g2a_counts))
+
+    # Adding zeros at positions where no damage is observed
+    for i in all_bases_pos:
+        if all_bases_counts[i] > 0:
+            if i not in c2t:
+                c2t[i] = 0
+            if i not in g2a:
+                g2a[i] = 0
+    c2t = sort_dict_by_keys(c2t)
+    g2a = sort_dict_by_keys(g2a)
+
+    xdata = np.array(list(c2t.keys()))
+    counts = np.array(list(c2t.values()))
+
     ydata = list(counts/counts.sum())
     qlen = len(ydata)
     ydata_counts = {i:c for i,c in enumerate(ydata)}
-    # print(ydata_counts)
     ctot_out = {f"CtoT-{k}":v for k,v in enumerate(ydata)}
     
-    ga_pos, ga_counts = np.unique(np.sort(ga_data), return_counts=True)
-    y_ga = list(ga_counts/ga_counts.sum())
-    y_ga_counts = {i:c for i,c in enumerate(y_ga)}
+    g2a_counts = np.array(list(g2a.values()))
+    y_ga = list(g2a_counts/g2a_counts.sum())
+    y_g2a_counts = {i:c for i,c in enumerate(y_ga)}
     gtoa_out = {f"GtoA-{k}":v for k,v in enumerate(y_ga)}
 
+   
+    # for i in all_bases_pos:
+    #     print(f"{ref},{i},{all_bases_counts[i]}")
     for i in range(qlen):
-        if i not in ydata_counts:
+        if i not in ydata_counts :
             ydata_counts[i] = np.nan
         if f"CtoT-{i}" not in ctot_out:
             ctot_out[f"CtoT-{i}"] = np.nan
         if f"GtoA-{i}" not in gtoa_out:
             gtoa_out[f"GtoA-{i}"] = np.nan
+
 
     xdata = xdata[:wlen]
     ydata = ydata[:wlen]
@@ -64,5 +98,7 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, wlen, verbose):
     res.update(optim_B)
     res.update(stdev_B)
     res.update({'pvalue': pval})
+    res.update({'base_cov': all_bases_counts})
+    res.update({'model_params': list(optim_A.values()) + list(optim_B.values())+list(stdev_A.values())+list(stdev_B.values())})
     res['qlen'] = qlen
     return(res)

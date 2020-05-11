@@ -50,17 +50,20 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
         return([])
 
     proc = min(len(refs), process)
-
+    
+    ###########################
     # Simple loop for debugging
-    # all_res = []
+    ###########################
+    # filt_res = []
     # for ref in refs:
     #     res = damage.test_damage(bam=bam, ref=ref, wlen=wlen,
-    #                          min_al=mini, show_al=show_al,
+    #                          min_al=mini,  min_cov=cov, show_al=show_al,
     #                          mode=mode, process=process, verbose=verbose)
     #     if res:
-    #         all_res.append(res)
+    #         filt_res.append(res)
+    ###########################
+    ###########################
     
-    # print(all_res)
 
     test_damage_partial = partial(damage.test_damage, bam=bam, wlen=wlen,
                               min_al=mini, min_cov=cov, show_al=show_al,
@@ -70,6 +73,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
         res = tqdm(p.imap(test_damage_partial, refs), total = len(refs))
         filt_res = [i for i in res if i]
 
+
     print(f"{len(filt_res)} contigs were successfully analyzed by Pydamage")
 
     if plot and len(filt_res) > 0:
@@ -77,9 +81,13 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
         plotdir = f"{outdir}/plots"
         utils.makedir(plotdir, confirm=False)
 
-        for ref in tqdm(filt_res):
-            dam_plot = damageplot(damage_dict=ref, wlen=wlen, qlen = ref['qlen'], outdir=plotdir)
-            dam_plot.draw()
+        plot_partial = partial(damageplot, wlen=wlen, outdir=plotdir)
+        with multiprocessing.Pool(proc) as p:
+            list(tqdm(p.imap(plot_partial, filt_res),total=len(filt_res)))
+            # p.close()
+            # p.join()
+        # for ref in tqdm(filt_res):
+        #     dam_plot = damageplot(damage_dict=ref, wlen=wlen, outdir=plotdir)
     df = utils.pandas_processing(res_dict=filt_res, outdir=outdir)
     return(df)
     

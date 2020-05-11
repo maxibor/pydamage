@@ -11,15 +11,30 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
         wlen (int): window length
         print_al (bool): print alignment
     Returns:
-        dict : {'CT': list of CtoT positions, 'GA': list of GtoA positions}
+        dict : {'CT': [ CtoT pos], 
+                'GA': [GtoA pos], 
+                'A':[A pos],
+                'T':[T pos],
+                'G':[G pos],
+                'C':[C pos],
+                'N':[N pos],
+                ' ':[no coverage pos],
+                'all': [all pos]}
     """
     r_pos = 0
     q_pos = 0
     r_string = ""
     q_string = ""
     res = ""
-    CT = []
-    GA = []
+    base_trans_counts = {'A':[],
+                         'T':[],
+                         'G':[],
+                         'C':[],
+                         'N':[],
+                         ' ':[], 
+                         'all':[], 
+                         'CT':[], 
+                         'GA':[]}
     for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
         if c[0] in [0, 7, 8]:
@@ -43,11 +58,14 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
     for i in range(len(r_string)):
         r_char = r_string[i].upper()
         q_char = q_string[i].upper()
+        base_trans_counts[q_char].append(i)
+        if q_char in ['A','T','G','C']:
+             base_trans_counts['all'].append(i)
         if r_char != q_char:
             if r_char == "C" and q_char == "T":
-                CT.append(i)
+                base_trans_counts['CT'].append(i)
             if r_char == "G" and q_char == "A":
-                GA.append(i)
+                base_trans_counts['GA'].append(i)
 
     if show_al:
         res += "R " + r_string + "\n  "
@@ -59,4 +77,5 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
         res += "\nQ " + q_string
         print(res)
 
-    return({'CT':CT,'GA':GA})
+
+    return(base_trans_counts)
