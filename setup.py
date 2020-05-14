@@ -1,4 +1,4 @@
-from pydamage._version import __version__
+from pydamage.version import __version__
 from setuptools import setup, find_packages
 
 

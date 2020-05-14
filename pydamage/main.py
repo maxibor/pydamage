@@ -9,7 +9,7 @@ import pandas as pd
 import sys
 from tqdm import tqdm
 import warnings
-from pydamage import __version__
+from pydamage.version import __version__
 
 def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="", plot = False, verbose=False, force=False):
     """Runs the pydamage analysis
