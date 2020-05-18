@@ -4,6 +4,7 @@ import click
 from pydamage.main import analyze
 from pydamage import __version__
 
+
 @click.command()
 @click.version_option(__version__)
 @click.argument('bam', type=click.Path(exists=True))
@@ -46,10 +47,9 @@ from pydamage import __version__
               default="pydamage_results",
               show_default=True,
               help="Output directory")
-@click.option('--force', 
-              is_flag=True, 
+@click.option('--force',
+              is_flag=True,
               help='Force overwriting of results directory')
-    
 def cli(no_args_is_help=True, **kwargs):
     """\b
     PyDamage: Damage parameter estimation for ancient DNA

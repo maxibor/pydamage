@@ -6,6 +6,7 @@ from pydamage.vuong import vuong_closeness
 from pydamage import models
 import numpy as np
 
+
 class al_to_damage():
 
     def __init__(self, reference, al_handle):
@@ -70,6 +71,7 @@ def avg_coverage(pysam_cov):
     cov = np.mean(cov_all_bases)
     return(cov)
 
+
 def check_model_fit(model_dict, wlen, verbose):
     """Check if model fitting makes sense
 
@@ -87,11 +89,13 @@ def check_model_fit(model_dict, wlen, verbose):
         return(False)
 
     # Check that all the first wlen bases are covered
-    if np.any(np.array(model_dict['base_cov'][:wlen])==0):
+    if np.any(np.array(model_dict['base_cov'][:wlen]) == 0):
         if verbose:
-            print(f"Could not reliably fit a model to {model_dict['reference']} because of too few reads aligned")
+            print(
+                f"Could not reliably fit a model to {model_dict['reference']} because of too few reads aligned")
         return(False)
     return(model_dict)
+
 
 def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose):
     """Prepare data and run Vuong's test to test for damage
@@ -114,21 +118,22 @@ def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose
         cov = avg_coverage(al_handle.count_coverage(contig=ref))
         nb_reads_aligned = al_handle.count(contig=ref)
         reflen = al_handle.get_reference_length(ref)
-        
+
         if nb_reads_aligned >= min_al or cov >= min_cov:
             al = al_to_damage(reference=ref, al_handle=al_handle)
-            ct_data, ga_data, all_bases = al.get_damage(wlen=wlen, show_al=show_al)
+            ct_data, ga_data, all_bases = al.get_damage(
+                wlen=wlen, show_al=show_al)
             if ct_data:
                 model_A = models.unif_mod()
                 model_B = models.geom_mod()
-                test_res = vuong_closeness(ref=ref, 
-                                            model_A=model_A, 
-                                            model_B=model_B, 
-                                            ct_data=ct_data, 
-                                            ga_data=ga_data,
-                                            all_bases=all_bases,
-                                            wlen=wlen, 
-                                            verbose=verbose)
+                test_res = vuong_closeness(ref=ref,
+                                           model_A=model_A,
+                                           model_B=model_B,
+                                           ct_data=ct_data,
+                                           ga_data=ga_data,
+                                           all_bases=all_bases,
+                                           wlen=wlen,
+                                           verbose=verbose)
                 test_res['reference'] = ref
                 test_res['nb_reads_aligned'] = nb_reads_aligned
                 test_res['coverage'] = cov
@@ -136,12 +141,16 @@ def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose
                 return(check_model_fit(test_res, wlen, verbose))
         else:
             if verbose:
-                print(f"Did not attempt to fit a model to {ref} because of too few reads aligned")
-                print(f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
+                print(
+                    f"Did not attempt to fit a model to {ref} because of too few reads aligned")
+                print(
+                    f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
             pass
     except ValueError as e:
         if verbose:
-            print(f"Model fitting for {ref} failed because of too few reads aligned")
+            print(
+                f"Model fitting for {ref} failed because of too few reads aligned")
             print(f"Model fitting error: {e}")
-            print(f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
+            print(
+                f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
         return(False)

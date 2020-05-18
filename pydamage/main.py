@@ -11,7 +11,8 @@ from tqdm import tqdm
 import warnings
 from pydamage import __version__
 
-def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="", plot = False, verbose=False, force=False):
+
+def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="", plot=False, verbose=False, force=False):
     """Runs the pydamage analysis
 
     Args:
@@ -40,7 +41,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
 
     if not alf.has_index():
         print(f"BAM file {bam} has no index. Sort BAM file and provide index "
-               "before running pydamage.")
+              "before running pydamage.")
         sys.exit(1)
 
     refs = list(alf.references)
@@ -50,7 +51,7 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
         return([])
 
     proc = min(len(refs), process)
-    
+
     ###########################
     # Simple loop for debugging
     ###########################
@@ -63,16 +64,14 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
     #         filt_res.append(res)
     ###########################
     ###########################
-    
 
     test_damage_partial = partial(damage.test_damage, bam=bam, wlen=wlen,
-                              min_al=mini, min_cov=cov, show_al=show_al,
-                              mode=mode, process=process, verbose=verbose)
+                                  min_al=mini, min_cov=cov, show_al=show_al,
+                                  mode=mode, process=process, verbose=verbose)
     print("Estimating and testing Damage")
     with multiprocessing.Pool(proc) as p:
-        res = tqdm(p.imap(test_damage_partial, refs), total = len(refs))
+        res = tqdm(p.imap(test_damage_partial, refs), total=len(refs))
         filt_res = [i for i in res if i]
-
 
     print(f"{len(filt_res)} contigs were successfully analyzed by Pydamage")
 
@@ -83,11 +82,10 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
 
         plot_partial = partial(damageplot, wlen=wlen, outdir=plotdir)
         with multiprocessing.Pool(proc) as p:
-            list(tqdm(p.imap(plot_partial, filt_res),total=len(filt_res)))
+            list(tqdm(p.imap(plot_partial, filt_res), total=len(filt_res)))
             # p.close()
             # p.join()
         # for ref in tqdm(filt_res):
         #     dam_plot = damageplot(damage_dict=ref, wlen=wlen, outdir=plotdir)
     df = utils.pandas_processing(res_dict=filt_res, outdir=outdir)
     return(df)
-    

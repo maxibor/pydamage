@@ -6,6 +6,7 @@ from pydamage.optim import optim
 import collections
 from pydamage.utils import sort_dict_by_keys
 
+
 def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, verbose):
     """Performs model fitting and runs Vuong's closeness test
 
@@ -19,7 +20,8 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
         wlen (int): window length
         verbose (bool): verbose mode
     """
-    all_bases_pos, all_bases_counts = np.unique(np.sort(all_bases), return_counts=True)
+    all_bases_pos, all_bases_counts = np.unique(
+        np.sort(all_bases), return_counts=True)
     c2t_pos, c2t_counts = np.unique(np.sort(ct_data), return_counts=True)
     g2a_pos, g2a_counts = np.unique(np.sort(ga_data), return_counts=True)
     c2t = dict(zip(c2t_pos, c2t_counts))
@@ -40,42 +42,40 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
 
     ydata = list(counts/counts.sum())
     qlen = len(ydata)
-    ydata_counts = {i:c for i,c in enumerate(ydata)}
-    ctot_out = {f"CtoT-{k}":v for k,v in enumerate(ydata)}
-    
+    ydata_counts = {i: c for i, c in enumerate(ydata)}
+    ctot_out = {f"CtoT-{k}": v for k, v in enumerate(ydata)}
+
     g2a_counts = np.array(list(g2a.values()))
     y_ga = list(g2a_counts/g2a_counts.sum())
-    y_g2a_counts = {i:c for i,c in enumerate(y_ga)}
-    gtoa_out = {f"GtoA-{k}":v for k,v in enumerate(y_ga)}
+    y_g2a_counts = {i: c for i, c in enumerate(y_ga)}
+    gtoa_out = {f"GtoA-{k}": v for k, v in enumerate(y_ga)}
 
-   
     # for i in all_bases_pos:
     #     print(f"{ref},{i},{all_bases_counts[i]}")
     for i in range(qlen):
-        if i not in ydata_counts :
+        if i not in ydata_counts:
             ydata_counts[i] = np.nan
         if f"CtoT-{i}" not in ctot_out:
             ctot_out[f"CtoT-{i}"] = np.nan
         if f"GtoA-{i}" not in gtoa_out:
             gtoa_out[f"GtoA-{i}"] = np.nan
 
-
     xdata = xdata[:wlen]
     ydata = ydata[:wlen]
     ct_data = np.array(ct_data)
-    ct_data = ct_data[ct_data<wlen]
+    ct_data = ct_data[ct_data < wlen]
 
     res = {}
     optim_A, stdev_A = optim(function=model_A.pmf,
-                    parameters=model_A.kwds,
-                    xdata=xdata,
-                    ydata=ydata,
-                    bounds=model_A.bounds)
+                             parameters=model_A.kwds,
+                             xdata=xdata,
+                             ydata=ydata,
+                             bounds=model_A.bounds)
     optim_B, stdev_B = optim(function=model_B.pmf,
-                    parameters=model_B.kwds,
-                    xdata=xdata,
-                    ydata=ydata,
-                    bounds=model_B.bounds)
+                             parameters=model_B.kwds,
+                             xdata=xdata,
+                             ydata=ydata,
+                             bounds=model_B.bounds)
 
     LA = model_A.log_pmf(x=ydata, **optim_A)
     LB = model_B.log_pmf(x=ydata, **optim_B)
@@ -100,6 +100,7 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
     res.update(stdev_B)
     res.update({'pvalue': pval})
     res.update({'base_cov': all_bases_counts})
-    res.update({'model_params': list(optim_A.values()) + list(optim_B.values())+list(stdev_A.values())+list(stdev_B.values())})
+    res.update({'model_params': list(optim_A.values()) +
+                list(optim_B.values())+list(stdev_A.values())+list(stdev_B.values())})
     res['qlen'] = qlen
     return(res)

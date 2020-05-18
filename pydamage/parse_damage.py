@@ -26,15 +26,15 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
     r_string = ""
     q_string = ""
     res = ""
-    base_trans_counts = {'A':[],
-                         'T':[],
-                         'G':[],
-                         'C':[],
-                         'N':[],
-                         ' ':[], 
-                         'all':[], 
-                         'CT':[], 
-                         'GA':[]}
+    base_trans_counts = {'A': [],
+                         'T': [],
+                         'G': [],
+                         'C': [],
+                         'N': [],
+                         ' ': [],
+                         'all': [],
+                         'CT': [],
+                         'GA': []}
     for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
         if c[0] in [0, 7, 8]:
@@ -59,8 +59,8 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
         r_char = r_string[i].upper()
         q_char = q_string[i].upper()
         base_trans_counts[q_char].append(i)
-        if q_char in ['A','T','G','C']:
-             base_trans_counts['all'].append(i)
+        if q_char in ['A', 'T', 'G', 'C']:
+            base_trans_counts['all'].append(i)
         if r_char != q_char:
             if r_char == "C" and q_char == "T":
                 base_trans_counts['CT'].append(i)
@@ -76,6 +76,5 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
                 res += (" ")
         res += "\nQ " + q_string
         print(res)
-
 
     return(base_trans_counts)

@@ -20,7 +20,8 @@ def optim(function, parameters, xdata, ydata, bounds, loss='huber'):
         dict: perr_dict - 'parameter_name':'standard_deviation'
 
     """
-    popt, pcov = curve_fit(function, xdata=xdata, ydata=ydata, bounds=bounds, loss=loss)
+    popt, pcov = curve_fit(function, xdata=xdata,
+                           ydata=ydata, bounds=bounds, loss=loss)
     perr = sqrt(diag(pcov))
     popt_dict = {k: v for (k, v) in zip(parameters, popt)}
     perr_dict = {f"{k}_stdev": v for (k, v) in zip(parameters, perr)}
