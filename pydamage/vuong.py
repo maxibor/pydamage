@@ -77,12 +77,13 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
                     ydata=ydata,
                     bounds=model_B.bounds)
 
-    LA = model_A.log_pmf(x=ct_data, **optim_A)
-    LB = model_B.log_pmf(x=ct_data, **optim_B)
+    LA = model_A.log_pmf(x=ydata, **optim_A)
+    LB = model_B.log_pmf(x=ydata, **optim_B)
     pdiff = len(model_A.kwds) - len(model_B.kwds)
-    LR = LA.sum() - LB.sum() - (pdiff/2)*np.log(len(ct_data))
+    N = wlen
+    LR = LA.sum() - LB.sum() - (pdiff/2)*np.log(N)
     omega = np.std(LA-LB)
-    Z = LR/(np.sqrt(len(ct_data))*omega)
+    Z = LR/(np.sqrt(N*omega))
     pval = norm.cdf(Z)
     # if verbose:
     #     print(f"\nReference: {ref}")
