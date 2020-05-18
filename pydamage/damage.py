@@ -124,8 +124,8 @@ def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose
             ct_data, ga_data, all_bases = al.get_damage(
                 wlen=wlen, show_al=show_al)
             if ct_data:
-                model_A = models.unif_mod()
-                model_B = models.geom_mod()
+                model_A = models.geom_mod()
+                model_B = models.unif_mod()
                 test_res = vuong_closeness(ref=ref,
                                            model_A=model_A,
                                            model_B=model_B,
