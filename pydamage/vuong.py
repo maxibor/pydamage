@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from scipy.stats import norm
+from scipy.stats import norm, spearmanr
 from pydamage.optim import optim
 import collections
 from pydamage.utils import sort_dict_by_keys
@@ -14,8 +14,8 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
         ref (str): name of referene in alignment file
         model_A (pydamage.models): Pydamage H1 model
         model_B (pydamage.models): Pydamage H0 model
-        ct_data (list of int): List of positions where CtoT transitions were observerd
-        ga_data (list of int): List of positions where GtoA transitions were observerd
+        ct_data (list of int): List of positions where CtoT transitions were observed
+        ga_data (list of int): List of positions where GtoA transitions were observed
         all_bases (list of int): List of positions where a base is aligned
         wlen (int): window length
         verbose (bool): verbose mode
@@ -77,20 +77,18 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
                              ydata=ydata,
                              bounds=model_B.bounds)
 
-    LA = model_A.log_pmf(x=ydata, **optim_A)
-    LB = model_B.log_pmf(x=ydata, **optim_B)
+    residuals = ydata - model_A.pmf(x=xdata, **optim_A)
+
+    LA = model_A.log_pmf(x=ct_data, **optim_A)   # alternative
+    LB = model_B.log_pmf(x=ct_data, **optim_B)   # null model
     pdiff = len(model_A.kwds) - len(model_B.kwds)
     N = wlen
     LR = LA.sum() - LB.sum() - (pdiff/2)*np.log(N)
     omega = np.std(LA-LB)
-    Z = LR/(np.sqrt(N*omega))
-    pval = norm.cdf(Z)
-    # if verbose:
-    #     print(f"\nReference: {ref}")
-    #     print(f"Vuong closeness test Z-score for {ref}: {round(Z, 4)}")
-    #     print(f"Vuong closeness test p-value for {ref}: {round(pval, 4)}")
-    #     print(f"Model A parameters for {ref}: {optim_A}")
-    #     print(f"Model B parameters for {ref}: {optim_B}")
+    Z = LR/(omega*np.sqrt(N))
+
+    pval = 1 - norm.cdf(Z)
+
     res.update(ydata_counts)
     res.update(ctot_out)
     res.update(gtoa_out)
@@ -103,4 +101,5 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
     res.update({'model_params': list(optim_A.values()) +
                 list(optim_B.values())+list(stdev_A.values())+list(stdev_B.values())})
     res['qlen'] = qlen
+    res['residuals'] = residuals
     return(res)
