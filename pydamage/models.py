@@ -85,7 +85,7 @@ class unif_mod():
 
         Args:
             x (numpy array) data
-            geom_pmin (float): target y value
+            unif_pmin (float): target y value
         Returns:
             np.array: LogPMF(x)
         """

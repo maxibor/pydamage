@@ -52,18 +52,18 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
 
     proc = min(len(refs), process)
 
-    ###########################
+    ##########################
     # Simple loop for debugging
-    ###########################
+    ##########################
     # filt_res = []
     # for ref in refs:
     #     res = damage.test_damage(bam=bam, ref=ref, wlen=wlen,
-    #                          min_al=mini,  min_cov=cov, show_al=show_al,
-    #                          mode=mode, process=process, verbose=verbose)
+    #                              min_al=mini,  min_cov=cov, show_al=show_al,
+    #                              mode=mode, process=process, verbose=verbose)
     #     if res:
     #         filt_res.append(res)
-    ###########################
-    ###########################
+    ##########################
+    ##########################
 
     test_damage_partial = partial(damage.test_damage, bam=bam, wlen=wlen,
                                   min_al=mini, min_cov=cov, show_al=show_al,

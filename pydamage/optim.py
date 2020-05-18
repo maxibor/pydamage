@@ -18,7 +18,6 @@ def optim(function, parameters, xdata, ydata, bounds, loss='huber'):
     Returns:
         dict: popt_dict - 'parameter_name':'parameter_value'
         dict: perr_dict - 'parameter_name':'standard_deviation'
-
     """
     popt, pcov = curve_fit(function, xdata=xdata,
                            ydata=ydata, bounds=bounds, loss=loss)
