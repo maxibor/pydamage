@@ -34,6 +34,7 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
                          ' ': [],
                          'all': [],
                          'CT': [],
+                         'CC': [],
                          'GA': []}
     for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
@@ -61,6 +62,8 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
         base_trans_counts[q_char].append(i)
         if q_char in ['A', 'T', 'G', 'C']:
             base_trans_counts['all'].append(i)
+        if r_char == "C" and q_char == "C":
+            base_trans_counts['CC'].append(i)
         if r_char != q_char:
             if r_char == "C" and q_char == "T":
                 base_trans_counts['CT'].append(i)
