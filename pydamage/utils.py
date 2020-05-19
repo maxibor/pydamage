@@ -101,3 +101,37 @@ def RMSE(residuals):
         float: RMSE
     """
     return(np.sqrt(np.mean(residuals**2)))
+
+
+def create_ct_cc_dict(ct_data, cc_data, wlen):
+    """Creates C bases positions dictionnary
+
+    For C->T transitions
+    For C in reference and in query
+
+    Args:
+        ct_data (list of int): List of positions where CtoT transitions were observed
+        cc_data (list of int): List of positions where C in ref and query
+    Returns:
+        dict{int:int}: {position: number of CtoT transitions at position}
+        dict{int:int}: {position: number of C match at position}
+    """
+    c2t_pos, c2t_counts = np.unique(np.sort(ct_data), return_counts=True)
+    c2c_pos, c2c_counts = np.unique(np.sort(cc_data), return_counts=True)
+    c2t = dict(zip(c2t_pos, c2t_counts))
+    c2c = dict(zip(c2c_pos, c2c_counts))
+    c2t_dict = {}
+    c2c_dict = {}
+
+    for i in range(wlen):
+        if i in c2c or i in c2t:
+            if i in c2t:
+                c2t_dict[i] = c2t[i]
+            else:
+                c2t_dict[i] = 0
+            if i in c2c:
+                c2c_dict[i] = c2c[i]
+            else:
+                c2c_dict[i] = 0
+
+    return(c2t_dict, c2c_dict)
