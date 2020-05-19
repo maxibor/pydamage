@@ -2,7 +2,7 @@
 
 import pysam
 from pydamage.parse_damage import damage_al
-from pydamage.vuong import vuong_closeness
+from pydamage.model_fit import fit_models
 from pydamage import models
 import numpy as np
 
@@ -30,12 +30,19 @@ class al_to_damage():
             wlen (int): window length
             show_al(bool): print alignments representations
         Returns:
-            list: all_ct - positions of reads with CtoT transitions
-            list: all_ga - positions of reads with GtoA transitions
+            list: all_ct - positions of CtoT transitions in reads
+            list: all_ga - positions of GtoA transitions in reads
+            list: all_cc - positions of C in ref and reads, in reads
+            list: all_c - positions of C in reads
+            list: all_g - positions of G in reads
+            list: all_bases - position of all bases
         """
 
         all_ct = []
         all_ga = []
+        all_cc = []
+        all_c = []
+        all_g = []
         all_bases = []
         for al in self.alignments:
             if al.is_reverse == False and al.is_unmapped == False:
@@ -50,9 +57,12 @@ class al_to_damage():
                                        show_al=show_al)
                 all_ct += all_damage['CT']
                 all_ga += all_damage['GA']
+                all_cc += all_damage['CC']
+                all_c += all_damage['C']
+                all_g += all_damage['G']
                 all_bases += all_damage['all']
 
-        return(all_ct, all_ga, all_bases)
+        return(all_ct, all_ga, all_cc, all_c, all_g, all_bases)
 
 
 def avg_coverage(pysam_cov):
@@ -121,19 +131,20 @@ def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose
 
         if nb_reads_aligned >= min_al or cov >= min_cov:
             al = al_to_damage(reference=ref, al_handle=al_handle)
-            ct_data, ga_data, all_bases = al.get_damage(
+            ct_data, ga_data, cc_data, c_data, g_data, all_bases = al.get_damage(
                 wlen=wlen, show_al=show_al)
             if ct_data:
                 model_A = models.geom_mod()
                 model_B = models.unif_mod()
-                test_res = vuong_closeness(ref=ref,
-                                           model_A=model_A,
-                                           model_B=model_B,
-                                           ct_data=ct_data,
-                                           ga_data=ga_data,
-                                           all_bases=all_bases,
-                                           wlen=wlen,
-                                           verbose=verbose)
+                test_res = fit_models(ref=ref,
+                                      model_A=model_A,
+                                      model_B=model_B,
+                                      ct_data=ct_data,
+                                      cc_data=cc_data,
+                                      ga_data=ga_data,
+                                      all_bases=all_bases,
+                                      wlen=wlen,
+                                      verbose=verbose)
                 test_res['reference'] = ref
                 test_res['nb_reads_aligned'] = nb_reads_aligned
                 test_res['coverage'] = cov
