@@ -64,6 +64,7 @@ def pandas_processing(res_dict, outdir):
              'geom_pmax', 'geom_pmax_stdev',
              'pvalue',
              'qvalue',
+             'RMSE',
              'reference',
              'nb_reads_aligned',
              'coverage'] +
@@ -89,3 +90,14 @@ def sort_dict_by_keys(adict):
     for k in sorted(adict.keys()):
         res[k] = adict[k]
     return(res)
+
+
+def RMSE(residuals):
+    """Computes Root Mean Square Error
+
+    Args:
+        residuals (np.array(float)): Array of residuals
+    Returns:
+        float: RMSE
+    """
+    return(np.sqrt(np.mean(residuals**2)))

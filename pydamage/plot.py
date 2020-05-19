@@ -31,6 +31,7 @@ def damageplot(damage_dict, wlen, outdir):
     pvalue = damage_dict['pvalue']
     coverage = damage_dict['coverage']
     residuals = damage_dict['residuals']
+    rmse = damage_dict['RMSE']
     plotdir = outdir
 
     if pvalue < 0.001:
@@ -77,23 +78,23 @@ def damageplot(damage_dict, wlen, outdir):
             linewidth=2.5,
             color='DarkOliveGreen',
             alpha=0.8,
-            label='Uniform model')
+            label='Null model')
 
     ax.fill_between(x, y_unif_low, y_unif_high,
                     color='DarkOliveGreen',
                     alpha=0.1,
-                    label='Uniform CI (2 sigma)')
+                    label='Null Model CI (2 sigma)')
 
     ax.plot(x, y_geom,
             linewidth=2.5,
             color='#D7880F',
             alpha=0.8,
-            label='Geometric model')
+            label='Damage model')
 
     ax.fill_between(x, y_geom_low, y_geom_high,
                     color='#D7880F',
                     alpha=0.1,
-                    label='Geometric CI (2 sigma)')
+                    label='Damage Model CI (2 sigma)')
 
     ax.set_xlabel("Base from 5'", fontsize=10)
     ax.set_ylabel("Substitution frequency", fontsize=10)
@@ -105,11 +106,11 @@ def damageplot(damage_dict, wlen, outdir):
 
     left, bottom, width, height = [0.65, 0.3, 0.2, 0.2]
     ax2 = fig.add_axes([left, bottom, width, height])
-    # ax2.hist(residuals, bins='auto')
     probplot(residuals, plot=ax2, sparams=(0, np.std(c2t)))
     ax2.set_xlabel("Observed value", fontsize=6)
     ax2.set_ylabel("Theoretical quantile", fontsize=6)
-    ax2.set_title("QQplot of residuals", fontsize=8)
+    ax2.set_title(
+        f"QQplot of Damage model residuals, \nRMSE={round(rmse, 3)}", fontsize=8)
     ax2.set_xticklabels([round(i, 3) for i in ax2.get_xticks()], fontsize=6)
     ax2.set_yticklabels([round(i, 3) for i in ax2.get_yticks()], fontsize=6)
 

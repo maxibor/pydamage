@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import norm, spearmanr
 from pydamage.optim import optim
 import collections
-from pydamage.utils import sort_dict_by_keys
+from pydamage.utils import sort_dict_by_keys, RMSE
 
 
 def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, verbose):
@@ -77,8 +77,6 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
                              ydata=ydata,
                              bounds=model_B.bounds)
 
-    residuals = ydata - model_A.pmf(x=xdata, **optim_A)
-
     LA = model_A.log_pmf(x=ct_data, **optim_A)   # alternative
     LB = model_B.log_pmf(x=ct_data, **optim_B)   # null model
     pdiff = len(model_A.kwds) - len(model_B.kwds)
@@ -101,5 +99,6 @@ def vuong_closeness(ref, model_A, model_B, ct_data, ga_data, all_bases, wlen, ve
     res.update({'model_params': list(optim_A.values()) +
                 list(optim_B.values())+list(stdev_A.values())+list(stdev_B.values())})
     res['qlen'] = qlen
-    res['residuals'] = residuals
+    res['residuals'] = ydata - model_A.pmf(x=xdata, **optim_A)
+    res['RMSE'] = RMSE(res['residuals'])
     return(res)
