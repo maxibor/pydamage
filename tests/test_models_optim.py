@@ -27,21 +27,21 @@ def test_geom_pmf(generate_data):
 
 def test_geom_log_pmf(generate_data):
     g = models.geom_mod()
-    assert g.log_pmf(x=generate_data[0], geom_p=0.5, geom_pmin=0.01, geom_pmax=0.5).all() == np.array([-1.2039728, -1.2039728, -1.2039728, -1.2039728, -1.2039728,
-                                                                                                       -1.2039728, -1.2039728, -1.2039728, -1.2039728, -1.2039728,
-                                                                                                       -1.86616253, -1.86616253, -1.86616253, -1.86616253, -1.86616253,
-                                                                                                       -2.50012956, -2.50012956, -3.08448863, -3.59019479, -3.98929721,
-                                                                                                       -4.27065681, -4.44794902, -4.54997064, -4.60517019]).all()
+    assert g.log_pmf(x=generate_data[0], geom_p=0.5, geom_pmin=0.01, geom_pmax=0.5, wlen=24).all() == np.array([-1.2039728, -1.2039728, -1.2039728, -1.2039728, -1.2039728,
+                                                                                                                -1.2039728, -1.2039728, -1.2039728, -1.2039728, -1.2039728,
+                                                                                                                -1.86616253, -1.86616253, -1.86616253, -1.86616253, -1.86616253,
+                                                                                                                -2.50012956, -2.50012956, -3.08448863, -3.59019479, -3.98929721,
+                                                                                                                -4.27065681, -4.44794902, -4.54997064, -4.60517019]).all()
 
 
 def test_geom_optim(generate_data):
     g = models.geom_mod()
     o, e = optim(function=g.pmf,
-              parameters=g.kwds,
-              xdata=generate_data[1],
-              ydata=generate_data[2],
-              bounds=g.bounds,
-              loss='linear')
+                 parameters=g.kwds,
+                 xdata=generate_data[1],
+                 ydata=generate_data[2],
+                 bounds=g.bounds,
+                 loss='linear')
 
     target = {'geom_p': 0.6039535547658853,
               'geom_pmin': 0.03637474931290336,
@@ -68,12 +68,12 @@ def test_unif_log_pmf(generate_data):
 def test_unif_optim(generate_data):
     u = models.unif_mod()
     o, e = optim(function=u.pmf,
-              parameters=u.kwds,
-              xdata=generate_data[1],
-              ydata=generate_data[2],
-              bounds=u.bounds,
-              loss='linear')
-    assert o == {'unif_pmin': 0.1}
+                 parameters=u.kwds,
+                 xdata=generate_data[1],
+                 ydata=generate_data[2],
+                 bounds=u.bounds,
+                 loss='linear')
+    assert o == {'unif_pmin': 0.1000000000000005}
 
 
 if __name__ == "__main__":
