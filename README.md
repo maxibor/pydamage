@@ -1,4 +1,4 @@
-# [![pydamage logo](docs/img/logo.png)](https://github.com/maxibor/pydamage)
+# [![pydamage logo](https://github.com/maxibor/pydamage/raw/master/docs/img/logo.png)](https://github.com/maxibor/pydamage)
 
 [![pydamage CI](https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg)](https://github.com/maxibor/pydamage/actions) [![Documentation Status](https://readthedocs.org/projects/pydamage/badge/?version=latest)](https://pydamage.readthedocs.io/en/latest/?badge=latest)
 
@@ -39,13 +39,12 @@ Usage: pydamage [OPTIONS] BAM
 
 Options:
   --version              Show the version and exit.
-  -w, --wlen INTEGER     Window length for damage modeling  [default: 20]
+  -w, --wlen INTEGER     Window length for damage modeling  [default: 35]
   -p, --process INTEGER  Number of processes  [default: 2]
   -m, --mini INTEGER     Minimum reads aligned to consider reference
-                         [default: 2000]
+                         [default: 1000]
 
-  -c, --cov FLOAT        Minimum coverage to consider reference  [default:
-                         0.5]
+  -c, --cov FLOAT        Minimum coverage to consider reference  [default:8]
 
   -s, --show_al          Show alignments representations
   -pl, --plot            Make the damage plots

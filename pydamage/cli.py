@@ -10,7 +10,7 @@ from pydamage import __version__
 @click.argument('bam', type=click.Path(exists=True))
 @click.option('-w',
               '--wlen',
-              default=20,
+              default=35,
               type=int,
               show_default=True,
               help='Window length for damage modeling')
