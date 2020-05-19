@@ -12,8 +12,8 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
 
     Args:
         ref (str): name of referene in alignment file
-        model_A (pydamage.models): Pydamage H1 model
-        model_B (pydamage.models): Pydamage H0 model
+        model_A (pydamage.models): Pydamage H1 Damage model
+        model_B (pydamage.models): Pydamage H0 Null model
         ct_data (list of int): List of positions where CtoT transitions were observed
         ga_data (list of int): List of positions where GtoA transitions were observed
         cc_data (list of int): List of positions where C in ref and query
@@ -97,7 +97,7 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
     # counts of C2C at each site
     c2c_count_per_site = np.array(list(c2c_dict.values()))
 
-    # Likelihood for model A
+    # Likelihood for model A - Damage Model
     # For C2T events
     LA_CT_base = model_A.log_pmf(x=c_sites, wlen=wlen, **optim_A)
     LA_CT = LA_CT_base * c2t_count_per_site
@@ -108,7 +108,7 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
 
     LA = LA_CT + LA_CC
 
-    # Likelihood for model B
+    # Likelihood for model B - Null Model
     # For C2T events
     LB_CT_base = model_B.log_pmf(x=c_sites, **optim_B)
     LB_CT = LB_CT_base * c2t_count_per_site
