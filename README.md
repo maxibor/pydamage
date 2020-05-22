@@ -1,6 +1,6 @@
 # [![pydamage logo](https://github.com/maxibor/pydamage/raw/master/docs/img/logo.png)](https://github.com/maxibor/pydamage)
 
-[![pydamage CI](https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg)](https://github.com/maxibor/pydamage/actions) [![Documentation Status](https://readthedocs.org/projects/pydamage/badge/?version=latest)](https://pydamage.readthedocs.io/en/latest/?badge=latest) [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/maxibor/pydamage?include_prereleases&label=version)](https://github.com/maxibor/pydamage/releases)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/maxibor/pydamage?include_prereleases&label=version)](https://github.com/maxibor/pydamage/releases) [![pydamage CI](https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg)](https://github.com/maxibor/pydamage/actions) [![Documentation Status](https://readthedocs.org/projects/pydamage/badge/?version=latest)](https://pydamage.readthedocs.io/en/latest/?badge=latest) [![PyPI](https://img.shields.io/pypi/v/pydamage)](https://pypi.org/project/pydamage/) [![Conda](https://img.shields.io/conda/v/maxibor/pydamage)](https://anaconda.org/maxibor/pydamage)
 
 Pydamage, is a Python software to automate the process of contig damage identification and estimation.
 After modelling the ancient DNA damage using the C to T transitions, Pydamage uses a likelihood ratio test to discriminate between truly ancient, and modern contigs originating from sample contamination.
