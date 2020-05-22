@@ -2,9 +2,11 @@
 
 import numpy as np
 from pydamage.optim import optim
+from scipy.stats import binom
 import collections
 from pydamage.utils import sort_dict_by_keys, RMSE, create_ct_cc_dict
 from pydamage.vuong import vuong_closeness
+from pydamage.likelihood_ratio import LR
 
 
 def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen, verbose):
@@ -72,15 +74,15 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
     ydata = ydata[:wlen]
 
     res = {}
-    optim_A, stdev_A = optim(function=model_A.pmf,  # damage model
+    optim_A, stdev_A = optim(function=model_A.fit,  # damage model
                              parameters=model_A.kwds,
                              xdata=xdata,
                              ydata=ydata,
                              bounds=model_A.bounds)
-    if optim_A['geom_pmax'] < optim_A['geom_pmin']:  # making sure that fitting makes sense
-        optim_A['geom_pmax'] = optim_A['geom_pmin']
+    if optim_A['pmax'] < optim_A['pmin']:  # making sure that fitting makes sense
+        optim_A['pmax'] = optim_A['pmin']
 
-    optim_B, stdev_B = optim(function=model_B.pmf,  # null model
+    optim_B, stdev_B = optim(function=model_B.fit,  # null model
                              parameters=model_B.kwds,
                              xdata=xdata,
                              ydata=ydata,
@@ -92,44 +94,29 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
 
     # position of sites where C in reference
     c_sites = np.array(list(c2t_dict.keys()))
-    # counts of C2T at each site
-    c2t_count_per_site = np.array(list(c2t_dict.values()))
     # counts of C2C at each site
     c2c_count_per_site = np.array(list(c2c_dict.values()))
+    # counts of C2T at each site
+    binom_k = np.array(list(c2t_dict.values()))
+    # all C per site
+    binom_n = c2c_count_per_site + binom_k
 
     # Likelihood for model A - Damage Model
-    # For C2T events
-    LA_CT_base = model_A.log_pmf(x=c_sites, wlen=wlen, **optim_A)
-    LA_CT = LA_CT_base * c2t_count_per_site
-
-    # For C2C events
-    LA_CC_base = np.log(1 - model_A.pmf(x=c_sites, wlen=wlen, **optim_A))
-    LA_CC = LA_CC_base * c2c_count_per_site
-
-    LA = LA_CT + LA_CC
+    binom_p_damage = model_A.fit(c_sites, **optim_A)
+    LA = binom.logpmf(k=binom_k, n=binom_n, p=binom_p_damage)
 
     # Likelihood for model B - Null Model
-    # For C2T events
-    LB_CT_base = model_B.log_pmf(x=c_sites, **optim_B)
-    LB_CT = LB_CT_base * c2t_count_per_site
-
-    # For C2C events
-    LB_CC_base = np.log(1 - model_B.pmf(x=c_sites, **optim_B))
-    LB_CC = LB_CC_base * c2c_count_per_site
-
-    LB = LB_CT + LB_CC
+    binom_p_null = model_B.fit(c_sites, **optim_B)
+    LB = binom.logpmf(k=binom_k, n=binom_n, p=binom_p_null)
 
     # Difference of number of paramters between model A and model B
     pdiff = len(model_A.kwds) - len(model_B.kwds)
 
     ################
-    # VUONG'S TEST #
+    # LR TEST #
     ################
 
-    zscore, pval = vuong_closeness(LA=LA,
-                                   LB=LB,
-                                   N=wlen,
-                                   pdiff=pdiff)
+    LR_lambda, pval = LR(L0=LB, L1=LA, df=pdiff)
 
     res.update(ydata_counts)
     res.update(ctot_out)
@@ -143,6 +130,7 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
     res.update({'model_params': list(optim_A.values()) +
                 list(optim_B.values())+list(stdev_A.values())+list(stdev_B.values())})
     res['qlen'] = qlen
-    res['residuals'] = ydata - model_A.pmf(x=xdata, **optim_A)
+    res['residuals'] = ydata - model_A.fit(x=xdata, **optim_A)
     res['RMSE'] = RMSE(res['residuals'])
+    res['wlen'] = wlen
     return(res)
