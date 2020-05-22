@@ -70,8 +70,8 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
                                   mode=mode, process=process, verbose=verbose)
     print("Estimating and testing Damage")
     with multiprocessing.Pool(proc) as p:
-        res = tqdm(p.imap(test_damage_partial, refs), total=len(refs))
-        filt_res = [i for i in res if i]
+        res = list(tqdm(p.imap(test_damage_partial, refs), total=len(refs)))
+    filt_res = [i for i in res if i]
 
     print(f"{len(filt_res)} contigs were successfully analyzed by Pydamage")
 
@@ -80,12 +80,9 @@ def analyze(bam, wlen=30, show_al=False, mini=2000, cov=0.5, process=1, outdir="
         plotdir = f"{outdir}/plots"
         utils.makedir(plotdir, confirm=False)
 
-        plot_partial = partial(damageplot, wlen=wlen, outdir=plotdir)
+        plot_partial = partial(damageplot, outdir=plotdir)
         with multiprocessing.Pool(proc) as p:
             list(tqdm(p.imap(plot_partial, filt_res), total=len(filt_res)))
-            # p.close()
-            # p.join()
-        # for ref in tqdm(filt_res):
-        #     dam_plot = damageplot(damage_dict=ref, wlen=wlen, outdir=plotdir)
+
     df = utils.pandas_processing(res_dict=filt_res, outdir=outdir)
     return(df)
