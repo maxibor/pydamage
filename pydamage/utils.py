@@ -58,10 +58,10 @@ def pandas_processing(res_dict, outdir):
     qvalues = pd.Series(multipletests(df['pvalue'].dropna(), method='fdr_bh')[
                         1], index=df['pvalue'].dropna().index, name='qvalue')
     df = df.merge(qvalues, left_index=True, right_index=True, how='outer')
-    df = df[['unif_pmin', 'unif_pmin_stdev',
-             'geom_p', 'geom_p_stdev',
-             'geom_pmin', 'geom_pmin_stdev',
-             'geom_pmax', 'geom_pmax_stdev',
+    df = df[['p0', 'p0_stdev',
+             'p', 'p_stdev',
+             'pmin', 'pmin_stdev',
+             'pmax', 'pmax_stdev',
              'pvalue',
              'qvalue',
              'RMSE',
@@ -70,6 +70,15 @@ def pandas_processing(res_dict, outdir):
              'coverage'] +
             [f"CtoT-{i}" for i in range(df['qlen'].max())] +
             [f"GtoA-{i}" for i in range(df['qlen'].max())]]
+    df.rename(columns={'p0': 'null_model_p0',
+                       'p0_stdev': 'null_model_p0_stdev',
+                       'p': 'damage_model_p',
+                       'p_stdev': 'damage_model_p_stdev',
+                       'pmin': 'damage_model_pmin',
+                       'pmin_stdev': 'damage_model_pmin_stdev',
+                       'pmax': 'damage_model_pmax',
+                       'pmax_stdev': 'damage_model_pmax_stdev'},
+              inplace=True)
     df.sort_values(by=['qvalue'], inplace=True)
     df.set_index("reference", inplace=True)
     df.dropna(axis=1, how='all', inplace=True)
