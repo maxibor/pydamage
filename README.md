@@ -19,6 +19,23 @@ conda install -c conda-forge -c bioconda -c maxibor pydamage
 pip install pydamage
 ```
 
+### Install from source to use the development version
+
+Using pip
+
+```bash
+pip install git+ssh://git@github.com/maxibor/pydamage.git
+```
+
+By cloning in a dedicated conda environment
+
+```bash
+git clone git@github.com:maxibor/pydamage.git
+cd pydamage
+conda env create -f environment.yml
+conda activate pydamage
+```
+
 
 ## Documentation
 
