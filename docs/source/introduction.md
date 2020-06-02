@@ -9,29 +9,33 @@ It uses a process akin to a likelihood ratio test to attempt to discriminate bet
 
 ## Install
 
-Pydamage is not yet on *pypi* nor *conda*, but you can already install it using pip, provided that you have access to this repository.
+### With [conda](https://docs.conda.io/en/latest/) (recommended)
 
-### Install dependencies in conda environment
+```bash
+conda install -c conda-forge -c bioconda -c maxibor pydamage
+```
+
+### With pip
+
+```bash
+pip install pydamage
+```
+
+### Install from source to use the development version
+
+Using pip
+
+```bash
+pip install git+ssh://git@github.com/maxibor/pydamage.git
+```
+
+By cloning in a dedicated conda environment
 
 ```bash
 git clone git@github.com:maxibor/pydamage.git
 cd pydamage
 conda env create -f environment.yml
 conda activate pydamage
-```
-
-### Install pydamage
-
-- from source
-
-```bash
-python setup.py install
-```
-
-- from Github using pip
-
-```bash
-pip install git+ssh://git@github.com/maxibor/pydamage.git
 ```
 
 ## CLI help
