@@ -37,11 +37,12 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
 
     # Adding zeros at positions where no damage is observed
     for i in all_bases_pos:
-        if all_bases_counts[i] > 0:
-            if i not in c2t:
-                c2t[i] = 0
-            if i not in g2a:
-                g2a[i] = 0
+        if i < len(all_bases_counts):
+            if all_bases_counts[i] > 0:
+                if i not in c2t:
+                    c2t[i] = 0
+                if i not in g2a:
+                    g2a[i] = 0
     c2t = sort_dict_by_keys(c2t)
     g2a = sort_dict_by_keys(g2a)
 
