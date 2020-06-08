@@ -1,4 +1,4 @@
-import matplotlib.use
+from matplotlib import use
 import matplotlib.pyplot as plt
 from pydamage.models import damage_model, null_model
 from statsmodels.nonparametric.smoothers_lowess import lowess
@@ -7,7 +7,7 @@ import numpy as np
 from os import makedirs
 from scipy.stats import probplot
 
-matplotlib.use("Agg")
+use("Agg")
 
 
 def damageplot(damage_dict, outdir):
