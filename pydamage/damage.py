@@ -157,10 +157,10 @@ def test_damage(ref, bam, mode, wlen, show_al, min_al, min_cov, process, verbose
                 print(
                     f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
             pass
-    except ValueError as e:
+    except (ValueError, RuntimeError) as e:
         if verbose:
             print(
-                f"Model fitting for {ref} failed because of too few reads aligned")
+                f"Model fitting for {ref} failed")
             print(f"Model fitting error: {e}")
             print(
                 f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n")
