@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
+import pydamage
 
 # -- Project information -----------------------------------------------------
 
@@ -21,7 +22,7 @@ copyright = '2020, Maxime Borry'
 author = 'Maxime Borry'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = pydamage.__version__
 
 
 # -- General configuration ---------------------------------------------------
