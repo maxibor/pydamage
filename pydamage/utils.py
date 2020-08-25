@@ -19,9 +19,9 @@ def check_extension(filename):
         Exception: Extension not supported
     """
     extension = filename.split(".")[-1]
-    modes = {'bam': 'rb', 'sam': 'r', 'cram': 'rc'}
+    modes = {"bam": "rb", "sam": "r", "cram": "rc"}
     try:
-        return(modes[extension])
+        return modes[extension]
     except KeyError:
         raise Exception(f"{extension} file extension not supported")
 
@@ -37,8 +37,9 @@ def makedir(dirpath, confirm=True, force=False):
     if os.path.exists(dirpath):
         if confirm and force == False:
             print(
-                f"Result directory, {dirpath}, already exists, it will be overwritten")
-            if input('Do You Want To Continue? (y|n) ').lower() != 'y':
+                f"Result directory, {dirpath}, already exists, it will be overwritten"
+            )
+            if input("Do You Want To Continue? (y|n) ").lower() != "y":
                 sys.exit()
         shutil.rmtree(dirpath)
 
@@ -54,37 +55,52 @@ def pandas_processing(res_dict, outdir):
     """
     df = pd.DataFrame(res_dict)
     if len(res_dict) == 0:
-        return(df)
-    qvalues = pd.Series(multipletests(df['pvalue'].dropna(), method='fdr_bh')[
-                        1], index=df['pvalue'].dropna().index, name='qvalue')
-    df = df.merge(qvalues, left_index=True, right_index=True, how='outer')
-    df = df[['p0', 'p0_stdev',
-             'p', 'p_stdev',
-             'pmin', 'pmin_stdev',
-             'pmax', 'pmax_stdev',
-             'pvalue',
-             'qvalue',
-             'RMSE',
-             'reference',
-             'nb_reads_aligned',
-             'coverage'] +
-            [f"CtoT-{i}" for i in range(df['qlen'].max())] +
-            [f"GtoA-{i}" for i in range(df['qlen'].max())]]
-    df.rename(columns={'p0': 'null_model_p0',
-                       'p0_stdev': 'null_model_p0_stdev',
-                       'p': 'damage_model_p',
-                       'p_stdev': 'damage_model_p_stdev',
-                       'pmin': 'damage_model_pmin',
-                       'pmin_stdev': 'damage_model_pmin_stdev',
-                       'pmax': 'damage_model_pmax',
-                       'pmax_stdev': 'damage_model_pmax_stdev'},
-              inplace=True)
-    df.sort_values(by=['qvalue'], inplace=True)
+        return df
+    qvalues = pd.Series(
+        multipletests(df["pvalue"].dropna(), method="fdr_bh")[1],
+        index=df["pvalue"].dropna().index,
+        name="qvalue",
+    )
+    df = df.merge(qvalues, left_index=True, right_index=True, how="outer")
+    df = df[
+        [
+            "p0",
+            "p0_stdev",
+            "p",
+            "p_stdev",
+            "pmin",
+            "pmin_stdev",
+            "pmax",
+            "pmax_stdev",
+            "pvalue",
+            "qvalue",
+            "RMSE",
+            "reference",
+            "nb_reads_aligned",
+            "coverage",
+        ]
+        + [f"CtoT-{i}" for i in range(df["qlen"].max())]
+        + [f"GtoA-{i}" for i in range(df["qlen"].max())]
+    ]
+    df.rename(
+        columns={
+            "p0": "null_model_p0",
+            "p0_stdev": "null_model_p0_stdev",
+            "p": "damage_model_p",
+            "p_stdev": "damage_model_p_stdev",
+            "pmin": "damage_model_pmin",
+            "pmin_stdev": "damage_model_pmin_stdev",
+            "pmax": "damage_model_pmax",
+            "pmax_stdev": "damage_model_pmax_stdev",
+        },
+        inplace=True,
+    )
+    df.sort_values(by=["qvalue"], inplace=True)
     df.set_index("reference", inplace=True)
-    df.dropna(axis=1, how='all', inplace=True)
-
+    df.dropna(axis=1, how="all", inplace=True)
+    df = df.round(3)
     df.to_csv(f"{outdir}/pydamage_results.csv")
-    return(df)
+    return df
 
 
 def sort_dict_by_keys(adict):
@@ -98,7 +114,7 @@ def sort_dict_by_keys(adict):
     res = {}
     for k in sorted(adict.keys()):
         res[k] = adict[k]
-    return(res)
+    return res
 
 
 def RMSE(residuals):
@@ -109,7 +125,7 @@ def RMSE(residuals):
     Returns:
         float: RMSE
     """
-    return(np.sqrt(np.mean(residuals**2)))
+    return np.sqrt(np.mean(residuals ** 2))
 
 
 def create_ct_cc_dict(ct_data, cc_data, wlen):
@@ -143,4 +159,4 @@ def create_ct_cc_dict(ct_data, cc_data, wlen):
             else:
                 c2c_dict[i] = 0
 
-    return(c2t_dict, c2c_dict)
+    return (c2t_dict, c2c_dict)
