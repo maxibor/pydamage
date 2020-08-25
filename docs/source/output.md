@@ -24,3 +24,11 @@ Finally, the remaining columns indicate the frequency of C to T and G to A trans
 The visual output are PNG files, one per reference contig. They show the frequency of observed C to T, and G to A transitions at the 5' end of the sequencing data and overlay it with the fitted models for both the null and the damage model, including 95% confidence intervals. Furthermore, it provides a "residuals versus fitted" plot to help evaluate the fit of the pydamage damage model. Finally, the plot contains informtion on the average coverage along the reference and the p-value calculated from the likelihood-ratio test-statistic using a chi-squared distribution.
 
 > The visual output is only produced when using the `--plot` flag 
+
+
+## Example
+
+- [**Tabular ouput**](https://raw.githubusercontent.com/maxibor/pydamage/master/docs/assets/pydamage_results.csv)
+- **Visual output**
+
+![](../img/NZ_JHCB02000011.1.png)
