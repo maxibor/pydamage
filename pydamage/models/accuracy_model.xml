@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<PMML version="4.4" xmlns="http://www.dmg.org/PMML-4_4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_4 http://www.dmg.org/pmml/v4-4/pmml-4-4.xsd">
+	<Header copyright="Copyright (c) 2020 borry" description="Generalized Linear Regression Model">
+		<Extension name="user" value="borry" extender="SoftwareAG PMML Generator" />
+		<Application name="SoftwareAG PMML Generator" version="2.3.1" />
+		<Timestamp>
+			2020-09-11 11:44:24
+		</Timestamp>
+	</Header>
+	<DataDictionary numberOfFields="5">
+		<DataField name="sig" optype="categorical" dataType="boolean" />
+		<DataField name="simu_cov" optype="categorical" dataType="string">
+			<Value value="1-2" />
+			<Value value="2-3" />
+			<Value value="3-5" />
+			<Value value="5-10" />
+			<Value value="10-20" />
+			<Value value="20-50" />
+			<Value value="50-100" />
+			<Value value="100-200" />
+			<Value value="200-500" />
+		</DataField>
+		<DataField name="simu_contig_length" optype="categorical" dataType="string">
+			<Value value="500-1000" />
+			<Value value="1000-2000" />
+			<Value value="2000-5000" />
+			<Value value="5000-10000" />
+			<Value value="10000-20000" />
+			<Value value="20000-50000" />
+			<Value value="50000-100000" />
+			<Value value="100000-200000" />
+			<Value value="200000-500000" />
+		</DataField>
+		<DataField name="damage" optype="continuous" dataType="double" />
+		<DataField name="gc_content" optype="continuous" dataType="double" />
+	</DataDictionary>
+	<GeneralRegressionModel modelName="General_Regression_Model" modelType="generalizedLinear" functionName="regression" algorithmName="glm" distribution="binomial" linkFunction="logit">
+		<MiningSchema>
+			<MiningField name="sig" usageType="predicted" invalidValueTreatment="returnInvalid" />
+			<MiningField name="simu_cov" usageType="active" invalidValueTreatment="returnInvalid" />
+			<MiningField name="simu_contig_length" usageType="active" invalidValueTreatment="returnInvalid" />
+			<MiningField name="damage" usageType="active" invalidValueTreatment="returnInvalid" />
+			<MiningField name="gc_content" usageType="active" invalidValueTreatment="returnInvalid" />
+		</MiningSchema>
+		<Output>
+			<OutputField name="Predicted_sig" feature="predictedValue" optype="continuous" dataType="double" />
+		</Output>
+		<ParameterList>
+			<Parameter name="p0" label="(Intercept)" />
+			<Parameter name="p1" label="simu_cov2-3" />
+			<Parameter name="p2" label="simu_cov3-5" />
+			<Parameter name="p3" label="simu_cov5-10" />
+			<Parameter name="p4" label="simu_cov10-20" />
+			<Parameter name="p5" label="simu_cov20-50" />
+			<Parameter name="p6" label="simu_cov50-100" />
+			<Parameter name="p7" label="simu_cov100-200" />
+			<Parameter name="p8" label="simu_cov200-500" />
+			<Parameter name="p9" label="simu_contig_length1000-2000" />
+			<Parameter name="p10" label="simu_contig_length2000-5000" />
+			<Parameter name="p11" label="simu_contig_length5000-10000" />
+			<Parameter name="p12" label="simu_contig_length10000-20000" />
+			<Parameter name="p13" label="simu_contig_length20000-50000" />
+			<Parameter name="p14" label="simu_contig_length50000-100000" />
+			<Parameter name="p15" label="simu_contig_length100000-200000" />
+			<Parameter name="p16" label="simu_contig_length200000-500000" />
+			<Parameter name="p17" label="damage" />
+			<Parameter name="p18" label="gc_content" />
+		</ParameterList>
+		<FactorList>
+			<Predictor name="simu_cov" />
+			<Predictor name="simu_contig_length" />
+		</FactorList>
+		<CovariateList>
+			<Predictor name="damage" />
+			<Predictor name="gc_content" />
+		</CovariateList>
+		<PPMatrix>
+			<PPCell value="2-3" predictorName="simu_cov" parameterName="p1" />
+			<PPCell value="3-5" predictorName="simu_cov" parameterName="p2" />
+			<PPCell value="5-10" predictorName="simu_cov" parameterName="p3" />
+			<PPCell value="10-20" predictorName="simu_cov" parameterName="p4" />
+			<PPCell value="20-50" predictorName="simu_cov" parameterName="p5" />
+			<PPCell value="50-100" predictorName="simu_cov" parameterName="p6" />
+			<PPCell value="100-200" predictorName="simu_cov" parameterName="p7" />
+			<PPCell value="200-500" predictorName="simu_cov" parameterName="p8" />
+			<PPCell value="1000-2000" predictorName="simu_contig_length" parameterName="p9" />
+			<PPCell value="2000-5000" predictorName="simu_contig_length" parameterName="p10" />
+			<PPCell value="5000-10000" predictorName="simu_contig_length" parameterName="p11" />
+			<PPCell value="10000-20000" predictorName="simu_contig_length" parameterName="p12" />
+			<PPCell value="20000-50000" predictorName="simu_contig_length" parameterName="p13" />
+			<PPCell value="50000-100000" predictorName="simu_contig_length" parameterName="p14" />
+			<PPCell value="100000-200000" predictorName="simu_contig_length" parameterName="p15" />
+			<PPCell value="200000-500000" predictorName="simu_contig_length" parameterName="p16" />
+			<PPCell value="1" predictorName="damage" parameterName="p17" />
+			<PPCell value="1" predictorName="gc_content" parameterName="p18" />
+		</PPMatrix>
+		<ParamMatrix>
+			<PCell parameterName="p0" df="1" beta="-8.65189421682464" />
+			<PCell parameterName="p1" df="1" beta="0.769443947642044" />
+			<PCell parameterName="p2" df="1" beta="1.45273554070238" />
+			<PCell parameterName="p3" df="1" beta="2.35138991754625" />
+			<PCell parameterName="p4" df="1" beta="3.39640967566996" />
+			<PCell parameterName="p5" df="1" beta="4.59971243726375" />
+			<PCell parameterName="p6" df="1" beta="5.72825234666655" />
+			<PCell parameterName="p7" df="1" beta="6.69539459608764" />
+			<PCell parameterName="p8" df="1" beta="7.86055265527863" />
+			<PCell parameterName="p9" df="1" beta="1.09371767522123" />
+			<PCell parameterName="p10" df="1" beta="2.49289159186454" />
+			<PCell parameterName="p11" df="1" beta="3.6906412987891" />
+			<PCell parameterName="p12" df="1" beta="4.68714661487843" />
+			<PCell parameterName="p13" df="1" beta="5.75898982496855" />
+			<PCell parameterName="p14" df="1" beta="6.89889463997801" />
+			<PCell parameterName="p15" df="1" beta="7.94963228855336" />
+			<PCell parameterName="p16" df="1" beta="9.21814864931722" />
+			<PCell parameterName="p17" df="1" beta="34.3270098699663" />
+			<PCell parameterName="p18" df="1" beta="3.04499045341997" />
+		</ParamMatrix>
+	</GeneralRegressionModel>
+</PMML>

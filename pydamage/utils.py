@@ -78,6 +78,8 @@ def pandas_processing(res_dict, outdir):
             "reference",
             "nb_reads_aligned",
             "coverage",
+            "reflen",
+            "gc_content",
         ]
         + [f"CtoT-{i}" for i in range(df["qlen"].max())]
         + [f"GtoA-{i}" for i in range(df["qlen"].max())]

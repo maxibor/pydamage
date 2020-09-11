@@ -5,13 +5,13 @@ import os.path
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+    with codecs.open(os.path.join(here, rel_path), "r") as fp:
         return fp.read()
 
 
 def get_version(rel_path):
     for line in read(rel_path).splitlines():
-        if line.startswith('__version__'):
+        if line.startswith("__version__"):
             delim = '"' if '"' in line else "'"
             return line.split(delim)[1]
     else:
@@ -19,28 +19,28 @@ def get_version(rel_path):
 
 
 setup(
-    name='pydamage',
+    name="pydamage",
     version=get_version("pydamage/__init__.py"),
-    description='Damage parameter estimation for ancient DNA',
+    description="Damage parameter estimation for ancient DNA",
     long_description=open("README.md").read(),
-    url='https://github.com/maxibor/pydamage',
+    url="https://github.com/maxibor/pydamage",
     long_description_content_type="text/markdown",
-    license='GNU-GPLv3',
+    license="GNU-GPLv3",
     python_requires=">=3.6",
     install_requires=[
-        'click',
-        'numpy',
-        'pandas',
-        'pysam',
-        'scipy',
-        'statsmodels',
-        'matplotlib',
-        'tqdm'
+        "click",
+        "numpy",
+        "pandas",
+        "pysam",
+        "scipy",
+        "statsmodels",
+        "matplotlib",
+        "tqdm",
+        "pypmml",
+        "biopython",
     ],
-    packages=find_packages(include=['pydamage']),
-    entry_points={
-        'console_scripts': [
-            'pydamage = pydamage.cli:cli'
-        ]
-    }
+    packages=find_packages(include=["pydamage"]),
+    entry_points={"console_scripts": ["pydamage = pydamage.cli:cli"]},
+    include_package_data=True,
+    package_data={"": ["models/accuracy_model.xml"]},
 )
