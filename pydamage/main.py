@@ -114,8 +114,7 @@ def analyze(
     acc_model = load_model()
     print(acc_model)
     prep_df = prepare_data(df)
-    prep_df.to_csv("~/Desktop/test_data.csv")
-    # print(prep_df)
+    print(prep_df)
     print(fit_model(prep_df, acc_model))
 
     return df
