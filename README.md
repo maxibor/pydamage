@@ -41,7 +41,7 @@ conda activate pydamage
 ## Quick start
 
 ```bash
-pydamage aligned.bam
+pydamage aligned.bam reference.fa
 ```
 
 ## CLI help

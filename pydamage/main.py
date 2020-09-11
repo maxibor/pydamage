@@ -5,6 +5,7 @@ import multiprocessing
 from functools import partial
 from pydamage import damage
 from pydamage.plot import damageplot
+from pydamage.accuracy_model import prepare_data, load_model, fit_model
 import pandas as pd
 import sys
 from tqdm import tqdm
@@ -109,4 +110,12 @@ def analyze(
             list(tqdm(p.imap(plot_partial, filt_res), total=len(filt_res)))
 
     df = utils.pandas_processing(res_dict=filt_res, outdir=outdir)
+
+    acc_model = load_model()
+    print(acc_model)
+    prep_df = prepare_data(df)
+    prep_df.to_csv("~/Desktop/test_data.csv")
+    # print(prep_df)
+    print(fit_model(prep_df, acc_model))
+
     return df

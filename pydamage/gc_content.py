@@ -10,7 +10,7 @@ class fastaFile:
             fasta (str): Path to fasta file
         """
         self.fasta = {}
-        for record in SeqIO.parse(fasta_file, "fasta"):
+        for record in SeqIO.parse(fasta, "fasta"):
             self.fasta[record.id] = record
 
     def compute_gc(self):
