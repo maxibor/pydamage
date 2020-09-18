@@ -1,15 +1,15 @@
-from pypmml import Model
 import pkg_resources
 import pandas as pd
 import numpy as np
+import pickle
 
 
 def load_model():
     """Returns the pmml model"""
     # This is a stream,like object. If you want the actual info, call
     # stream.read()
-    stream = pkg_resources.resource_stream(__name__, "models/accuracy_model.xml")
-    return Model.load(stream)
+    stream = pkg_resources.resource_stream(__name__, "models/glm_accuracy_model.pickle")
+    return pickle.load(stream)
 
 
 def prepare_data(pd_df):
@@ -70,20 +70,15 @@ def prepare_data(pd_df):
     ]
     simu_cov = pd.cut(pd_df["coverage"], coverage_bins)
     simu_cov.cat.rename_categories(coverage_bins_labels, inplace=True)
-    pd_df["simu_cov"] = simu_cov
+    pd_df["simuCov"] = simu_cov
 
     simu_contig_length = pd.cut(pd_df["reflen"], reflen_bins)
     simu_contig_length.cat.rename_categories(reflen_bins_labels, inplace=True)
 
-    pd_df["simu_contig_length"] = simu_contig_length
+    pd_df["simuContigLength"] = simu_contig_length
     pd_df = pd_df[
-        [
-            "simu_cov",
-            "simu_contig_length",
-            "damage_model_pmax",
-            "gc_content",
-        ]
-    ].rename(columns={"damage_model_pmax": "damage"})
+        ["simuCov", "simuContigLength", "damage_model_pmax", "gc_content"]
+    ].rename(columns={"damage_model_pmax": "damage", "gc_content": "GCcontent"})
 
     return pd_df
 
@@ -95,4 +90,4 @@ def fit_model(df, model):
         df (pandas DataFrame): prepared pydamage results
         model (pypmml model): GLM accuracy model
     """
-    return model.predict(df)
+    return model.predict(df).to_frame(name="pred_accuracy")

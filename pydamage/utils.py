@@ -46,12 +46,11 @@ def makedir(dirpath, confirm=True, force=False):
     os.makedirs(dirpath)
 
 
-def pandas_processing(res_dict, outdir):
+def pandas_processing(res_dict):
     """Performs Pandas processing of Pydamage results
 
     Args:
         res_dict (dict): Result dictionary of Vuong's closeness test
-        outdir (str): Path to output directory
     """
     df = pd.DataFrame(res_dict)
     if len(res_dict) == 0:
@@ -101,8 +100,17 @@ def pandas_processing(res_dict, outdir):
     df.set_index("reference", inplace=True)
     df.dropna(axis=1, how="all", inplace=True)
     df = df.round(3)
-    df.to_csv(f"{outdir}/pydamage_results.csv")
     return df
+
+
+def df_to_csv(df, outdir):
+    """Write Pydamage results to disk
+
+    Args:
+        df(pandas DataFrame): Pydamage results DataFrame
+        outdir (str): Path to output directory
+    """
+    df.to_csv(f"{outdir}/pydamage_results.csv")
 
 
 def sort_dict_by_keys(adict):

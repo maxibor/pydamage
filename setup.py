@@ -36,11 +36,10 @@ setup(
         "statsmodels",
         "matplotlib",
         "tqdm",
-        "pypmml",
         "biopython",
     ],
     packages=find_packages(include=["pydamage"]),
     entry_points={"console_scripts": ["pydamage = pydamage.cli:cli"]},
     include_package_data=True,
-    package_data={"": ["models/accuracy_model.xml"]},
+    package_data={"": ["models/glm_accuracy_model.pickle"]},
 )

@@ -109,12 +109,13 @@ def analyze(
         with multiprocessing.Pool(proc) as p:
             list(tqdm(p.imap(plot_partial, filt_res), total=len(filt_res)))
 
-    df = utils.pandas_processing(res_dict=filt_res, outdir=outdir)
+    df_pydamage = utils.pandas_processing(res_dict=filt_res)
 
     acc_model = load_model()
-    print(acc_model)
-    prep_df = prepare_data(df)
-    print(prep_df)
-    print(fit_model(prep_df, acc_model))
+    prep_df_glm = prepare_data(df_pydamage)
+    df_glm = fit_model(prep_df_glm, acc_model)
 
+    df = df_pydamage.merge(df_glm, left_index=True, right_index=True)
+
+    utils.df_to_csv(df, outdir)
     return df
