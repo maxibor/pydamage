@@ -7,49 +7,52 @@ from pydamage import __version__
 
 @click.command()
 @click.version_option(__version__)
-@click.argument('bam', type=click.Path(exists=True))
-@click.option('-w',
-              '--wlen',
-              default=35,
-              type=int,
-              show_default=True,
-              help='Window length for damage modeling')
-@click.option('-p',
-              '--process',
-              default=2,
-              type=int,
-              show_default=True,
-              help='Number of processes')
-@click.option('-m',
-              '--mini',
-              default=1000,
-              type=int,
-              show_default=True,
-              help='Minimum reads aligned to consider reference')
-@click.option('-c',
-              '--cov',
-              default=8,
-              type=float,
-              show_default=True,
-              help='Minimum coverage to consider reference')
-@click.option('-s',
-              '--show_al',
-              is_flag=True,
-              help='Show alignments representations')
-@click.option('-pl',
-              '--plot',
-              is_flag=True,
-              help='Make the damage plots')
-@click.option('--verbose', is_flag=True, help='Verbose mode')
-@click.option('-o',
-              '--outdir',
-              type=click.Path(writable=True, dir_okay=True),
-              default="pydamage_results",
-              show_default=True,
-              help="Output directory")
-@click.option('--force',
-              is_flag=True,
-              help='Force overwriting of results directory')
+@click.argument("bam", type=click.Path(exists=True))
+@click.argument("fasta", type=click.Path(exists=True))
+@click.option(
+    "-w",
+    "--wlen",
+    default=35,
+    type=int,
+    show_default=True,
+    help="Window length for damage modeling",
+)
+@click.option(
+    "-p",
+    "--process",
+    default=2,
+    type=int,
+    show_default=True,
+    help="Number of processes",
+)
+@click.option(
+    "-m",
+    "--mini",
+    default=1000,
+    type=int,
+    show_default=True,
+    help="Minimum reads aligned to consider reference",
+)
+@click.option(
+    "-c",
+    "--cov",
+    default=8,
+    type=float,
+    show_default=True,
+    help="Minimum coverage to consider reference",
+)
+@click.option("-s", "--show_al", is_flag=True, help="Show alignments representations")
+@click.option("-pl", "--plot", is_flag=True, help="Make the damage plots")
+@click.option("--verbose", is_flag=True, help="Verbose mode")
+@click.option(
+    "-o",
+    "--outdir",
+    type=click.Path(writable=True, dir_okay=True),
+    default="pydamage_results",
+    show_default=True,
+    help="Output directory",
+)
+@click.option("--force", is_flag=True, help="Force overwriting of results directory")
 def cli(no_args_is_help=True, **kwargs):
     """\b
     PyDamage: Damage parameter estimation for ancient DNA
@@ -58,6 +61,7 @@ def cli(no_args_is_help=True, **kwargs):
     Homepage & Documentation: github.com/maxibor/pydamage
 
     BAM: path to BAM/SAM/CRAM alignment file
+    FASTA: path to reference FASTA file
     """
     analyze(**kwargs)
 
