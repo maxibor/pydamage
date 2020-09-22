@@ -1,25 +1,13 @@
-<<<<<<< HEAD
-from pypmml import Model
-import pkg_resources
-=======
 import pkg_resources
 import pandas as pd
 import numpy as np
 import pickle
->>>>>>> 204d4fca36b046450dcecc7462719d37557d69ad
 
 
 def load_model():
     """Returns the pmml model"""
-    # This is a stream,like object. If you want the actual info, call
-    # stream.read()
-<<<<<<< HEAD
-    stream = pkg_resources.resource_stream(__name__, "models/accuracy_model.xml")
-    return Model.load(stream)
-=======
     stream = pkg_resources.resource_stream(__name__, "models/glm_accuracy_model.pickle")
     return pickle.load(stream)
->>>>>>> 204d4fca36b046450dcecc7462719d37557d69ad
 
 
 def prepare_data(pd_df):
@@ -28,32 +16,6 @@ def prepare_data(pd_df):
     Args:
         pd_df (pandas DataFrame):pydamage df result
     """
-<<<<<<< HEAD
-    reflen_bins = [
-        (500, 1000),
-        (1000, 2000),
-        (2000, 5000),
-        (5000, 10000),
-        (10000, 20000),
-        (20000, 50000),
-        (50000, 100000),
-        (100000, 200000),
-        (200000, 500000),
-    ]
-
-    coverage_bins = [
-        (1, 2),
-        (2, 3),
-        (3, 5),
-        (5, 10),
-        (10, 20),
-        (20, 50),
-        (50, 100),
-        (100, 200),
-        (200, 500),
-    ]
-    pd_df = pd_df[["coverage", "reflen", "pmax", "gc_content"]]
-=======
     coverage_bins = pd.IntervalIndex.from_tuples(
         [
             (0, 2),
@@ -127,4 +89,3 @@ def fit_model(df, model):
         model (pypmml model): GLM accuracy model
     """
     return model.predict(df).to_frame(name="pred_accuracy")
->>>>>>> 204d4fca36b046450dcecc7462719d37557d69ad
