@@ -61,6 +61,7 @@ def cli(no_args_is_help=True, **kwargs):
     Homepage & Documentation: github.com/maxibor/pydamage
 
     BAM: path to BAM/SAM/CRAM alignment file
+    FASTA: path to reference FASTA file
     """
     analyze(**kwargs)
 
