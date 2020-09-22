@@ -25,7 +25,7 @@ pip install pydamage
 Using pip
 
 ```bash
-pip install git+ssh://git@github.com/maxibor/pydamage.git
+pip install git+ssh://git@github.com/maxibor/pydamage.git@dev
 ```
 
 By cloning in a dedicated conda environment
@@ -33,15 +33,17 @@ By cloning in a dedicated conda environment
 ```bash
 git clone git@github.com:maxibor/pydamage.git
 cd pydamage
+git checkout dev
 conda env create -f environment.yml
 conda activate pydamage
+pip install -e .
 ```
 
 
 ## Quick start
 
 ```bash
-pydamage aligned.bam
+pydamage aligned.bam reference.fa
 ```
 
 ## CLI help
