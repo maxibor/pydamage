@@ -41,5 +41,5 @@ setup(
     packages=find_packages(include=["pydamage"]),
     entry_points={"console_scripts": ["pydamage = pydamage.cli:cli"]},
     include_package_data=True,
-    package_data={"": ["models/glm_accuracy_model.pickle"]},
+    package_data={"": ["models/accuracy_model_v2_python.pickle"]},
 )

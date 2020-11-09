@@ -115,7 +115,7 @@ def analyze(
     prep_df_glm = prepare_data(df_pydamage)
     df_glm = fit_model(prep_df_glm, acc_model)
 
-    df = df_pydamage.merge(df_glm, left_index=True, right_index=True)
+    df = df_glm.merge(df_pydamage, left_index=True, right_index=True)
 
     utils.df_to_csv(df, outdir)
     return df
