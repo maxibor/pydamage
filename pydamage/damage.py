@@ -44,7 +44,7 @@ class al_to_damage:
         all_g = []
         all_bases = []
         for al in self.alignments:
-            if al.is_reverse == False and al.is_unmapped == False:
+            if al.is_reverse is False and al.is_unmapped is False:
                 cigar = al.cigartuples
                 ref = al.get_reference_sequence()
                 quer = al.query_sequence
@@ -103,7 +103,8 @@ def check_model_fit(model_dict, wlen, verbose):
     if np.any(np.array(model_dict["base_cov"][:wlen]) == 0):
         if verbose:
             print(
-                f"Could not reliably fit a model to {model_dict['reference']} because of too few reads aligned"
+                f"Could not reliably fit a model to {model_dict['reference']}"
+                "because of too few reads aligned"
             )
         return False
     return model_dict
@@ -159,7 +160,8 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
             print(f"Model fitting for {ref} failed")
             print(f"Model fitting error: {e}")
             print(
-                f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n"
+                f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov}"
+                " - reflen: {reflen}\n"
             )
         return False
 
@@ -203,13 +205,21 @@ def get_damage_group(ref, bam, mode, wlen, show_al, process):
 
 
 def test_damage_group(
-    ct_data, ga_data, cc_data, all_bases, nb_reads_aligned, cov, reflen, wlen, verbose
+    ct_data,
+    ga_data,
+    cc_data,
+    all_bases,
+    nb_reads_aligned,
+    cov,
+    reflen,
+    wlen,
+    verbose
 ):
     """Performs damage test
 
     Args:
-        ct_data (list of int): List of positions where CtoT transitions were observed
-        ga_data (list of int): List of positions where GtoA transitions were observed
+        ct_data (list of int): List of positions with CtoT transitions
+        ga_data (list of int): List of positions with GtoA transitions
         cc_data (list of int): List of positions where C in ref and query
         all_bases (list of int): List of positions where a base is aligned
         nb_reads_aligned(int): number of reads aligned
@@ -220,6 +230,7 @@ def test_damage_group(
     Returns:
         dict: Dictionary containing LR test results
     """
+    ref = "reference"
     try:
         if ct_data:
             model_A = models.damage_model()
@@ -235,7 +246,7 @@ def test_damage_group(
                 wlen=wlen,
                 verbose=verbose,
             )
-            test_res["reference"] = "reference"
+            test_res["reference"] = ref
             test_res["nb_reads_aligned"] = nb_reads_aligned
             test_res["coverage"] = cov
             test_res["reflen"] = reflen
@@ -247,6 +258,7 @@ def test_damage_group(
             print(f"Model fitting for {ref} failed")
             print(f"Model fitting error: {e}")
             print(
-                f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n"
+                f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} "
+                "- reflen: {reflen}\n"
             )
         return False

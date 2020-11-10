@@ -6,7 +6,6 @@ from functools import partial
 from pydamage import damage
 from pydamage.plot import damageplot
 from pydamage.accuracy_model import prepare_data, load_model, fit_model
-import pandas as pd
 import sys
 from tqdm import tqdm
 import warnings
@@ -26,10 +25,24 @@ def analyze(
 ):
 
     if group:
-        analyze_group(bam, wlen, show_al, process, outdir, plot, verbose, force)
+        analyze_group(bam,
+                      wlen,
+                      show_al,
+                      process,
+                      outdir,
+                      plot,
+                      verbose,
+                      force)
 
     else:
-        analyze_multi(bam, wlen, show_al, process, outdir, plot, verbose, force)
+        analyze_multi(bam,
+                      wlen,
+                      show_al,
+                      process,
+                      outdir,
+                      plot,
+                      verbose,
+                      force)
 
 
 def analyze_multi(
@@ -190,7 +203,8 @@ def analyze_group(
     )
     print("Estimating and testing Damage")
     with multiprocessing.Pool(proc) as p:
-        res = list(tqdm(p.imap(get_damage_group_partial, refs), total=len(refs)))
+        res = list(
+            tqdm(p.imap(get_damage_group_partial, refs), total=len(refs)))
     ct_data = []
     ga_data = []
     cc_data = []
