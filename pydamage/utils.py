@@ -50,7 +50,7 @@ def pandas_processing(res_dict):
     """Performs Pandas processing of Pydamage results
 
     Args:
-        res_dict (dict): Result dictionary of Vuong's closeness test
+        res_dict (dict): Result dictionary of LR test
     """
     df = pd.DataFrame(res_dict)
     if len(res_dict) == 0:
@@ -78,7 +78,6 @@ def pandas_processing(res_dict):
             "nb_reads_aligned",
             "coverage",
             "reflen",
-            "gc_content",
         ]
         + [f"CtoT-{i}" for i in range(df["qlen"].max())]
         + [f"GtoA-{i}" for i in range(df["qlen"].max())]
@@ -103,6 +102,43 @@ def pandas_processing(res_dict):
     return df
 
 
+def pandas_group_processing(res_dict):
+    """Performs Pandas processing of Pydamage grouped reference results
+
+    Args:
+        res_dict (dict): Result dictionary of LR test
+    """
+    filt_dict = {}
+    filt_dict["reference"] = str(res_dict["reference"])
+    filt_dict["null_model_p0"] = float(res_dict["p0"])
+    filt_dict["null_model_p0_stdev"] = float(res_dict["p0_stdev"])
+    filt_dict["damage_model_p"] = float(res_dict["p"])
+    filt_dict["damage_model_p_stdev"] = float(res_dict["p_stdev"])
+    filt_dict["damage_model_pmin"] = float(res_dict["pmin"])
+    filt_dict["damage_model_pmin_stdev"] = float(res_dict["pmin_stdev"])
+    filt_dict["damage_model_pmax"] = float(res_dict["pmax"])
+    filt_dict["damage_model_pmax_stdev"] = float(res_dict["pmax_stdev"])
+    filt_dict["pvalue"] = float(res_dict["pvalue"])
+    filt_dict["RMSE"] = float(res_dict["RMSE"])
+    filt_dict["nb_reads_aligned"] = int(res_dict["nb_reads_aligned"])
+    filt_dict["coverage"] = float(res_dict["coverage"])
+    filt_dict["reflen"] = int(res_dict["reflen"])
+
+    for i in list(res_dict.keys()):
+        if str(i).startswith("CtoT"):
+            filt_dict[i] = float(res_dict[i])
+        if str(i).startswith("GtoA"):
+            filt_dict[i] = float(res_dict[i])
+
+    df = (
+        pd.Series(filt_dict)
+        .to_frame(name="reference")
+        .transpose()
+        .set_index("reference")
+    )
+    return df
+
+
 def df_to_csv(df, outdir):
     """Write Pydamage results to disk
 
@@ -110,6 +146,7 @@ def df_to_csv(df, outdir):
         df(pandas DataFrame): Pydamage results DataFrame
         outdir (str): Path to output directory
     """
+    df = df.round(3)
     df.to_csv(f"{outdir}/pydamage_results.csv")
 
 

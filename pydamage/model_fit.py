@@ -5,12 +5,13 @@ from pydamage.optim import optim
 from scipy.stats import binom
 import collections
 from pydamage.utils import sort_dict_by_keys, RMSE, create_ct_cc_dict
-from pydamage.vuong import vuong_closeness
 from pydamage.likelihood_ratio import LR
 
 
-def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen, verbose):
-    """Performs model fitting and runs Vuong's closeness test
+def fit_models(
+    ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen, verbose
+):
+    """Performs model fitting and runs Likelihood ratio test
 
     Args:
         ref (str): name of referene in alignment file
@@ -23,17 +24,14 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
         wlen (int): window length
         verbose (bool): verbose mode
     """
-    all_bases_pos, all_bases_counts = np.unique(
-        np.sort(all_bases), return_counts=True)
+    all_bases_pos, all_bases_counts = np.unique(np.sort(all_bases), return_counts=True)
     c2t_pos, c2t_counts = np.unique(np.sort(ct_data), return_counts=True)
     g2a_pos, g2a_counts = np.unique(np.sort(ga_data), return_counts=True)
     c2t = dict(zip(c2t_pos, c2t_counts))
     g2a = dict(zip(g2a_pos, g2a_counts))
 
     # Getting Positions and counts of C2C and C2T
-    c2t_dict, c2c_dict = create_ct_cc_dict(ct_data=ct_data,
-                                           cc_data=cc_data,
-                                           wlen=wlen)
+    c2t_dict, c2c_dict = create_ct_cc_dict(ct_data=ct_data, cc_data=cc_data, wlen=wlen)
 
     # Adding zeros at positions where no damage is observed
     for i in all_bases_pos:
@@ -49,13 +47,13 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
     xdata = np.array(list(c2t.keys()))
     counts = np.array(list(c2t.values()))
 
-    ydata = list(counts/counts.sum())
+    ydata = list(counts / counts.sum())
     qlen = len(ydata)
     ydata_counts = {i: c for i, c in enumerate(ydata)}
     ctot_out = {f"CtoT-{k}": v for k, v in enumerate(ydata)}
 
     g2a_counts = np.array(list(g2a.values()))
-    y_ga = list(g2a_counts/g2a_counts.sum())
+    y_ga = list(g2a_counts / g2a_counts.sum())
     gtoa_out = {f"GtoA-{k}": v for k, v in enumerate(y_ga)}
 
     for i in range(qlen):
@@ -75,19 +73,23 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
     ydata = ydata[:wlen]
 
     res = {}
-    optim_A, stdev_A = optim(function=model_A.fit,  # damage model
-                             parameters=model_A.kwds,
-                             xdata=xdata,
-                             ydata=ydata,
-                             bounds=model_A.bounds)
-    if optim_A['pmax'] < optim_A['pmin']:  # making sure that fitting makes sense
-        optim_A['pmax'] = optim_A['pmin']
+    optim_A, stdev_A = optim(
+        function=model_A.fit,  # damage model
+        parameters=model_A.kwds,
+        xdata=xdata,
+        ydata=ydata,
+        bounds=model_A.bounds,
+    )
+    if optim_A["pmax"] < optim_A["pmin"]:  # making sure that fitting makes sense
+        optim_A["pmax"] = optim_A["pmin"]
 
-    optim_B, stdev_B = optim(function=model_B.fit,  # null model
-                             parameters=model_B.kwds,
-                             xdata=xdata,
-                             ydata=ydata,
-                             bounds=model_B.bounds)
+    optim_B, stdev_B = optim(
+        function=model_B.fit,  # null model
+        parameters=model_B.kwds,
+        xdata=xdata,
+        ydata=ydata,
+        bounds=model_B.bounds,
+    )
 
     ##########################
     # LIKELIHOOD CALCULATION #
@@ -126,12 +128,18 @@ def fit_models(ref, model_A, model_B, ct_data, cc_data, ga_data, all_bases, wlen
     res.update(stdev_A)
     res.update(optim_B)
     res.update(stdev_B)
-    res.update({'pvalue': pval})
-    res.update({'base_cov': all_bases_counts})
-    res.update({'model_params': list(optim_A.values()) +
-                list(optim_B.values())+list(stdev_A.values())+list(stdev_B.values())})
-    res['qlen'] = qlen
-    res['residuals'] = ydata - model_A.fit(x=xdata, **optim_A)
-    res['RMSE'] = RMSE(res['residuals'])
-    res['wlen'] = wlen
-    return(res)
+    res.update({"pvalue": pval})
+    res.update({"base_cov": all_bases_counts})
+    res.update(
+        {
+            "model_params": list(optim_A.values())
+            + list(optim_B.values())
+            + list(stdev_A.values())
+            + list(stdev_B.values())
+        }
+    )
+    res["qlen"] = qlen
+    res["residuals"] = ydata - model_A.fit(x=xdata, **optim_A)
+    res["RMSE"] = RMSE(res["residuals"])
+    res["wlen"] = wlen
+    return res

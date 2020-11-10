@@ -15,7 +15,7 @@ The tabular output is a comma-separated file (`.csv`) with the following columns
   * `damage_model_pmax`: paramater `p_max` of the damage model. *This is the modelled amount of damage on the 5' end.*
   * `damage_model_pmax_stdev`: standard error of the paramater `p_max` of the damage model
   * `pvalue`: p-value calculated from the likelihood-ratio test-statistic using a chi-squared distribution
-  * `qvalue`: p-value corrected for multiple testing using Benjamini-Hochberg procedure
+  * `qvalue`: p-value corrected for multiple testing using Benjamini-Hochberg procedure. *Only computed when multiple references are used*
   * `RMSE`: residual mean standard error of the model fit of the damage model
   * `nb_reads_aligned`: number of aligned reads
   * `coverage`: average coverage along the reference genome

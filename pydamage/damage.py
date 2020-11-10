@@ -4,7 +4,6 @@ import pysam
 from pydamage.parse_damage import damage_al
 from pydamage.model_fit import fit_models
 from pydamage import models
-from pydamage.gc_content import fastaFile
 import numpy as np
 
 
@@ -88,7 +87,7 @@ def check_model_fit(model_dict, wlen, verbose):
     """Check if model fitting makes sense
 
     Args:
-        model_dict (dict): Dictionary containing Vuong test results
+        model_dict (dict): Dictionary containing LR test results
         wlen (int): window length
         verbose (bool): Run in verbose mode
     Returns:
@@ -110,68 +109,139 @@ def check_model_fit(model_dict, wlen, verbose):
     return model_dict
 
 
-def test_damage(
-    ref, bam, fasta, mode, wlen, show_al, min_al, min_cov, process, verbose
-):
-    """Prepare data and run Vuong's test to test for damage
+def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
+    """Prepare data and run LRtest to test for damage
 
     Args:
         ref (str): name of referene in alignment file
         bam (str): bam file
-        fasta(str): Path to fasta file containing reference sequences
         mode (str): opening mode of alignment file
         wlen (int): window length
         show_al (bool): Show alignment representations
-        min_al (int): Minimum  number of aligned reads
-        min_cov (float): Minimum coverage
         process (int): Number of process for parallelization
         verbose (bool): Run in verbose mode
     Returns:
-        dict: Dictionary containing Vuong test results
+        dict: Dictionary containing LR test results
     """
     al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
-    fasta_handle = fastaFile(fasta)
-    fasta_gc = fasta_handle.compute_gc()
     try:
         cov = avg_coverage(al_handle.count_coverage(contig=ref))
         nb_reads_aligned = al_handle.count(contig=ref)
         reflen = al_handle.get_reference_length(ref)
 
-        if nb_reads_aligned >= min_al or cov >= min_cov:
-            al = al_to_damage(reference=ref, al_handle=al_handle)
-            ct_data, ga_data, cc_data, c_data, g_data, all_bases = al.get_damage(
-                wlen=wlen, show_al=show_al
+        al = al_to_damage(reference=ref, al_handle=al_handle)
+        ct_data, ga_data, cc_data, c_data, g_data, all_bases = al.get_damage(
+            wlen=wlen, show_al=show_al
+        )
+        if ct_data:
+            model_A = models.damage_model()
+            model_B = models.null_model()
+            test_res = fit_models(
+                ref=ref,
+                model_A=model_A,
+                model_B=model_B,
+                ct_data=ct_data,
+                cc_data=cc_data,
+                ga_data=ga_data,
+                all_bases=all_bases,
+                wlen=wlen,
+                verbose=verbose,
             )
-            if ct_data:
-                model_A = models.damage_model()
-                model_B = models.null_model()
-                test_res = fit_models(
-                    ref=ref,
-                    model_A=model_A,
-                    model_B=model_B,
-                    ct_data=ct_data,
-                    cc_data=cc_data,
-                    ga_data=ga_data,
-                    all_bases=all_bases,
-                    wlen=wlen,
-                    verbose=verbose,
-                )
-                test_res["reference"] = ref
-                test_res["nb_reads_aligned"] = nb_reads_aligned
-                test_res["coverage"] = cov
-                test_res["reflen"] = reflen
-                test_res["gc_content"] = fasta_gc[ref]
+            test_res["reference"] = ref
+            test_res["nb_reads_aligned"] = nb_reads_aligned
+            test_res["coverage"] = cov
+            test_res["reflen"] = reflen
 
-                return check_model_fit(test_res, wlen, verbose)
-        else:
-            if verbose:
-                print(
-                    f"Did not attempt to fit a model to {ref} because of too few reads aligned"
-                )
-                print(
-                    f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n"
-                )
-            pass
+            return check_model_fit(test_res, wlen, verbose)
+
+    except (ValueError, RuntimeError) as e:
+        if verbose:
+            print(f"Model fitting for {ref} failed")
+            print(f"Model fitting error: {e}")
+            print(
+                f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} - reflen: {reflen}\n"
+            )
+        return False
+
+
+def get_damage_group(ref, bam, mode, wlen, show_al, process):
+    """Prepare data and run LR test to test for damage on reference grouped
+    as one.
+
+    Args:
+        ref (str): name of referene in alignment file
+        bam (str): bam file
+        mode (str): opening mode of alignment file
+        wlen (int): window length
+        show_al (bool): Show alignment representations
+        process (int): Number of process for parallelization
+    Returns:
+        list:[ct_data, ga_data, cc_data, c_data, g_data, all_bases]
+    """
+
+    al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
+    cov = avg_coverage(al_handle.count_coverage(contig=ref))
+    nb_reads_aligned = al_handle.count(contig=ref)
+    reflen = al_handle.get_reference_length(ref)
+
+    al = al_to_damage(reference=ref, al_handle=al_handle)
+    ct_data, ga_data, cc_data, c_data, g_data, all_bases = al.get_damage(
+        wlen=wlen, show_al=show_al
+    )
+
+    return [
+        ct_data,
+        ga_data,
+        cc_data,
+        c_data,
+        g_data,
+        all_bases,
+        cov,
+        nb_reads_aligned,
+        reflen,
+    ]
+
+
+def test_damage_group(
+    ct_data, ga_data, cc_data, all_bases, nb_reads_aligned, cov, reflen, wlen, verbose
+):
+    """Performs damage test
+
+    Args:
+        ct_data (list of int): List of positions where CtoT transitions were observed
+        ga_data (list of int): List of positions where GtoA transitions were observed
+        cc_data (list of int): List of positions where C in ref and query
+        all_bases (list of int): List of positions where a base is aligned
+        nb_reads_aligned(int): number of reads aligned
+        cov(float): average coverage across all references
+        reflen(int): length of all references
+        wlen (int): window length
+        verbose(bool): Verbose
+    Returns:
+        dict: Dictionary containing LR test results
+    """
+    try:
+        if ct_data:
+            model_A = models.damage_model()
+            model_B = models.null_model()
+            test_res = fit_models(
+                ref="reference",
+                model_A=model_A,
+                model_B=model_B,
+                ct_data=ct_data,
+                cc_data=cc_data,
+                ga_data=ga_data,
+                all_bases=all_bases,
+                wlen=wlen,
+                verbose=verbose,
+            )
+            test_res["reference"] = "reference"
+            test_res["nb_reads_aligned"] = nb_reads_aligned
+            test_res["coverage"] = cov
+            test_res["reflen"] = reflen
+
+            return check_model_fit(test_res, wlen, verbose)
+
     except (ValueError, RuntimeError) as e:
         if verbose:
             print(f"Model fitting for {ref} failed")
