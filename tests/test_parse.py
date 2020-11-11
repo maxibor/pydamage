@@ -1,6 +1,6 @@
 import os
 import pytest
-from pydamage import parse_ct
+from pydamage import parse_damage
 
 
 @pytest.fixture(autouse=True)

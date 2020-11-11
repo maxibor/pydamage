@@ -3,90 +3,84 @@
 import numpy as np
 
 
-class geom_mod():
+class damage_model():
     def __init__(self):
-        self.kwds = ['geom_p', 'geom_pmin', 'geom_pmax']
-        self.bounds = ((0.01, 0., 0.01), (0.99, 0.2, 0.99))
+        self.kwds = ['p', 'pmin', 'pmax']
+        self.bounds = ((1e-15, 1e-15, 1e-15), (0.99, 0.2, 0.99))
 
     def __repr__(self):
         return(
             f"""
             A modified geometric function of formula:
-            y = ((((1-geom_p)**x)*geom_p) - xmin)/(xmax - xmin))*(geom_pmax - geom_pmin) + geom_pmin
+            y = ((((1-p)**x)*p) - xmin)/(xmax - xmin))*(pmax - pmin) + pmin
             With parameters:
-            - geom_p
-            - geom_pmin
-            - geom_pmax
+            - p
+            - pmin
+            - pmax
             - xmin
             - xmax
             """
         )
 
-    def pmf(self, x, geom_p, geom_pmin, geom_pmax):
-        """Probability mass function of the discrete geometric function
+    def _geom_pmf(self, x, p):
+        """Probability mass function of the discrete geometric distribution
 
         Args:
-            x (numpy array) data
-            geom_p (float): shape parameter
-            geom_pmin (float): min y value
-            geom_pmax (float): max y value
+            x (int): position
+            p (float): parameter of distribition
         Returns:
-            (numpy array): PMF(x)
+            float: PMF(x)
         """
-        base_geom = ((1-geom_p)**x)*geom_p
-        xmin = min(base_geom)
-        xmax = max(base_geom)
+        return(((1-p)**x)*p)
+
+    def fit(self, x, p, pmin, pmax, wlen=35):
+        """Damage model function 
+
+        Args:
+            x (numpy ndarray or int) data
+            p (float): shape parameter
+            pmin (float): min y value
+            pmax (float): max y value
+            wlen(int):  window length
+        Returns:
+            np.array: PMF(x)
+        """
+        vec_base_geom = np.vectorize(self._geom_pmf)
+
+        if type(x) == int:
+            x = np.array(x)
+
+        base_geom = vec_base_geom(x, p)
+
+        xmax = self._geom_pmf(0, p)
+        xmin = self._geom_pmf(wlen-1, p)
         scaled_geom = ((base_geom - xmin)/(xmax - xmin)) * \
-            (geom_pmax - geom_pmin) + geom_pmin
+            (pmax - pmin) + pmin
         return(scaled_geom)
 
-    def log_pmf(self, x, geom_p, geom_pmin, geom_pmax):
-        """Log Probability mass function of the discrete geometric function
 
-        Args:
-            x (numpy array) data
-            geom_p (float): shape parameter
-            geom_pmin (float): min y value
-            geom_pmax (float): max y value
-        Returns:
-            (numpy array): LogPMF(x)
-        """
-        return(np.log(self.pmf(x=x, geom_p=geom_p, geom_pmin=geom_pmin, geom_pmax=geom_pmax)))
-
-
-class unif_mod():
+class null_model():
     def __init__(self):
-        self.kwds = ('unif_pmin',)
-        self.bounds = ((0.,), (0.2,))
+        self.kwds = ('p0',)
+        self.bounds = ((1e-15,), (0.2,))
 
     def __repr__(self):
         return(
             f"""
             A modified uniform function of formula
-            y = unif_pmin
+            y = p0
             With parameters:
-            - unif_pmin
+            - p0
             """
         )
 
-    def pmf(self, x, unif_pmin):
-        """Probability mass function of the discrete geometric function
+    def fit(self, x, p0):
+        """Null model function
 
         Args:
             x (numpy array) data
-            unif_pmin (float): target y value
+            p0 (float): target y value
         Returns:
-            (numpy array): PMF(x)
+            np.array: PMF(x)
         """
-        return(np.array([unif_pmin]*len(x)))
-
-    def log_pmf(self, x, unif_pmin):
-        """Log probability mass function of the discrete geometric function
-
-        Args:
-            x (numpy array) data
-            geom_pmin (float): target y value
-        Returns:
-            (numpy array): LogPMF(x)
-        """
-        return(np.log(self.pmf(x=x, unif_pmin=unif_pmin)))
+        return(np.array([p0]*len(x)))

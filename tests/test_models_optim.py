@@ -16,65 +16,49 @@ def generate_data():
     return(x, xdata, ydata)
 
 
-def test_geom_pmf(generate_data):
-    g = models.geom_mod()
-    assert g.pmf(x=generate_data[0], geom_p=0.5, geom_pmin=0.01, geom_pmax=0.5).all() == np.array([0.3, 0.3, 0.3, 0.3, 0.3,
-                                                                                                   0.3, 0.3, 0.3, 0.3, 0.3,
-                                                                                                   0.15471624, 0.15471624, 0.15471624, 0.15471624, 0.15471624,
-                                                                                                   0.08207436, 0.08207436, 0.04575342, 0.02759295, 0.01851272,
-                                                                                                   0.0139726, 0.01170254, 0.01056751, 0.01]).all()
+def test_damage_model_fit(generate_data):
+    g = models.damage_model()
+    assert g.fit(x=generate_data[0], p=0.5, pmin=0.01, pmax=0.5).all() == np.array([0.3, 0.3, 0.3, 0.3, 0.3,
+                                                                                    0.3, 0.3, 0.3, 0.3, 0.3,
+                                                                                    0.15471624, 0.15471624, 0.15471624, 0.15471624, 0.15471624,
+                                                                                    0.08207436, 0.08207436, 0.04575342, 0.02759295, 0.01851272,
+                                                                                    0.0139726, 0.01170254, 0.01056751, 0.01]).all()
 
 
-def test_geom_log_pmf(generate_data):
-    g = models.geom_mod()
-    assert g.log_pmf(x=generate_data[0], geom_p=0.5, geom_pmin=0.01, geom_pmax=0.5).all() == np.array([-1.2039728, -1.2039728, -1.2039728, -1.2039728, -1.2039728,
-                                                                                                       -1.2039728, -1.2039728, -1.2039728, -1.2039728, -1.2039728,
-                                                                                                       -1.86616253, -1.86616253, -1.86616253, -1.86616253, -1.86616253,
-                                                                                                       -2.50012956, -2.50012956, -3.08448863, -3.59019479, -3.98929721,
-                                                                                                       -4.27065681, -4.44794902, -4.54997064, -4.60517019]).all()
+def test_damage_model_optim(generate_data):
+    g = models.damage_model()
+    o, e = optim(function=g.fit,
+                 parameters=g.kwds,
+                 xdata=generate_data[1],
+                 ydata=generate_data[2],
+                 bounds=g.bounds,
+                 loss='linear')
 
-
-def test_geom_optim(generate_data):
-    g = models.geom_mod()
-    o = optim(function=g.pmf,
-              parameters=g.kwds,
-              xdata=generate_data[1],
-              ydata=generate_data[2],
-              bounds=g.bounds)
-
-    target = {'geom_p': 0.6039535547658853,
-              'geom_pmin': 0.03637474931290336,
-              'geom_pmax': 0.4211432052501663}
+    target = {'p': 0.6039535547658853,
+              'pmin': 0.03637474931290336,
+              'pmax': 0.4211432052501663}
     for k in o:
         assert round(o[k], 3) == round(target[k], 3)
 
 
-def test_unif_pmf(generate_data):
-    u = models.unif_mod()
-    assert u.pmf(x=generate_data[0], unif_pmin=0.1).all() == np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                                                                       0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]).all()
+def test_null_model_fit(generate_data):
+    u = models.null_model()
+    assert u.fit(x=generate_data[0], p0=0.1).all() == np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                                                                0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]).all()
 
 
-def test_unif_log_pmf(generate_data):
-    u = models.unif_mod()
-    assert u.log_pmf(x=generate_data[0], unif_pmin=0.1).all() == np.array([-2.30258509, -2.30258509, -2.30258509, -2.30258509, -2.30258509,
-                                                                           -2.30258509, -2.30258509, -2.30258509, -2.30258509, -2.30258509,
-                                                                           -2.30258509, -2.30258509, -2.30258509, -2.30258509, -2.30258509,
-                                                                           -2.30258509, -2.30258509, -2.30258509, -2.30258509, -2.30258509,
-                                                                           -2.30258509, -2.30258509, -2.30258509, -2.30258509]).all()
-
-
-def test_unif_optim(generate_data):
-    u = models.unif_mod()
-    o = optim(function=u.pmf,
-              parameters=u.kwds,
-              xdata=generate_data[1],
-              ydata=generate_data[2],
-              bounds=u.bounds)
-    assert o == {'unif_pmin': 0.1}
+def test_null_model_optim(generate_data):
+    u = models.null_model()
+    o, e = optim(function=u.fit,
+                 parameters=u.kwds,
+                 xdata=generate_data[1],
+                 ydata=generate_data[2],
+                 bounds=u.bounds,
+                 loss='linear')
+    assert o == {'p0': 0.1000000000000005}
 
 
 if __name__ == "__main__":
     data, xdata, ydata = generate_data()
-    g = models.geom_mod()
-    o = optim(function=g.pmf, parameters=g.kwds, xdata=xdata, ydata=ydata)
+    g = models.damage_model()
+    o = optim(function=g.fit, parameters=g.kwds, xdata=xdata, ydata=ydata)

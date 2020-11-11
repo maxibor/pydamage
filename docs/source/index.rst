@@ -15,6 +15,11 @@ __ homepage_
    :maxdepth: 2
    :caption: Contents:
 
+   README
+   API
+   CLI
+   output
+
 
 
 Indices and tables
