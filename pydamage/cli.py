@@ -14,7 +14,7 @@ from pydamage import __version__
     default=35,
     type=int,
     show_default=True,
-    help="Window length for damage modeling",
+    help="Window length in base-pairs for damage modeling from end of reads",
 )
 @click.option(
     "-p",
@@ -22,10 +22,10 @@ from pydamage import __version__
     default=2,
     type=int,
     show_default=True,
-    help="Number of processes",
+    help="Number of processors (CPUs) to use",
 )
-@click.option("-s", "--show_al", is_flag=True, help="Show alignments representations")
-@click.option("-pl", "--plot", is_flag=True, help="Make the damage plots")
+@click.option("-s", "--show_al", is_flag=True, help="Print read alignments to terminal console")
+@click.option("-pl", "--plot", is_flag=True, help="Save damage and fitting plots to files")
 @click.option("--verbose", is_flag=True, help="Verbose mode")
 @click.option(
     "-o",
@@ -36,7 +36,7 @@ from pydamage import __version__
     help="Output directory",
 )
 @click.option("--force", is_flag=True, help="Force overwriting of results directory")
-@click.option("--group", is_flag=True, help="Group references together for analyis")
+@click.option("--group", is_flag=True, help="Use entire BAM file as single reference for analyis (ignore reference headers)")
 def cli(no_args_is_help=True, **kwargs):
     """\b
     PyDamage: Damage parameter estimation for ancient DNA
