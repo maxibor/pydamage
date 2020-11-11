@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 
-def damage_al(reference, query, cigartuple, wlen, show_al):
+def damage_al(reference, read_name, ref_name, query, cigartuple, wlen, show_al):
     """Compute CtoT mutations for a single alignment
 
     Args:
-        reference (string): reference sequence
+        reference (str): reference sequence
+        read_name(str): name of read
+        ref_name(str): name of reference
         query (string): query sequence
         cigartuple (tuple): cigar tuple (pysam)
         wlen (int): window length
@@ -71,13 +73,13 @@ def damage_al(reference, query, cigartuple, wlen, show_al):
                 base_trans_counts['GA'].append(i)
 
     if show_al:
-        res += "R " + r_string + "\n  "
+        res += "R " + r_string + "\t" + ref_name + "\n  "
         for i in range(0, min(len(r_string), len(q_string))):
             if r_string[i] == q_string[i]:
                 res += ("|")
             else:
                 res += (" ")
-        res += "\nQ " + q_string
+        res += "\nQ " + q_string + "\t" + read_name + "\n "
         print(res)
 
     return(base_trans_counts)
