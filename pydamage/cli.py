@@ -53,7 +53,7 @@ def cli(no_args_is_help=True, **kwargs):
     Contact: <borry[at]shh.mpg.de>
     Homepage & Documentation: github.com/maxibor/pydamage
 
-    BAM: path to BAM/SAM/CRAM alignment file
+    BAM: path to BAM/SAM/CRAM alignment file. MD tags need to be set.
     """
     analyze(**kwargs)
 
