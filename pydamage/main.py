@@ -5,6 +5,7 @@ import multiprocessing
 from functools import partial
 from pydamage import damage
 from pydamage.plot import damageplot
+from pydamage.exceptions import AlignmentFileError
 from pydamage.accuracy_model import prepare_data, load_model, fit_model
 import sys
 from tqdm import tqdm
@@ -122,6 +123,8 @@ def analyze_multi(
     filt_res = [i for i in res if i]
 
     print(f"{len(filt_res)} contigs were successfully analyzed by Pydamage")
+    if len(filt_res) == 0 :
+        raise AlignmentFileError("Check your alignment file")
 
     if plot and len(filt_res) > 0:
         print("\nGenerating Pydamage plots")
@@ -223,6 +226,10 @@ def analyze_group(
         nb_reads_aligned += i[7]
         reflen += i[8]
     cov = cov / nb_ref
+
+    if nb_reads_aligned == 0:
+        raise AlignmentFileError("No Alignments were found\nCheck your alignment file")
+
 
     damage_dict = damage.test_damage_group(
         ct_data,

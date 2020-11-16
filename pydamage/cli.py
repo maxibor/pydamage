@@ -14,7 +14,7 @@ from pydamage import __version__
     default=35,
     type=int,
     show_default=True,
-    help="Window length for damage modeling",
+    help="Window length (in bp) for damage modeling",
 )
 @click.option(
     "-p",
@@ -22,11 +22,8 @@ from pydamage import __version__
     default=2,
     type=int,
     show_default=True,
-    help="Number of processes",
+    help="Number of processes for parallel computing",
 )
-@click.option("-s", "--show_al", is_flag=True, help="Show alignments representations")
-@click.option("-pl", "--plot", is_flag=True, help="Make the damage plots")
-@click.option("--verbose", is_flag=True, help="Verbose mode")
 @click.option(
     "-o",
     "--outdir",
@@ -35,8 +32,20 @@ from pydamage import __version__
     show_default=True,
     help="Output directory",
 )
-@click.option("--force", is_flag=True, help="Force overwriting of results directory")
-@click.option("--group", is_flag=True, help="Group references together for analyis")
+@click.option("-s", "--show_al",
+              is_flag=True,
+              help="Display alignments representations")
+@click.option("-pl", "--plot",
+              is_flag=True,
+              help="Write damage fitting plots to disk")
+@click.option("-vv", "--verbose", is_flag=True, help="Verbose mode")
+@click.option("-f", "--force",
+              is_flag=True,
+              help="Force overwriting of results directory")
+@click.option("-g", "--group",
+              is_flag=True,
+              help="Use entire BAM file as single reference for analyis "
+              "(ignore reference headers)")
 def cli(no_args_is_help=True, **kwargs):
     """\b
     PyDamage: Damage parameter estimation for ancient DNA
@@ -44,7 +53,7 @@ def cli(no_args_is_help=True, **kwargs):
     Contact: <borry[at]shh.mpg.de>
     Homepage & Documentation: github.com/maxibor/pydamage
 
-    BAM: path to BAM/SAM/CRAM alignment file
+    BAM: path to BAM/SAM/CRAM alignment file. MD tags need to be set.
     """
     analyze(**kwargs)
 
