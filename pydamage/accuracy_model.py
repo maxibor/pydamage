@@ -2,14 +2,16 @@ import pkg_resources
 import pandas as pd
 import numpy as np
 import pickle
+import gzip
 
 
 def load_model():
     """Returns the pmml model"""
-    stream = pkg_resources.resource_stream(
-        __name__, "models/accuracy_model_v2_python.pickle"
+    model_path = pkg_resources.resource_stream(
+        __name__, "models/accuracy_model_v2_python.pickle.gz"
     )
-    return pickle.load(stream)
+    with gzip.open(model_path, 'rb') as mod:
+        return pickle.load(mod)
 
 
 def prepare_data(pd_df):
