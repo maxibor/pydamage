@@ -15,8 +15,8 @@ def vuong_closeness(LA, LB, N, pdiff):
         float: pvalue
     """
 
-    LR = LA.sum() - LB.sum() - (pdiff/2)*log(N)
-    omega = std(LA-LB)
-    Z = LR/(omega*sqrt(N))
+    LR = LA.sum() - LB.sum() - (pdiff / 2) * log(N)
+    omega = std(LA - LB)
+    Z = LR / (omega * sqrt(N))
     pval = 1 - norm.cdf(Z)
-    return(Z, pval)
+    return (Z, pval)

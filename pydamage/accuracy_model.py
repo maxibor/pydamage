@@ -10,7 +10,7 @@ def load_model():
     model_path = pkg_resources.resource_stream(
         __name__, "models/accuracy_model_v2_python.pickle.gz"
     )
-    with gzip.open(model_path, 'rb') as mod:
+    with gzip.open(model_path, "rb") as mod:
         return pickle.load(mod)
 
 

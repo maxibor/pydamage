@@ -139,7 +139,7 @@ def pandas_group_processing(res_dict):
     return df
 
 
-def df_to_csv(df, outdir):
+def df_to_csv(df, outdir, outfile="pydamage_results.csv"):
     """Write Pydamage results to disk
 
     Args:
@@ -147,7 +147,7 @@ def df_to_csv(df, outdir):
         outdir (str): Path to output directory
     """
     df = df.round(3)
-    df.to_csv(f"{outdir}/pydamage_results.csv")
+    df.to_csv(f"{outdir}/{outfile}")
 
 
 def sort_dict_by_keys(adict):
