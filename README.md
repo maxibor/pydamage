@@ -43,7 +43,7 @@ pip install -e .
 ## Quick start
 
 ```bash
-pydamage aligned.bam
+pydamage analyze aligned.bam
 ```
 
 ## CLI help

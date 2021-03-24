@@ -1,12 +1,39 @@
 #!/usr/bin/env python3
 
 import click
-from pydamage.main import analyze, analyze_group
+from pydamage.main import pydamage_analyze
+from pydamage.kneedle import apply_filter
 from pydamage import __version__
 
 
-@click.command()
+@click.group()
 @click.version_option(__version__)
+@click.pass_context
+@click.option(
+    "-o",
+    "--outdir",
+    type=click.Path(writable=True, dir_okay=True),
+    default="pydamage_results",
+    show_default=True,
+    help="Output directory",
+)
+def cli(ctx, outdir):
+    """\b
+    PyDamage: Damage parameter estimation for ancient DNA
+    Author: Maxime Borry
+    Contact: <borry[at]shh.mpg.de>
+    Homepage & Documentation: github.com/maxibor/pydamage
+
+    """
+
+    ctx.ensure_object(dict)
+
+    ctx.obj["outdir"] = outdir
+    pass
+
+
+@cli.command()
+@click.pass_context
 @click.argument("bam", type=click.Path(exists=True))
 @click.option(
     "-w",
@@ -25,37 +52,41 @@ from pydamage import __version__
     help="Number of processes for parallel computing",
 )
 @click.option(
-    "-o",
-    "--outdir",
-    type=click.Path(writable=True, dir_okay=True),
-    default="pydamage_results",
-    show_default=True,
-    help="Output directory",
+    "-s", "--show_al", is_flag=True, help="Display alignments representations"
 )
-@click.option("-s", "--show_al",
-              is_flag=True,
-              help="Display alignments representations")
-@click.option("-pl", "--plot",
-              is_flag=True,
-              help="Write damage fitting plots to disk")
+@click.option("-pl", "--plot", is_flag=True, help="Write damage fitting plots to disk")
 @click.option("-vv", "--verbose", is_flag=True, help="Verbose mode")
-@click.option("-f", "--force",
-              is_flag=True,
-              help="Force overwriting of results directory")
-@click.option("-g", "--group",
-              is_flag=True,
-              help="Use entire BAM file as single reference for analyis "
-              "(ignore reference headers)")
-def cli(no_args_is_help=True, **kwargs):
+@click.option(
+    "-f", "--force", is_flag=True, help="Force overwriting of results directory"
+)
+@click.option(
+    "-g",
+    "--group",
+    is_flag=True,
+    help="Use entire BAM file as single reference for analyis "
+    "(ignore reference headers)",
+)
+def analyze(ctx, no_args_is_help=True, **kwargs):
     """\b
-    PyDamage: Damage parameter estimation for ancient DNA
-    Author: Maxime Borry
-    Contact: <borry[at]shh.mpg.de>
-    Homepage & Documentation: github.com/maxibor/pydamage
+    Run the PyDamage analysis
 
     BAM: path to BAM/SAM/CRAM alignment file. MD tags need to be set.
     """
-    analyze(**kwargs)
+    pydamage_analyze(**kwargs, **ctx.obj)
+
+
+@cli.command()
+@click.pass_context
+@click.argument("csv", type=click.Path(exists=True))
+def filter(ctx, no_args_is_help=True, **kwargs):
+    """\b
+    Filter PyDamage results with optimal pred_accuracy threshold selection
+
+    CSV: path to PyDamage result file
+    """
+    print(kwargs, ctx.obj)
+
+    apply_filter(**kwargs, **ctx.obj)
 
 
 if __name__ == "__main__":
