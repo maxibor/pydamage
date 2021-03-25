@@ -37,3 +37,5 @@ jobs:
         shell: bash -l {0}
         run: |
           pydamage analyze --verbose tests/data/aligned.bam
+          pydamage filter pydamage_results/pydamage_results.csv
+          pydamage cite

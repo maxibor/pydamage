@@ -2,11 +2,26 @@
 
 import click
 from pydamage.main import pydamage_analyze
+from pydamage.citation import get_citation
 from pydamage.kneedle import apply_filter
 from pydamage import __version__
+from collections import OrderedDict
 
+class NaturalOrderGroup(click.Group):
 
-@click.group()
+    def __init__(self, name=None, commands=None, **attrs):
+        super(NaturalOrderGroup, self).__init__(
+            name=name, commands=None, **attrs)
+        if commands is None:
+            commands = OrderedDict()
+        elif not isinstance(commands, OrderedDict):
+            commands = OrderedDict(commands)
+        self.commands = commands
+
+    def list_commands(self, ctx):
+        return self.commands.keys()
+
+@click.group(cls=NaturalOrderGroup)
 @click.version_option(__version__)
 @click.pass_context
 @click.option(
@@ -88,6 +103,11 @@ def filter(ctx, no_args_is_help=True, **kwargs):
 
     apply_filter(**kwargs, **ctx.obj)
 
+@cli.command()
+def cite():
+    """Get pydamage citation in bibtex format
+    """
+    get_citation()
 
 if __name__ == "__main__":
     cli()
