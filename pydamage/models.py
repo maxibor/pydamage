@@ -3,14 +3,13 @@
 import numpy as np
 
 
-class damage_model():
+class damage_model:
     def __init__(self):
-        self.kwds = ['p', 'pmin', 'pmax']
+        self.kwds = ["p", "pmin", "pmax"]
         self.bounds = ((1e-15, 1e-15, 1e-15), (0.99, 0.2, 0.99))
 
     def __repr__(self):
-        return(
-            f"""
+        return f"""
             A modified geometric function of formula:
             y = ((((1-p)**x)*p) - xmin)/(xmax - xmin))*(pmax - pmin) + pmin
             With parameters:
@@ -20,7 +19,6 @@ class damage_model():
             - xmin
             - xmax
             """
-        )
 
     def _geom_pmf(self, x, p):
         """Probability mass function of the discrete geometric distribution
@@ -31,10 +29,10 @@ class damage_model():
         Returns:
             float: PMF(x)
         """
-        return(((1-p)**x)*p)
+        return ((1 - p) ** x) * p
 
     def fit(self, x, p, pmin, pmax, wlen=35):
-        """Damage model function 
+        """Damage model function
 
         Args:
             x (numpy ndarray or int) data
@@ -53,26 +51,23 @@ class damage_model():
         base_geom = vec_base_geom(x, p)
 
         xmax = self._geom_pmf(0, p)
-        xmin = self._geom_pmf(wlen-1, p)
-        scaled_geom = ((base_geom - xmin)/(xmax - xmin)) * \
-            (pmax - pmin) + pmin
-        return(scaled_geom)
+        xmin = self._geom_pmf(wlen - 1, p)
+        scaled_geom = ((base_geom - xmin) / (xmax - xmin)) * (pmax - pmin) + pmin
+        return scaled_geom
 
 
-class null_model():
+class null_model:
     def __init__(self):
-        self.kwds = ('p0',)
+        self.kwds = ("p0",)
         self.bounds = ((1e-15,), (0.2,))
 
     def __repr__(self):
-        return(
-            f"""
+        return f"""
             A modified uniform function of formula
             y = p0
             With parameters:
             - p0
             """
-        )
 
     def fit(self, x, p0):
         """Null model function
@@ -83,4 +78,4 @@ class null_model():
         Returns:
             np.array: PMF(x)
         """
-        return(np.array([p0]*len(x)))
+        return np.array([p0] * len(x))

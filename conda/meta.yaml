@@ -21,7 +21,8 @@ requirements:
     - python>=3.6
     - click>=7.0
     - numpy>=1.17.5
-    - pandas>=1.0.0
+    - pandas>=1.1.0
+    - patsy>=0.5.1
     - pip>=20.0.2
     - bioconda::pysam>=0.15.2
     - scipy>=1.4.1
@@ -29,6 +30,7 @@ requirements:
     - matplotlib>=3.1.1
     - tqdm>=4.45.0
     - biopython>=1.78
+    - kneed>=0.7.0
     
 test:
   commands:

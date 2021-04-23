@@ -36,4 +36,6 @@ jobs:
       - name: Check pydamage on test data
         shell: bash -l {0}
         run: |
-          pydamage --verbose tests/data/aligned.bam
+          pydamage analyze --verbose tests/data/aligned.bam
+          pydamage filter pydamage_results/pydamage_results.csv
+          pydamage cite

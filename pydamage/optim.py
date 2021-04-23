@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 from numpy import sqrt, diag
 
 
-def optim(function, parameters, xdata, ydata, bounds, loss='huber'):
+def optim(function, parameters, xdata, ydata, bounds, loss="huber"):
     """Find optimal parameters given data
 
     Args:
@@ -19,9 +19,8 @@ def optim(function, parameters, xdata, ydata, bounds, loss='huber'):
         dict: popt_dict - 'parameter_name':'parameter_value'
         dict: perr_dict - 'parameter_name':'standard_deviation'
     """
-    popt, pcov = curve_fit(function, xdata=xdata,
-                           ydata=ydata, bounds=bounds, loss=loss)
+    popt, pcov = curve_fit(function, xdata=xdata, ydata=ydata, bounds=bounds, loss=loss)
     perr = sqrt(diag(pcov))
     popt_dict = {k: v for (k, v) in zip(parameters, popt)}
     perr_dict = {f"{k}_stdev": v for (k, v) in zip(parameters, perr)}
-    return(popt_dict, perr_dict)
+    return (popt_dict, perr_dict)

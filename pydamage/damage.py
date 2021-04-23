@@ -204,15 +204,7 @@ def get_damage_group(ref, bam, mode, wlen, show_al, process):
 
 
 def test_damage_group(
-    ct_data,
-    ga_data,
-    cc_data,
-    all_bases,
-    nb_reads_aligned,
-    cov,
-    reflen,
-    wlen,
-    verbose
+    ct_data, ga_data, cc_data, all_bases, nb_reads_aligned, cov, reflen, wlen, verbose
 ):
     """Performs damage test
 

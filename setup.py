@@ -36,7 +36,8 @@ setup(
         "statsmodels",
         "matplotlib",
         "tqdm",
-        "biopython"    
+        "biopython",
+        "kneed"    
     ],
     packages=find_packages(include=["pydamage"]),
     entry_points={"console_scripts": ["pydamage = pydamage.cli:cli"]},
