@@ -8,6 +8,10 @@ Welcome to pydamage's documentation!
 
 Homepage: `github.com/maxibor/pydamage`__
 
+.. image:: https://github.com/maxibor/pydamage/raw/master/docs/img/logo.png
+  :width: 400
+  :alt: Alternative text
+
 .. _homepage: https://github.com/maxibor/pydamage
 __ homepage_ 
 

@@ -1,5 +1,14 @@
-[![pydamage logo](https://github.com/maxibor/pydamage/raw/master/docs/img/logo.png)](https://github.com/maxibor/pydamage)
-[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/maxibor/pydamage?include_prereleases&label=version)](https://github.com/maxibor/pydamage/releases) [![pydamage CI](https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg)](https://github.com/maxibor/pydamage/actions) [![Documentation Status](https://readthedocs.org/projects/pydamage/badge/?version=latest)](https://pydamage.readthedocs.io/en/latest/?badge=latest) [![PyPI](https://img.shields.io/pypi/v/pydamage)](https://pypi.org/project/pydamage/) [![Conda](https://img.shields.io/conda/v/maxibor/pydamage)](https://anaconda.org/maxibor/pydamage)
+<p align="center">
+    <a href="https://github.com/maxibor/pydamage"><img src="https://github.com/maxibor/pydamage/raw/master/docs/img/logo.png" alt="PyDamage"></a>
+</p>
+
+<p align="center">
+    <a href="https://github.com/maxibor/pydamage/releases"><img src="https://img.shields.io/github/v/release/maxibor/pydamage?include_prereleases&label=version"/></a>
+    <a href="https://github.com/maxibor/pydamage/actions"><img src="https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg"/></a>
+    <a href="https://readthedocs.org/projects/pydamage/badge/?version=latest"><img src="https://readthedocs.org/projects/pydamage/badge/?version=latest"/></a>
+    <a href="https://pypi.org/project/pydamage/"><img src="https://img.shields.io/pypi/v/pydamage"/></a>
+    <a href="https://anaconda.org/maxibor/pydamage"><img src="https://img.shields.io/conda/v/maxibor/pydamage"/></a>
+</p>
 
 # PyDamage
 
