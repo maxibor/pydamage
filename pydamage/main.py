@@ -5,6 +5,7 @@ import multiprocessing
 from functools import partial
 from pydamage import damage
 from pydamage.plot import damageplot
+from pydamage.exceptions import AlignmentFileError
 from pydamage.accuracy_model import prepare_data, load_model, fit_model
 import sys
 from tqdm import tqdm
@@ -12,7 +13,7 @@ import warnings
 from pydamage import __version__
 
 
-def analyze(
+def pydamage_analyze(
     bam,
     wlen=30,
     show_al=False,
@@ -25,27 +26,17 @@ def analyze(
 ):
 
     if group:
-        analyze_group(bam,
-                      wlen,
-                      show_al,
-                      process,
-                      outdir,
-                      plot,
-                      verbose,
-                      force)
+        pydamage_analyze_group(
+            bam, wlen, show_al, process, outdir, plot, verbose, force
+        )
 
     else:
-        analyze_multi(bam,
-                      wlen,
-                      show_al,
-                      process,
-                      outdir,
-                      plot,
-                      verbose,
-                      force)
+        pydamage_analyze_multi(
+            bam, wlen, show_al, process, outdir, plot, verbose, force
+        )
 
 
-def analyze_multi(
+def pydamage_analyze_multi(
     bam,
     wlen=30,
     show_al=False,
@@ -122,6 +113,8 @@ def analyze_multi(
     filt_res = [i for i in res if i]
 
     print(f"{len(filt_res)} contigs were successfully analyzed by Pydamage")
+    if len(filt_res) == 0:
+        raise AlignmentFileError("Check your alignment file")
 
     if plot and len(filt_res) > 0:
         print("\nGenerating Pydamage plots")
@@ -144,7 +137,7 @@ def analyze_multi(
     return df
 
 
-def analyze_group(
+def pydamage_analyze_group(
     bam,
     wlen=30,
     show_al=False,
@@ -203,8 +196,7 @@ def analyze_group(
     )
     print("Estimating and testing Damage")
     with multiprocessing.Pool(proc) as p:
-        res = list(
-            tqdm(p.imap(get_damage_group_partial, refs), total=len(refs)))
+        res = list(tqdm(p.imap(get_damage_group_partial, refs), total=len(refs)))
     ct_data = []
     ga_data = []
     cc_data = []
@@ -223,6 +215,9 @@ def analyze_group(
         nb_reads_aligned += i[7]
         reflen += i[8]
     cov = cov / nb_ref
+
+    if nb_reads_aligned == 0:
+        raise AlignmentFileError("No Alignments were found\nCheck your alignment file")
 
     damage_dict = damage.test_damage_group(
         ct_data,

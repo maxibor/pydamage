@@ -23,6 +23,7 @@ __ homepage_
    API
    CLI
    output
+   troubleshooting
 
 
 

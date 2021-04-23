@@ -16,4 +16,4 @@ def LR(L0, L1, df):
 
     LR_lambda = -2 * (L0.sum() - L1.sum())
     pval = 1 - chi2.cdf(LR_lambda, df)
-    return(LR_lambda, pval)
+    return (LR_lambda, pval)

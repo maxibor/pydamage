@@ -16,7 +16,7 @@ class al_to_damage:
             al_handle(pysam.AlignmentFile)
         """
         self.alignments = al_handle.fetch(reference)
-
+        self.reference = reference
         # self.alignments = al_file
 
     # def __repr__(self):
@@ -45,14 +45,13 @@ class al_to_damage:
         all_bases = []
         for al in self.alignments:
             if al.is_reverse is False and al.is_unmapped is False:
-                cigar = al.cigartuples
-                ref = al.get_reference_sequence()
-                quer = al.query_sequence
 
                 all_damage = damage_al(
-                    reference=ref,
-                    query=quer,
-                    cigartuple=cigar,
+                    reference=al.get_reference_sequence(),
+                    read_name=al.query_name,
+                    ref_name=self.reference,
+                    query=al.query_sequence,
+                    cigartuple=al.cigartuples,
                     wlen=wlen,
                     show_al=show_al,
                 )
@@ -205,15 +204,7 @@ def get_damage_group(ref, bam, mode, wlen, show_al, process):
 
 
 def test_damage_group(
-    ct_data,
-    ga_data,
-    cc_data,
-    all_bases,
-    nb_reads_aligned,
-    cov,
-    reflen,
-    wlen,
-    verbose
+    ct_data, ga_data, cc_data, all_bases, nb_reads_aligned, cov, reflen, wlen, verbose
 ):
     """Performs damage test
 

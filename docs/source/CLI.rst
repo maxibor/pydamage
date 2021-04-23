@@ -11,4 +11,4 @@ The list of arguments of options is detailed below
 
 .. click:: pydamage.cli:cli
   :prog: pydamage
-  :show-nested:
+  :nested: full

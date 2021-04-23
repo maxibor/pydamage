@@ -2,7 +2,9 @@
 
 Pydamage generates both a tabular and a visual output.
 
-The tabular output is a comma-separated file (`.csv`) with the following columns, for each analysed reference:
+The tabular outputs are  comma-separated file (`.csv`) with the following columns, for each analysed reference:
+
+### `pydamage_results.csv` 
 
 * `reference`: name of the reference genome/contig
 * `pred_accuracy`: Predicted accuracy of Pydamage prediction, from the GLM modelling
@@ -22,7 +24,12 @@ The tabular output is a comma-separated file (`.csv`) with the following columns
 * `CtoT-N`: Proportion of CtoT substitutions observed at position `N` from 5' end
 * `GtoA-N`: Proportion of GtoA substitutions observed at position `N` from 5'
 
-> To select contigs/references with damage, you will most likely want to look at two columns: `pred_accuracy > 0.9` and `qvalue <= 0.05`  
+
+### `pydamage_filtered_results.csv` 
+
+Same file as above, but with contigs filtered with `qvalue <= 0.05` and `pred_accuracy >= threshold` with the filtering threshold determined with the [kneedle](https://ieeexplore.ieee.org/document/5961514) method.
+
+### Plots
 
 The visual output are PNG files, one per reference contig. They show the frequency of observed C to T, and G to A transition at the 5' end of the sequencing data and overlay it with the fitted models for both the null and the damage model, including 95% confidence intervals. Furthermore, it provides a "residuals versus fitted" plot to help evaluate the fit of the pydamage damage model. Finally, the plot contains informtion on the average coverage along the reference and the p-value calculated from the likelihood-ratio test-statistic using a chi-squared distribution.
 
