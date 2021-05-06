@@ -99,6 +99,8 @@ def check_model_fit(model_dict, wlen, verbose):
         return False
 
     # Check that all the first wlen bases are covered
+    if len(model_dict["base_cov"]) < wlen:
+        return False
     if np.any(np.array(model_dict["base_cov"][:wlen]) == 0):
         if verbose:
             print(
