@@ -173,7 +173,7 @@ def check_model_fit(model_dict, wlen, verbose):
     return model_dict
 
 
-def test_damage(ref, bam, mode, wlen, show_al, count_reverse, process, verbose):
+def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
     """Prepare data and run LRtest to test for damage
 
     Args:
@@ -182,7 +182,6 @@ def test_damage(ref, bam, mode, wlen, show_al, count_reverse, process, verbose):
         mode (str): opening mode of alignment file
         wlen (int): window length
         show_al (bool): Show alignment representations
-        count_reverse(bool): count reverse alignments as well
         process (int): Number of process for parallelization
         verbose (bool): Run in verbose mode
     Returns:

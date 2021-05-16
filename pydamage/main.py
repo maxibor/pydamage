@@ -20,7 +20,6 @@ def pydamage_analyze(
     process=1,
     outdir="",
     plot=False,
-    count_reverse=False,
     verbose=False,
     force=False,
     group=False,
@@ -28,12 +27,12 @@ def pydamage_analyze(
 
     if group:
         pydamage_analyze_group(
-            bam, wlen, show_al, count_reverse, process, outdir, plot, verbose, force
+            bam, wlen, show_al, process, outdir, plot, verbose, force
         )
 
     else:
         pydamage_analyze_multi(
-            bam, wlen, show_al, count_reverse, process, outdir, plot, verbose, force
+            bam, wlen, show_al, process, outdir, plot, verbose, force
         )
 
 
@@ -41,7 +40,6 @@ def pydamage_analyze_multi(
     bam,
     wlen=30,
     show_al=False,
-    count_reverse=False,
     process=1,
     outdir="",
     plot=False,
