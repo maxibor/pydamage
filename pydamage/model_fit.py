@@ -69,10 +69,12 @@ def fit_models(
     # Likelihood for model A - Damage Model
     binom_p_damage = model_A.fit(c_sites, **optim_A)
     LA = binom.logpmf(k=binom_k, n=binom_n, p=binom_p_damage)
+    sigma_damage = np.sqrt(binom_n * binom_p_damage * 1 - binom_p_damage)
 
     # Likelihood for model B - Null Model
     binom_p_null = model_B.fit(c_sites, **optim_B)
     LB = binom.logpmf(k=binom_k, n=binom_n, p=binom_p_null)
+    sigma_null = np.sqrt(binom_n * binom_p_null * 1 - binom_p_null)
 
     # Difference of number of paramters between model A and model B
     pdiff = len(model_A.kwds) - len(model_B.kwds)
