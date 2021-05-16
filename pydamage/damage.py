@@ -8,21 +8,19 @@ import numpy as np
 
 
 class al_to_damage:
-    def __init__(self, reference, al_handle, wlen, count_reverse):
+    def __init__(self, reference, al_handle, wlen):
         """Constructor of the class
 
         Args:
             reference (string): a reference from the indexed bam file
             al_handle(pysam.AlignmentFile)
             wlen (int): window length
-            count_reverse(bool): count reverse alignments as well
 
 
         """
         self.alignments = al_handle.fetch(reference)
         self.reference = reference
         self.wlen = wlen
-        self.count_reverse = count_reverse
         # self.alignments = al_file
 
     # def __repr__(self):
@@ -43,9 +41,6 @@ class al_to_damage:
         """
         self.C = []
         self.CT = []
-        if self.count_reverse:
-            self.G = []
-            self.GA = []
         self.damage_bases = []
         self.C_G_bases = []
         self.no_mut = []
@@ -55,7 +50,6 @@ class al_to_damage:
                     reference=al.get_reference_sequence(),
                     read_name=al.query_name,
                     is_reverse=al.is_reverse,
-                    count_reverse=self.count_reverse,
                     ref_name=self.reference,
                     query=al.query_sequence,
                     cigartuple=al.cigartuples,
@@ -64,11 +58,8 @@ class al_to_damage:
                 )
                 self.C += all_damage["C"]
                 self.CT += all_damage["CT"]
-                if self.count_reverse:
-                    self.G += all_damage["G"]
-                    self.GA += all_damage["GA"]
-                self.damage_bases += all_damage["CT"] + all_damage["GA"]
-                self.C_G_bases += all_damage["C"] + all_damage["G"]
+                self.damage_bases += all_damage["CT"]
+                self.C_G_bases += all_damage["C"]
                 self.no_mut += all_damage["no_mut"]
 
     def compute_damage(self):
@@ -83,19 +74,9 @@ class al_to_damage:
         )
         C_dict = dict(zip(C_pos, C_counts))
 
-        # All G in reference
-        if self.count_reverse:
-            G_pos, G_counts = np.unique(np.sort(self.G), return_counts=True)
-            G_dict = dict(zip(G_pos, G_counts))
-
         # CtoT transitions
         CT_pos, CT_counts = np.unique(np.sort(self.CT), return_counts=True)
         CT_dict = dict(zip(CT_pos, CT_counts))
-
-        # G to A transitions
-        if self.count_reverse:
-            GA_pos, GA_counts = np.unique(np.sort(self.GA), return_counts=True)
-            GA_dict = dict(zip(GA_pos, GA_counts))
 
         # All transitions
         damage_bases_pos, damage_bases_counts = np.unique(
@@ -117,12 +98,10 @@ class al_to_damage:
         GA_damage_amount = []
         damage_amount = []
 
+        # Checking for non covered positions
         for i in range(self.wlen):
             if i not in CT_dict:
                 CT_dict[i] = 0
-            if self.count_reverse:
-                if i not in GA_dict:
-                    GA_dict[i] = 0
             if i not in damage_bases_dict:
                 damage_bases_dict[i] = 0
             if i not in no_mut_dict:
@@ -131,11 +110,6 @@ class al_to_damage:
                 CT_damage_amount.append(0)
             else:
                 CT_damage_amount.append(CT_dict[i] / C_dict[i])
-            if self.count_reverse:
-                if i not in G_dict:
-                    GA_damage_amount.append(0)
-                else:
-                    GA_damage_amount.append(GA_dict[i] / G_dict[i])
             if i not in C_G_bases_dict:
                 damage_amount.append(0)
             else:
@@ -200,7 +174,7 @@ def check_model_fit(model_dict, wlen, verbose):
     return model_dict
 
 
-def test_damage(ref, bam, mode, wlen, show_al, count_reverse, process, verbose):
+def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
     """Prepare data and run LRtest to test for damage
 
     Args:
@@ -209,7 +183,6 @@ def test_damage(ref, bam, mode, wlen, show_al, count_reverse, process, verbose):
         mode (str): opening mode of alignment file
         wlen (int): window length
         show_al (bool): Show alignment representations
-        count_reverse(bool): count reverse alignments as well
         process (int): Number of process for parallelization
         verbose (bool): Run in verbose mode
     Returns:
@@ -221,9 +194,7 @@ def test_damage(ref, bam, mode, wlen, show_al, count_reverse, process, verbose):
         nb_reads_aligned = al_handle.count(contig=ref)
         reflen = al_handle.get_reference_length(ref)
 
-        al = al_to_damage(
-            reference=ref, al_handle=al_handle, wlen=wlen, count_reverse=count_reverse
-        )
+        al = al_to_damage(reference=ref, al_handle=al_handle, wlen=wlen)
         al.get_damage(show_al=show_al)
         (
             mut_count,
@@ -254,8 +225,6 @@ def test_damage(ref, bam, mode, wlen, show_al, count_reverse, process, verbose):
 
         for i in range(wlen):
             CT_log[f"CtoT-{i}"] = CT_damage[i]
-            if count_reverse:
-                GA_log[f"GtoA-{i}"] = GA_damage[i]
         test_res.update(CT_log)
         test_res.update(GA_log)
 

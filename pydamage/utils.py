@@ -46,13 +46,12 @@ def makedir(dirpath, confirm=True, force=False):
     os.makedirs(dirpath)
 
 
-def pandas_processing(res_dict, wlen, count_reverse):
+def pandas_processing(res_dict, wlen):
     """Performs Pandas processing of Pydamage results
 
     Args:
         res_dict (dict): Result dictionary of LR test
         wlen(int): window size
-        count_reverse(bool): count reverse alignments as well
     """
     df = pd.DataFrame(res_dict)
     if len(res_dict) == 0:
@@ -82,7 +81,6 @@ def pandas_processing(res_dict, wlen, count_reverse):
             "reflen",
         ]
         + [f"CtoT-{i}" for i in range(wlen)]
-        + [f"GtoA-{i}" for i in range(wlen) if count_reverse]
     ]
     df.rename(
         columns={

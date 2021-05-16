@@ -1,5 +1,6 @@
 from matplotlib import use
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 from pydamage.models import damage_model, null_model
 from statsmodels.nonparametric.smoothers_lowess import lowess
 from pydamage import utils
@@ -95,19 +96,18 @@ def damageplot(damage_dict, wlen, outdir):
     )
 
     ## Plot real data
-    # ax.plot(x, g2a, color="#236cf5", alpha=0.1, label="G to A transitions")
 
     ax.plot(x, c2t, color="#bd0d45", alpha=0.2, label="C to T transitions")
 
     ax.set_xlabel("Base from 5'", fontsize=10)
     ax.set_ylabel("Substitution frequency", fontsize=10)
-    ax.xaxis.set_ticks(np.arange(x[0], x[-1], 5))
+    ax.set_xticks(np.arange(x[0], x[-1], 5))
     ax.set_xticklabels(ax.get_xticks(), rotation=45, fontsize=6)
     ax.set_title(f"coverage: {round(coverage,2)} - pvalue{rpval}", fontsize=8)
     ax.legend(fontsize=8)
     # ax.set_title(f"coverage: {round(coverage,2)} | pvalue{rpval}", fontsize=8)
 
-    left, bottom, width, height = [0.65, 0.3, 0.2, 0.2]
+    left, bottom, width, height = [0.65, 0.4, 0.2, 0.2]
     ax2 = fig.add_axes([left, bottom, width, height])
 
     fitted = x
@@ -118,8 +118,9 @@ def damageplot(damage_dict, wlen, outdir):
     ax2.set_ylabel("Residuals", fontsize=6)
     ax2.set_xlabel("Fitted Values", fontsize=6)
     ax2.set_title(f"Residuals vs. Fitted\nRMSE={round(rmse, 3)}", fontsize=6)
-    ax2.xaxis.set_ticks(np.arange(fitted[0], fitted[-1], 5))
+    ax2.set_xticks(np.arange(fitted[0], fitted[-1], 5))
     ax2.set_xticklabels([int(i) for i in ax2.get_xticks()], fontsize=6, rotation=45)
+    ax2.set_yticks(ax2.get_yticks())
     ax2.set_yticklabels([round(i, 3) for i in ax2.get_yticks()], fontsize=6)
 
     fig.suptitle(contig, fontsize=12, y=0.95)

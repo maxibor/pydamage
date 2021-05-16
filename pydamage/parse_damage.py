@@ -5,7 +5,6 @@ def damage_al(
     reference,
     read_name,
     is_reverse,
-    count_reverse,
     ref_name,
     query,
     cigartuple,
@@ -18,7 +17,6 @@ def damage_al(
         reference (str): reference sequence
         read_name(str): name of read
         is_reverse(bool): alignment if reverse
-        count_reverse(bool): count reverse alignments as well (GtoA)
         ref_name(str): name of reference
         query (string): query sequence
         cigartuple (tuple): cigar tuple (pysam)
@@ -36,9 +34,7 @@ def damage_al(
     r_string = ""
     q_string = ""
     res = ""
-    base_trans_counts = {"C": [], "CT": [], "G": [], "GA": [], "no_mut": []}
-    if count_reverse is False and is_reverse:
-        return base_trans_counts
+    base_trans_counts = {"C": [], "CT": [], "no_mut": []}
     for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
         if c[0] in [0, 7, 8]:
@@ -70,13 +66,6 @@ def damage_al(
                 if q_char == "T":
                     base_trans_counts["CT"].append(i)
                 elif q_char == "C":
-                    base_trans_counts["no_mut"].append(i)
-        elif is_reverse and count_reverse:
-            if r_char == "G":
-                base_trans_counts["G"].append(i)
-                if q_char == "A":
-                    base_trans_counts["GA"].append(i)
-                elif q_char == "G":
                     base_trans_counts["no_mut"].append(i)
     if show_al:
         orient = {False: ["5'", "3'"], True: ["3'", "5'"]}

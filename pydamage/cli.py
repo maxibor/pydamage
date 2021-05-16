@@ -75,12 +75,6 @@ def cli(ctx, outdir):
     "-f", "--force", is_flag=True, help="Force overwriting of results directory"
 )
 @click.option(
-    "-r",
-    "--count_reverse",
-    is_flag=True,
-    help="Also count GtoA mutations in reverse reads (experimental)",
-)
-@click.option(
     "-g",
     "--group",
     is_flag=True,
