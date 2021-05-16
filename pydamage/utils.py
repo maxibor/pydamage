@@ -35,7 +35,7 @@ def makedir(dirpath, confirm=True, force=False):
         force (bool, optional): Always create directory. Defaults to False.
     """
     if os.path.exists(dirpath):
-        if confirm and force == False:
+        if confirm and force is False:
             print(
                 f"Result directory, {dirpath}, already exists, it will be overwritten"
             )
@@ -175,35 +175,37 @@ def RMSE(residuals):
     return np.sqrt(np.mean(residuals ** 2))
 
 
-def create_ct_cc_dict(ct_data, cc_data, wlen):
+def create_damage_dict(damage_data, non_damage_data, wlen):
     """Creates C bases positions dictionnary
 
     For C->T transitions
     For C in reference and in query
 
     Args:
-        ct_data (list of int): List of positions where CtoT transitions were observed
-        cc_data (list of int): List of positions where C in ref and query
+        damage_data (list of int): List of positions where CtoT transitions were observed
+        non_damage_data (list of int): List of positions where C in ref and query
     Returns:
         dict{int:int}: {position: number of CtoT transitions at position}
         dict{int:int}: {position: number of C match at position}
     """
-    c2t_pos, c2t_counts = np.unique(np.sort(ct_data), return_counts=True)
-    c2c_pos, c2c_counts = np.unique(np.sort(cc_data), return_counts=True)
-    c2t = dict(zip(c2t_pos, c2t_counts))
-    c2c = dict(zip(c2c_pos, c2c_counts))
-    c2t_dict = {}
-    c2c_dict = {}
+    damage_pos, damage_counts = np.unique(np.sort(damage_data), return_counts=True)
+    non_damage_pos, non_damage_counts = np.unique(
+        np.sort(non_damage_data), return_counts=True
+    )
+    damage = dict(zip(damage_pos, damage_counts))
+    non_damage = dict(zip(non_damage_pos, non_damage_counts))
+    damage_dict = {}
+    non_damage_dict = {}
 
     for i in range(wlen):
-        if i in c2c or i in c2t:
-            if i in c2t:
-                c2t_dict[i] = c2t[i]
+        if i in non_damage or i in damage:
+            if i in damage:
+                damage_dict[i] = damage[i]
             else:
-                c2t_dict[i] = 0
-            if i in c2c:
-                c2c_dict[i] = c2c[i]
+                damage_dict[i] = 0
+            if i in non_damage:
+                non_damage_dict[i] = non_damage[i]
             else:
-                c2c_dict[i] = 0
+                non_damage_dict[i] = 0
 
-    return (c2t_dict, c2c_dict)
+    return (damage_dict, non_damage_dict)

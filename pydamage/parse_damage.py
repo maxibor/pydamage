@@ -1,45 +1,44 @@
 #!/usr/bin/env python3
 
 
-def damage_al(reference, read_name, ref_name, query, cigartuple, wlen, show_al):
+def damage_al(
+    reference,
+    read_name,
+    is_reverse,
+    count_reverse,
+    ref_name,
+    query,
+    cigartuple,
+    wlen,
+    show_al,
+):
     """Compute CtoT mutations for a single alignment
 
     Args:
         reference (str): reference sequence
         read_name(str): name of read
+        is_reverse(bool): alignment if reverse
+        count_reverse(bool): count reverse alignments as well (GtoA)
         ref_name(str): name of reference
         query (string): query sequence
         cigartuple (tuple): cigar tuple (pysam)
         wlen (int): window length
         print_al (bool): print alignment
     Returns:
-        dict : {'CT': [ CtoT pos],
-                'GA': [GtoA pos],
-                'A':[A pos],
-                'T':[T pos],
-                'G':[G pos],
-                'C':[C pos],
-                'N':[N pos],
-                ' ':[no coverage pos],
-                'all': [all pos]}
+        dict : {'C':  [ C pos from 5'],
+                'CT': [ CtoT pos from 5'],
+                'G':  [ G pos from 3'],
+                'GA': [GtoA pos from 3'],
+                'no_mut': [Positions where C , and G (if reversed) are conserved]}
     """
     r_pos = 0
     q_pos = 0
     r_string = ""
     q_string = ""
     res = ""
-    base_trans_counts = {
-        "A": [],
-        "T": [],
-        "G": [],
-        "C": [],
-        "N": [],
-        " ": [],
-        "all": [],
-        "CT": [],
-        "CC": [],
-        "GA": [],
-    }
+    base_trans_counts = {"C": [], "CT": [], "G": [], "GA": [], "no_mut": []}
+    if count_reverse is False and is_reverse:
+        return base_trans_counts
     for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
         if c[0] in [0, 7, 8]:
@@ -60,28 +59,34 @@ def damage_al(reference, read_name, ref_name, query, cigartuple, wlen, show_al):
             r_pos += c[1]
             q_pos = q_pos
 
-    for i in range(len(r_string)):
+    read_len = len(r_string)
+    for i in range(min(read_len, wlen)):
         r_char = r_string[i].upper()
         q_char = q_string[i].upper()
-        base_trans_counts[q_char].append(i)
-        if q_char in ["A", "T", "G", "C"]:
-            base_trans_counts["all"].append(i)
-        if r_char == "C" and q_char == "C":
-            base_trans_counts["CC"].append(i)
-        if r_char != q_char:
-            if r_char == "C" and q_char == "T":
-                base_trans_counts["CT"].append(i)
-            if r_char == "G" and q_char == "A":
-                base_trans_counts["GA"].append(i)
-
-    if show_al:
-        res += "R " + r_string + "\t" + ref_name + "\n  "
+        # base_trans_counts[q_char].append(i)
+        if (is_reverse is False) and (count_reverse is False):
+            if r_char == "C":
+                base_trans_counts["C"].append(i)
+                if q_char == "T":
+                    base_trans_counts["CT"].append(i)
+                elif q_char == "C":
+                    base_trans_counts["no_mut"].append(i)
+        elif is_reverse and count_reverse:
+            if r_char == "G":
+                base_trans_counts["G"].append(i)
+                if q_char == "A":
+                    base_trans_counts["GA"].append(i)
+                elif q_char == "G":
+                    base_trans_counts["no_mut"].append(i)
+    if show_al and count_reverse:
+        orient = {True: ["5'", "3'"], False: ["3'", "5'"]}
+        res += "R   " + r_string + "\t" + ref_name + "\n" + orient[is_reverse][0] + "  "
         for i in range(0, min(len(r_string), len(q_string))):
             if r_string[i] == q_string[i]:
                 res += "|"
             else:
                 res += " "
-        res += "\nQ " + q_string + "\t" + read_name + "\n "
+        res += orient[is_reverse][1] + "\nQ   " + q_string + "\t" + read_name + "\n "
         print(res)
 
     return base_trans_counts

@@ -7,11 +7,10 @@ from pydamage.kneedle import apply_filter
 from pydamage import __version__
 from collections import OrderedDict
 
-class NaturalOrderGroup(click.Group):
 
+class NaturalOrderGroup(click.Group):
     def __init__(self, name=None, commands=None, **attrs):
-        super(NaturalOrderGroup, self).__init__(
-            name=name, commands=None, **attrs)
+        super(NaturalOrderGroup, self).__init__(name=name, commands=None, **attrs)
         if commands is None:
             commands = OrderedDict()
         elif not isinstance(commands, OrderedDict):
@@ -20,6 +19,7 @@ class NaturalOrderGroup(click.Group):
 
     def list_commands(self, ctx):
         return self.commands.keys()
+
 
 @click.group(cls=NaturalOrderGroup)
 @click.version_option(__version__)
@@ -75,6 +75,12 @@ def cli(ctx, outdir):
     "-f", "--force", is_flag=True, help="Force overwriting of results directory"
 )
 @click.option(
+    "-r",
+    "--count_reverse",
+    is_flag=True,
+    help="Also count GtoA mutations in reverse reads",
+)
+@click.option(
     "-g",
     "--group",
     is_flag=True,
@@ -103,11 +109,12 @@ def filter(ctx, no_args_is_help=True, **kwargs):
 
     apply_filter(**kwargs, **ctx.obj)
 
+
 @cli.command()
 def cite():
-    """Get pydamage citation in bibtex format
-    """
+    """Get pydamage citation in bibtex format"""
     get_citation()
+
 
 if __name__ == "__main__":
     cli()

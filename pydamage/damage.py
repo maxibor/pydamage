@@ -8,61 +8,142 @@ import numpy as np
 
 
 class al_to_damage:
-    def __init__(self, reference, al_handle):
+    def __init__(self, reference, al_handle, wlen):
         """Constructor of the class
 
         Args:
             reference (string): a reference from the indexed bam file
             al_handle(pysam.AlignmentFile)
+            wlen (int): window length
+
         """
         self.alignments = al_handle.fetch(reference)
         self.reference = reference
+        self.wlen = wlen
         # self.alignments = al_file
 
     # def __repr__(self):
     #     return(f"Reference {reference}")
 
-    def get_damage(self, wlen, show_al):
+    def get_damage(self, count_reverse, show_al):
         """Compute CtoT substitutions
 
         Args:
-            wlen (int): window length
+            count_reverse(bool): count reverse alignments as well
             show_al(bool): print alignments representations
         Returns:
-            list: all_ct - positions of CtoT transitions in reads
-            list: all_ga - positions of GtoA transitions in reads
-            list: all_cc - positions of C in ref and reads, in reads
-            list: all_c - positions of C in reads
-            list: all_g - positions of G in reads
-            list: all_bases - position of all bases
+            list: C - positions from 5' of C in reads
+            list: CT- positions from 5' of CtoT transitions in reads
+            list: G - positions from 3' of G in reverse reads
+            list: GA- positions from 3' of GtoA transitions in reverse reads
+            list: damage_bases - positions of C2T and G2A bases (if reversed)
+            list: C_G_bases - positions of C2C and G2G bases (if reversed)
         """
-
-        all_ct = []
-        all_ga = []
-        all_cc = []
-        all_c = []
-        all_g = []
-        all_bases = []
+        self.C = []
+        self.CT = []
+        self.G = []
+        self.GA = []
+        self.damage_bases = []
+        self.C_G_bases = []
+        self.no_mut = []
         for al in self.alignments:
-            if al.is_reverse is False and al.is_unmapped is False:
-
+            if al.is_unmapped is False:
                 all_damage = damage_al(
                     reference=al.get_reference_sequence(),
                     read_name=al.query_name,
+                    is_reverse=al.is_reverse,
+                    count_reverse=count_reverse,
                     ref_name=self.reference,
                     query=al.query_sequence,
                     cigartuple=al.cigartuples,
-                    wlen=wlen,
+                    wlen=self.wlen,
                     show_al=show_al,
                 )
-                all_ct += all_damage["CT"]
-                all_ga += all_damage["GA"]
-                all_cc += all_damage["CC"]
-                all_c += all_damage["C"]
-                all_g += all_damage["G"]
-                all_bases += all_damage["all"]
+                self.C += all_damage["C"]
+                self.CT += all_damage["CT"]
+                self.G += all_damage["G"]
+                self.GA += all_damage["GA"]
+                self.damage_bases += all_damage["CT"] + all_damage["GA"]
+                self.C_G_bases += all_damage["C"] + all_damage["G"]
+                self.no_mut += all_damage["no_mut"]
 
-        return (all_ct, all_ga, all_cc, all_c, all_g, all_bases)
+    def compute_damage(self):
+        """Computes the amount of damage for statistical modelling"""
+
+        # All C in reference
+        C_pos, C_counts = np.unique(
+            np.sort(
+                self.C,
+            ),
+            return_counts=True,
+        )
+        C_dict = dict(zip(C_pos, C_counts))
+
+        # All G in reference
+        G_pos, G_counts = np.unique(np.sort(self.G), return_counts=True)
+        G_dict = dict(zip(G_pos, G_counts))
+
+        # CtoT transitions
+        CT_pos, CT_counts = np.unique(np.sort(self.CT), return_counts=True)
+        CT_dict = dict(zip(CT_pos, CT_counts))
+
+        # G to A transitions
+        GA_pos, GA_counts = np.unique(np.sort(self.GA), return_counts=True)
+        GA_dict = dict(zip(GA_pos, GA_counts))
+
+        # All transitions
+        damage_bases_pos, damage_bases_counts = np.unique(
+            np.sort(self.damage_bases), return_counts=True
+        )
+        damage_bases_dict = dict(zip(damage_bases_pos, damage_bases_counts))
+
+        # All C and G in reference
+        C_G_bases_pos, C_G_bases_counts = np.unique(
+            np.sort(self.C_G_bases), return_counts=True
+        )
+        C_G_bases_dict = dict(zip(C_G_bases_pos, C_G_bases_counts))
+
+        # All conserved C and G
+        no_mut_pos, no_mut_counts = np.unique(np.sort(self.no_mut), return_counts=True)
+        no_mut_dict = dict(zip(no_mut_pos, no_mut_counts))
+
+        CT_damage_amount = []
+        GA_damage_amount = []
+        damage_amount = []
+
+        for i in range(self.wlen):
+            if i not in CT_dict:
+                CT_dict[i] = 0
+            if i not in GA_dict:
+                GA_dict[i] = 0
+            if i not in damage_bases_dict:
+                damage_bases_dict[i] = 0
+            if i not in no_mut_dict:
+                no_mut_dict[i] = 0
+            if i not in C_dict:
+                CT_damage_amount.append(0)
+            else:
+                CT_damage_amount.append(CT_dict[i] / C_dict[i])
+            if i not in G_dict:
+                GA_damage_amount.append(0)
+            else:
+                GA_damage_amount.append(GA_dict[i] / G_dict[i])
+            if i not in C_G_bases_dict:
+                damage_amount.append(0)
+            else:
+                damage_amount.append(damage_bases_dict[i] / C_G_bases_dict[i])
+
+        return (
+            np.array(
+                list(damage_bases_dict.values())
+            ),  # Number of CtoT and GtoA per position
+            np.array(
+                list(no_mut_dict.values())
+            ),  # Number of conserved C and G per position
+            np.array(CT_damage_amount),
+            np.array(GA_damage_amount),
+            np.array(damage_amount),
+        )
 
 
 def avg_coverage(pysam_cov):
@@ -111,7 +192,7 @@ def check_model_fit(model_dict, wlen, verbose):
     return model_dict
 
 
-def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
+def test_damage(ref, bam, mode, wlen, show_al, count_reverse, process, verbose):
     """Prepare data and run LRtest to test for damage
 
     Args:
@@ -120,6 +201,7 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
         mode (str): opening mode of alignment file
         wlen (int): window length
         show_al (bool): Show alignment representations
+        count_reverse(bool): count reverse alignments as well
         process (int): Number of process for parallelization
         verbose (bool): Run in verbose mode
     Returns:
@@ -131,28 +213,48 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
         nb_reads_aligned = al_handle.count(contig=ref)
         reflen = al_handle.get_reference_length(ref)
 
-        al = al_to_damage(reference=ref, al_handle=al_handle)
-        ct_data, ga_data, cc_data, c_data, g_data, all_bases = al.get_damage(
-            wlen=wlen, show_al=show_al
-        )
-        if ct_data:
+        al = al_to_damage(reference=ref, al_handle=al_handle, wlen=wlen)
+        al.get_damage(show_al=show_al, count_reverse=count_reverse)
+        (
+            mut_count,
+            conserved_count,
+            CT_damage,
+            GA_damage,
+            all_damage,
+        ) = al.compute_damage()
+        if all_damage:
             model_A = models.damage_model()
             model_B = models.null_model()
             test_res = fit_models(
                 ref=ref,
                 model_A=model_A,
                 model_B=model_B,
-                ct_data=ct_data,
-                cc_data=cc_data,
-                ga_data=ga_data,
-                all_bases=all_bases,
-                wlen=wlen,
+                damage=all_damage,
+                mut_count=mut_count,
+                conserved_count=conserved_count,
                 verbose=verbose,
             )
             test_res["reference"] = ref
             test_res["nb_reads_aligned"] = nb_reads_aligned
             test_res["coverage"] = cov
             test_res["reflen"] = reflen
+
+            CT_log = {}
+            GA_log = {}
+
+            for i in range(wlen):
+                CT_log[f"CtoT-{i}"] = CT_damage[i]
+                GA_log[f"GtoA-{i}"] = GA_damage[i]
+            test_res.update(CT_log)
+            test_res.update(GA_log)
+
+            # for i in range(qlen):
+            #     if i not in ydata_counts:
+            #         ydata_counts[i] = np.nan
+            #     if f"CtoT-{i}" not in ctot_out:
+            #         ctot_out[f"CtoT-{i}"] = np.nan
+            #     if f"GtoA-{i}" not in gtoa_out:
+            #         gtoa_out[f"GtoA-{i}"] = np.nan
 
             return check_model_fit(test_res, wlen, verbose)
 
@@ -188,17 +290,20 @@ def get_damage_group(ref, bam, mode, wlen, show_al, process):
     reflen = al_handle.get_reference_length(ref)
 
     al = al_to_damage(reference=ref, al_handle=al_handle)
-    ct_data, ga_data, cc_data, c_data, g_data, all_bases = al.get_damage(
-        wlen=wlen, show_al=show_al
-    )
+    (
+        CT,
+        GA,
+        damage_bases,
+        forward,
+        reverse,
+    ) = al.get_damage(wlen=wlen, show_al=show_al)
 
     return [
-        ct_data,
-        ga_data,
-        cc_data,
-        c_data,
-        g_data,
-        all_bases,
+        CT,
+        GA,
+        damage_bases,
+        forward,
+        reverse,
         cov,
         nb_reads_aligned,
         reflen,
@@ -206,15 +311,25 @@ def get_damage_group(ref, bam, mode, wlen, show_al, process):
 
 
 def test_damage_group(
-    ct_data, ga_data, cc_data, all_bases, nb_reads_aligned, cov, reflen, wlen, verbose
+    ct_data,
+    ga_data,
+    damage_bases,
+    forward,
+    reverse,
+    nb_reads_aligned,
+    cov,
+    reflen,
+    wlen,
+    verbose,
 ):
     """Performs damage test
 
     Args:
-        ct_data (list of int): List of positions with CtoT transitions
-        ga_data (list of int): List of positions with GtoA transitions
-        cc_data (list of int): List of positions where C in ref and query
-        all_bases (list of int): List of positions where a base is aligned
+        ct_data (list of int): List of positions from 5' with CtoT transitions
+        ga_data (list of int): List of positions from 3' with GtoA transitions
+        damage_bases (list of int): List of positions with damage
+        forward (list of int): List of positions from 5' where a base is aligned
+        reverse(list of int): List of positions from 3' where a base is aligned
         nb_reads_aligned(int): number of reads aligned
         cov(float): average coverage across all references
         reflen(int): length of all references
