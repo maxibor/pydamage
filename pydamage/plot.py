@@ -10,19 +10,20 @@ from scipy.stats import probplot
 use("Agg")
 
 
-def damageplot(damage_dict, outdir):
+def damageplot(damage_dict, wlen, outdir):
     """Draw pydamage plots
 
     Args:
         damage_dict(dict): pydamage result dictionary
+        wlen (int): window length
         qlen(int): query length
         outdir(str): Pydamage result directory
     """
-    x = np.array(range(damage_dict["wlen"]))
-    qlen = np.array(range(damage_dict["qlen"]))
-    y = np.array([damage_dict[i] for i in x])
-    c2t = np.array([damage_dict[f"CtoT-{i}"] for i in qlen])
-    g2a = np.array([damage_dict[f"GtoA-{i}"] for i in qlen])
+    x = np.array(range(wlen))
+    # qlen = np.array(range(damage_dict["qlen"]))
+    c2t = np.array([damage_dict[f"CtoT-{i}"] for i in x])
+    y = c2t
+    # g2a = np.array([damage_dict[f"GtoA-{i}"] for i in x])
     p0 = damage_dict["p0"]
     p0_stdev = damage_dict["p0_stdev"]
     p = damage_dict["p"]
@@ -65,6 +66,7 @@ def damageplot(damage_dict, outdir):
 
     plt.xticks(rotation=45, fontsize=8)
 
+    ## Plot null model
     fig, ax = plt.subplots()
 
     ax.plot(
@@ -80,6 +82,7 @@ def damageplot(damage_dict, outdir):
         label="Null Model CI (2 sigma)",
     )
 
+    ## Plot damage model
     ax.plot(x, y_geom, linewidth=2.5, color="#D7880F", alpha=0.8, label="Damage model")
 
     ax.fill_between(
@@ -91,13 +94,14 @@ def damageplot(damage_dict, outdir):
         label="Damage Model CI (2 sigma)",
     )
 
-    ax.plot(qlen, g2a, color="#236cf5", alpha=0.1, label="G to A transitions")
+    ## Plot real data
+    # ax.plot(x, g2a, color="#236cf5", alpha=0.1, label="G to A transitions")
 
-    ax.plot(qlen, c2t, color="#bd0d45", alpha=0.2, label="C to T transitions")
+    ax.plot(x, c2t, color="#bd0d45", alpha=0.2, label="C to T transitions")
 
     ax.set_xlabel("Base from 5'", fontsize=10)
     ax.set_ylabel("Substitution frequency", fontsize=10)
-    ax.xaxis.set_ticks(np.arange(qlen[0], qlen[-1], 5))
+    ax.xaxis.set_ticks(np.arange(x[0], x[-1], 5))
     ax.set_xticklabels(ax.get_xticks(), rotation=45, fontsize=6)
     ax.set_title(f"coverage: {round(coverage,2)} - pvalue{rpval}", fontsize=8)
     ax.legend(fontsize=8)

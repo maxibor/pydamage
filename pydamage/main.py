@@ -20,6 +20,7 @@ def pydamage_analyze(
     process=1,
     outdir="",
     plot=False,
+    count_reverse=False,
     verbose=False,
     force=False,
     group=False,
@@ -27,12 +28,12 @@ def pydamage_analyze(
 
     if group:
         pydamage_analyze_group(
-            bam, wlen, show_al, process, outdir, plot, verbose, force
+            bam, wlen, show_al, count_reverse, process, outdir, plot, verbose, force
         )
 
     else:
         pydamage_analyze_multi(
-            bam, wlen, show_al, process, outdir, plot, verbose, force
+            bam, wlen, show_al, count_reverse, process, outdir, plot, verbose, force
         )
 
 
@@ -40,6 +41,7 @@ def pydamage_analyze_multi(
     bam,
     wlen=30,
     show_al=False,
+    count_reverse=False,
     process=1,
     outdir="",
     plot=False,
@@ -90,20 +92,29 @@ def pydamage_analyze_multi(
     ##########################
     # filt_res = []
     # for ref in refs:
-    #     res = damage.test_damage(bam=bam, ref=ref, wlen=wlen,
-    #                              min_al=mini,  min_cov=cov, show_al=show_al,
-    #                              mode=mode, process=process, verbose=verbose)
+    #     res = damage.test_damage(
+    #         bam=bam,
+    #         ref=ref,
+    #         wlen=wlen,
+    #         show_al=show_al,
+    #         mode=mode,
+    #         process=process,
+    #         count_reverse=count_reverse,
+    #         verbose=verbose,
+    #     )
     #     if res:
     #         filt_res.append(res)
+    #     break
     ##########################
     ##########################
 
     test_damage_partial = partial(
         damage.test_damage,
         bam=bam,
+        mode=mode,
         wlen=wlen,
         show_al=show_al,
-        mode=mode,
+        count_reverse=count_reverse,
         process=process,
         verbose=verbose,
     )
@@ -121,11 +132,12 @@ def pydamage_analyze_multi(
         plotdir = f"{outdir}/plots"
         utils.makedir(plotdir, confirm=False)
 
-        plot_partial = partial(damageplot, outdir=plotdir)
+        plot_partial = partial(damageplot, outdir=plotdir, wlen=wlen)
         with multiprocessing.Pool(proc) as p:
             list(tqdm(p.imap(plot_partial, filt_res), total=len(filt_res)))
-
-    df_pydamage = utils.pandas_processing(res_dict=filt_res)
+    df_pydamage = utils.pandas_processing(
+        res_dict=filt_res, wlen=wlen, count_reverse=count_reverse
+    )
 
     acc_model = load_model()
     prep_df_glm = prepare_data(df_pydamage)
