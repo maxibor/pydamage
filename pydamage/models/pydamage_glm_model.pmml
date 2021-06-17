@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<PMML version="4.4.1" xmlns="http://www.dmg.org/PMML-4_4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_4 http://www.dmg.org/pmml/v4-4/pmml-4-4.xsd">
+ <Header copyright="Copyright (c) 2021 borry" description="Generalized Linear Regression Model">
+  <Extension name="user" value="borry" extender="SoftwareAG PMML Generator"/>
+  <Application name="SoftwareAG PMML Generator" version="2.4.0"/>
+  <Timestamp>2021-06-14 16:35:13</Timestamp>
+ </Header>
+ <DataDictionary numberOfFields="4">
+  <DataField name="sig" optype="categorical" dataType="boolean"/>
+  <DataField name="actual_cov" optype="continuous" dataType="double"/>
+  <DataField name="damage" optype="continuous" dataType="double"/>
+  <DataField name="contiglength" optype="continuous" dataType="double"/>
+ </DataDictionary>
+ <GeneralRegressionModel modelName="General_Regression_Model" modelType="generalizedLinear" functionName="regression" algorithmName="glm" distribution="binomial" linkFunction="logit">
+  <MiningSchema>
+   <MiningField name="sig" usageType="predicted" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="actual_cov" usageType="active" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="damage" usageType="active" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="contiglength" usageType="active" invalidValueTreatment="returnInvalid"/>
+  </MiningSchema>
+  <Output>
+   <OutputField name="Predicted_sig" feature="predictedValue" optype="continuous" dataType="double"/>
+  </Output>
+  <ParameterList>
+   <Parameter name="p0" label="(Intercept)"/>
+   <Parameter name="p1" label="actual_cov"/>
+   <Parameter name="p2" label="damage"/>
+   <Parameter name="p3" label="contiglength"/>
+  </ParameterList>
+  <FactorList/>
+  <CovariateList>
+   <Predictor name="actual_cov"/>
+   <Predictor name="damage"/>
+   <Predictor name="contiglength"/>
+  </CovariateList>
+  <PPMatrix>
+   <PPCell value="1" predictorName="actual_cov" parameterName="p1"/>
+   <PPCell value="1" predictorName="damage" parameterName="p2"/>
+   <PPCell value="1" predictorName="contiglength" parameterName="p3"/>
+  </PPMatrix>
+  <ParamMatrix>
+   <PCell parameterName="p0" df="1" beta="-1.78842427736877"/>
+   <PCell parameterName="p1" df="1" beta="0.0271448079667983"/>
+   <PCell parameterName="p2" df="1" beta="20.4193418075295"/>
+   <PCell parameterName="p3" df="1" beta="4.19608849503652e-05"/>
+  </ParamMatrix>
+ </GeneralRegressionModel>
+</PMML>

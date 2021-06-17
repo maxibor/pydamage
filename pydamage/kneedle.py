@@ -48,22 +48,24 @@ def filter_pydamage_results(pydam_df, acc_thresh, alpha=0.05):
     return pydam_df.query(f"pred_accuracy >= {acc_thresh} & qvalue <= {alpha}")
 
 
-def apply_filter(csv, outdir, alpha=0.05):
+def apply_filter(csv, threshold, outdir, alpha=0.05):
     """Apply pydamage filtering
 
     Args:
         csv (str): path to pydamage result file
+        threshold(float): Treshold value. 0 is for finding threshold with kneed method
         outdir (str): Path to output directory
         alpha (float, optional): Alpha q-value threshold. Defaults to 0.05.
     """
 
     df = read_csv(csv)
     outfile = "pydamage_filtered_results.csv"
-    knee = find_knee(df)
-    print(f"Optimal prediction accuracy threshold found to be: {knee}")
-    filt_df = filter_pydamage_results(df, acc_thresh=knee)
+    if threshold == 0:
+        threshold = find_knee(df)
+        print(f"Optimal prediction accuracy threshold found to be: {threshold}")
+    filt_df = filter_pydamage_results(df, acc_thresh=threshold)
     print(
-        f"Filtering PyDamage results with qvalue <={alpha} and pred_accuracy >= {knee}"
+        f"Filtering PyDamage results with qvalue <={alpha} and pred_accuracy >= {threshold}"
     )
     df_to_csv(filt_df, outdir, outfile)
     print(f"Filtered PyDamage results written to {outdir}/{outfile}")

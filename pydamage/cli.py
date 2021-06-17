@@ -93,6 +93,14 @@ def analyze(ctx, no_args_is_help=True, **kwargs):
 @cli.command()
 @click.pass_context
 @click.argument("csv", type=click.Path(exists=True))
+@click.option(
+    "-t",
+    "--threshold",
+    default=0.5,
+    type=float,
+    show_default=True,
+    help="Default filtering threshold. Set to 0 for finding threshold with kneed method",
+)
 def filter(ctx, no_args_is_help=True, **kwargs):
     """\b
     Filter PyDamage results with optimal pred_accuracy threshold selection

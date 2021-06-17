@@ -37,10 +37,11 @@ setup(
         "matplotlib",
         "tqdm",
         "biopython",
-        "kneed"    
+        "kneed",
+        "pypmml",
     ],
     packages=find_packages(include=["pydamage"]),
     entry_points={"console_scripts": ["pydamage = pydamage.cli:cli"]},
     include_package_data=True,
-    package_data={"": ["models/accuracy_model_v2_python.pickle.gz"]},
+    package_data={"": ["models/pydamage_glm_model.pmml"]},
 )
