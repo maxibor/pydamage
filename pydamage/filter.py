@@ -4,7 +4,7 @@ from pydamage.utils import df_to_csv
 from pandas import read_csv
 
 
-def find_knee(pydam_df, min_knee=0.5, alpha=0.05):
+def define_threshold(pydam_df, min_knee=0.5, alpha=0.05):
     """Find kneedle point in PyDamage results
 
     Finding the kneedle point to get the optimal
@@ -13,7 +13,7 @@ def find_knee(pydam_df, min_knee=0.5, alpha=0.05):
 
     Args:
         pydam_df (pandas df): pydamage results
-        min_knee (float, optional): Min pred_accuracy threshold. Defaults to 0.5
+        min_knee (float, optional): Min pred_accuracy threshold.
         alpha(float, optional): Alpha q-value threshold
     """
     thresholds = [i.round(2) for i in arange(min_knee, 1, 0.01)]
@@ -21,7 +21,7 @@ def find_knee(pydam_df, min_knee=0.5, alpha=0.05):
     nb_contigs = []
     for i in thresholds:
         nb_contigs.append(
-            pydam_df.query(f"pred_accuracy >= {i} & qvalue <= {alpha}").shape[0]
+            pydam_df.query(f"predicted_accuracy >= {i} & qvalue <= {alpha}").shape[0]
         )
     kneedle = KneeLocator(
         thresholds,
@@ -45,7 +45,7 @@ def filter_pydamage_results(pydam_df, acc_thresh, alpha=0.05):
         alpha (float, optional): Alpha q-value threshold. Defaults to 0.05.
     """
 
-    return pydam_df.query(f"pred_accuracy >= {acc_thresh} & qvalue <= {alpha}")
+    return pydam_df.query(f"predicted_accuracy >= {acc_thresh} & qvalue <= {alpha}")
 
 
 def apply_filter(csv, threshold, outdir, alpha=0.05):
@@ -61,11 +61,11 @@ def apply_filter(csv, threshold, outdir, alpha=0.05):
     df = read_csv(csv)
     outfile = "pydamage_filtered_results.csv"
     if threshold == 0:
-        threshold = find_knee(df)
+        threshold = define_threshold(df)
         print(f"Optimal prediction accuracy threshold found to be: {threshold}")
     filt_df = filter_pydamage_results(df, acc_thresh=threshold)
     print(
-        f"Filtering PyDamage results with qvalue <={alpha} and pred_accuracy >= {threshold}"
+        f"Filtering PyDamage results with qvalue <= {alpha} and pred_accuracy >= {threshold}"
     )
     df_to_csv(filt_df, outdir, outfile)
     print(f"Filtered PyDamage results written to {outdir}/{outfile}")

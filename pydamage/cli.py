@@ -3,7 +3,7 @@
 import click
 from pydamage.main import pydamage_analyze
 from pydamage.citation import get_citation
-from pydamage.kneedle import apply_filter
+from pydamage.filter import apply_filter
 from pydamage import __version__
 from collections import OrderedDict
 
@@ -107,7 +107,6 @@ def filter(ctx, no_args_is_help=True, **kwargs):
 
     CSV: path to PyDamage result file
     """
-    print(kwargs, ctx.obj)
 
     apply_filter(**kwargs, **ctx.obj)
 
