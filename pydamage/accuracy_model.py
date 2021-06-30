@@ -35,8 +35,6 @@ def fit_model(df, model):
         df (pandas DataFrame): prepared pydamage results
         model (pypmml model): GLM accuracy model
     """
-    print(df)
-    print(model.predict(df))
     prediction = list(model.predict(df)["Predicted_sig"])
     df["predicted_accuracy"] = prediction
     return df["predicted_accuracy"].to_frame()
