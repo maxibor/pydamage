@@ -99,11 +99,11 @@ def analyze(ctx, no_args_is_help=True, **kwargs):
     default=0.5,
     type=float,
     show_default=True,
-    help="Default filtering threshold. Set to 0 for finding threshold with kneed method",
+    help="Predicted accuracy filtering threshold. Set to 0 for finding threshold with kneed method",
 )
 def filter(ctx, no_args_is_help=True, **kwargs):
     """\b
-    Filter PyDamage results with optimal pred_accuracy threshold selection
+    Filter PyDamage results on predicted accuracy and qvalue thresholds.
 
     CSV: path to PyDamage result file
     """
