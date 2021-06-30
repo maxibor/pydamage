@@ -17,3 +17,5 @@ dependencies:
   - kneed>=0.7.0
   - sphinx-click>=0.7.0
   - biopython>=1.78
+  - pip:
+    - pypmml
