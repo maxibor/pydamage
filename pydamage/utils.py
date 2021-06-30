@@ -4,9 +4,10 @@ import sys
 import shutil
 from statsmodels.stats.multitest import multipletests
 import pandas as pd
+from typing import Tuple
 
 
-def check_extension(filename):
+def check_extension(filename: str) -> str:
     """Check alignment file format to give correct open mode
 
     Args:
@@ -26,7 +27,7 @@ def check_extension(filename):
         raise Exception(f"{extension} file extension not supported")
 
 
-def makedir(dirpath, confirm=True, force=False):
+def makedir(dirpath: str, confirm: bool = True, force: bool=False):
     """Make directory if user confirms overwritting
 
     Args:
@@ -46,7 +47,7 @@ def makedir(dirpath, confirm=True, force=False):
     os.makedirs(dirpath)
 
 
-def pandas_processing(res_dict, wlen):
+def pandas_processing(res_dict: dict, wlen: int) -> pd.core.frame.DataFrame:
     """Performs Pandas processing of Pydamage results
 
     Args:
@@ -102,7 +103,7 @@ def pandas_processing(res_dict, wlen):
     return df
 
 
-def pandas_group_processing(res_dict):
+def pandas_group_processing(res_dict: dict) -> pd.core.frame.DataFrame:
     """Performs Pandas processing of Pydamage grouped reference results
 
     Args:
@@ -139,7 +140,7 @@ def pandas_group_processing(res_dict):
     return df
 
 
-def df_to_csv(df, outdir, outfile="pydamage_results.csv"):
+def df_to_csv(df: pd.core.frame.DataFrame, outdir: str, outfile: str ="pydamage_results.csv"):
     """Write Pydamage results to disk
 
     Args:
@@ -150,7 +151,7 @@ def df_to_csv(df, outdir, outfile="pydamage_results.csv"):
     df.to_csv(f"{outdir}/{outfile}")
 
 
-def sort_dict_by_keys(adict):
+def sort_dict_by_keys(adict: dict) -> dict:
     """Sort dictonary by keys
 
     Args:
@@ -164,7 +165,7 @@ def sort_dict_by_keys(adict):
     return res
 
 
-def RMSE(residuals):
+def RMSE(residuals: np.ndarray) -> float:
     """Computes Root Mean Square Error
 
     Args:
@@ -175,7 +176,7 @@ def RMSE(residuals):
     return np.sqrt(np.mean(residuals ** 2))
 
 
-def create_damage_dict(damage_data, non_damage_data, wlen):
+def create_damage_dict(damage_data: list, non_damage_data: list, wlen: int) -> Tuple[dict, dict]:
     """Creates C bases positions dictionnary
 
     For C->T transitions

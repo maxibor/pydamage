@@ -52,8 +52,10 @@ pip install -e .
 ## Quick start
 
 ```bash
-pydamage analyze aligned.bam
+pydamage --outdir result_directory analyze aligned.bam
 ```
+
+> Note that if you specify `--outdir`, it has to be before the PyDamage subcommand, example: `pydamage --outdir test filter pydamage_results.csv`
 
 ## CLI help
 
