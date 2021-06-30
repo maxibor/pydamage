@@ -5,7 +5,7 @@ on: [push, pull_request]
 
 jobs:
   pydamage_ci:
-    name: pydamage_ci
+    name: pydamage_testing
     runs-on: 'ubuntu-latest'
     if: "!contains(github.event.head_commit.message, '[skip_ci]')"
     steps:
@@ -18,6 +18,10 @@ jobs:
           channel-priority: true
           environment-file: environment.yml
           activate-environment: pydamage
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
       - name: Lint with flake8
         shell: bash -l {0}
         run: |
