@@ -42,5 +42,5 @@ jobs:
         run: |
           pydamage analyze --verbose tests/data/aligned.bam
           pydamage filter pydamage_results/pydamage_results.csv
-          pydamage analyze -g tests/data/aligned.bam
+          pydamage analyze -f -g tests/data/aligned.bam
           pydamage cite
