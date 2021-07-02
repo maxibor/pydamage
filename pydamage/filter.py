@@ -13,7 +13,7 @@ def define_threshold(pydam_df, min_knee=0.5, alpha=0.05):
 
     Args:
         pydam_df (pandas df): pydamage results
-        min_knee (float, optional): Min pred_accuracy threshold.
+        min_knee (float, optional): Min predicted_accuracy threshold.
         alpha(float, optional): Alpha q-value threshold
     """
     thresholds = [i.round(2) for i in arange(min_knee, 1, 0.01)]
@@ -41,7 +41,7 @@ def filter_pydamage_results(pydam_df, acc_thresh, alpha=0.05):
 
     Args:
         pydam_df (pandas df): pydamage results
-        acc_thresh (float): predictiona accuracy threshold
+        acc_thresh (float): predicted accuracy threshold
         alpha (float, optional): Alpha q-value threshold. Defaults to 0.05.
     """
 
@@ -65,7 +65,7 @@ def apply_filter(csv, threshold, outdir, alpha=0.05):
         print(f"Optimal prediction accuracy threshold found to be: {threshold}")
     filt_df = filter_pydamage_results(df, acc_thresh=threshold)
     print(
-        f"Filtering PyDamage results with qvalue <= {alpha} and pred_accuracy >= {threshold}"
+        f"Filtering PyDamage results with qvalue <= {alpha} and predicted_accuracy >= {threshold}"
     )
     df_to_csv(filt_df, outdir, outfile)
     print(f"Filtered PyDamage results written to {outdir}/{outfile}")

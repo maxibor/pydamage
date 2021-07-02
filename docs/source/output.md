@@ -7,7 +7,7 @@ The tabular outputs are  comma-separated file (`.csv`) with the following column
 ### `pydamage_results.csv` 
 
 * `reference`: name of the reference genome/contig
-* `pred_accuracy`: Predicted accuracy of Pydamage prediction, from the GLM modelling
+* `predicted_accuracy`: Predicted accuracy of Pydamage prediction, from the GLM modelling
 * `null_model_p0`: parameter `p0` of the null model
 * `null_model_p0_stdev`: standard error of the null model paramater `p0`
 * `damage_model_p`: parameter `p` of the damage model
@@ -27,7 +27,7 @@ The tabular outputs are  comma-separated file (`.csv`) with the following column
 
 ### `pydamage_filtered_results.csv` 
 
-Same file as above, but with contigs filtered with `qvalue <= 0.05` and `pred_accuracy >= threshold` with the filtering threshold determined with the [kneedle](https://ieeexplore.ieee.org/document/5961514) method.
+Same file as above, but with contigs filtered with `qvalue <= 0.05` and `predicted_accuracy >= threshold` with a user defined filtering threshold (default = 0.5), or determined with the [kneedle](https://ieeexplore.ieee.org/document/5961514) method.
 
 ### Plots
 
