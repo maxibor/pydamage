@@ -20,7 +20,7 @@ After modelling the ancient DNA damage using the C to T transitions, Pydamage us
 ### With [conda](https://docs.conda.io/en/latest/) (recommended)
 
 ```bash
-conda install -c conda-forge -c bioconda -c maxibor pydamage
+conda install -c bioconda pydamage
 ```
 
 ### With pip
