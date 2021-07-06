@@ -2,6 +2,7 @@ from kneed import KneeLocator
 from numpy import arange
 from pydamage.utils import df_to_csv
 from pandas import read_csv
+import os
 
 
 def define_threshold(pydam_df, min_knee=0.5, alpha=0.05):
@@ -67,6 +68,8 @@ def apply_filter(csv, threshold, outdir, alpha=0.05):
     print(
         f"Filtering PyDamage results with qvalue <= {alpha} and predicted_accuracy >= {threshold}"
     )
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
     df_to_csv(filt_df, outdir, outfile)
     print(f"Filtered PyDamage results written to {outdir}/{outfile}")
     return filt_df
