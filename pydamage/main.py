@@ -5,7 +5,7 @@ import multiprocessing
 from functools import partial
 from pydamage import damage
 from pydamage.plot import damageplot
-from pydamage.exceptions import AlignmentFileError
+from pydamage.exceptions import PyDamageWarning
 from pydamage.accuracy_model import prepare_data, load_model, fit_model
 import sys
 from tqdm import tqdm
@@ -63,11 +63,7 @@ def pydamage_analyze(
     """
     if verbose:
         print(f"Pydamage version {__version__}\n")
-    print("force", force)
     utils.makedir(outdir, force=force)
-
-    if not verbose:
-        warnings.filterwarnings("ignore")
 
     mode = utils.check_extension(bam)
     alf = pysam.AlignmentFile(bam, mode)
@@ -136,7 +132,9 @@ def pydamage_analyze(
 
     print(f"{len(filt_res)} contig(s) successfully analyzed by Pydamage")
     if len(filt_res) == 0:
-        raise AlignmentFileError("Check your alignment file")
+        warnings.warn(
+            "No alignments were found, check your alignment file", PyDamageWarning
+        )
 
     if plot and len(filt_res) > 0:
         print("\nGenerating Pydamage plots")
