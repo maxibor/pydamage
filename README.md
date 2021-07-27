@@ -71,6 +71,8 @@ pydamage --help
 
 ## Cite
 
+PyDamage has been published in PeerJ: [10.7717/peerj.11845](https://doi.org/10.7717/peerj.11845)
+
 ```
 @article{borry_pydamage_2021,
     author = {Borry, Maxime and Hübner, Alexander and Rohrlach, Adam B. and Warinner, Christina},
