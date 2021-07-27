@@ -5,9 +5,9 @@
 <p align="center">
     <a href="https://github.com/maxibor/pydamage/releases"><img src="https://img.shields.io/github/v/release/maxibor/pydamage?include_prereleases&label=version"/></a>
     <a href="https://github.com/maxibor/pydamage/actions"><img src="https://github.com/maxibor/pydamage/workflows/pydamage_ci/badge.svg"/></a>
-    <a href="https://readthedocs.org/projects/pydamage/badge/?version=latest"><img src="https://readthedocs.org/projects/pydamage/badge/?version=latest"/></a>
-    <a href="https://pypi.org/project/pydamage/"><img src="https://img.shields.io/pypi/v/pydamage"/></a>
-    <a href="https://anaconda.org/maxibor/pydamage"><img src="https://img.shields.io/conda/v/maxibor/pydamage"/></a>
+    <a href="https://pydamage.readthedocs.io"><img src="https://readthedocs.org/projects/pydamage/badge/?version=latest"/></a>
+    <a href="https://pypi.org/project/pydamage/"><img src="https://img.shields.io/badge/install%20with-pip-blue"/></a>
+    <a href="https://anaconda.org/bioconda/pydamage"><img src="https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat"/></a>
 </p>
 
 # PyDamage
@@ -72,15 +72,21 @@ pydamage --help
 ## Cite
 
 ```
-@article{Borry2021_pydamage,
-    author = {Borry, Maxime and Huebner, Alexander and Rohrlach, Adam B and Warinner, Christina G},
-    doi = {10.1101/2021.03.24.436838},
-    elocation-id = {2021.03.24.436838},
-    eprint = {https://www.biorxiv.org/content/early/2021/03/24/2021.03.24.436838.full.pdf},
-    journal = {bioRxiv},
-    publisher = {Cold Spring Harbor Laboratory},
+@article{borry_pydamage_2021,
+    author = {Borry, Maxime and Hübner, Alexander and Rohrlach, Adam B. and Warinner, Christina},
+    doi = {10.7717/peerj.11845},
+    issn = {2167-8359},
+    journal = {PeerJ},
+    language = {en},
+    month = {July},
+    note = {Publisher: PeerJ Inc.},
+    pages = {e11845},
+    shorttitle = {PyDamage},
     title = {PyDamage: automated ancient damage identification and estimation for contigs in ancient DNA de novo assembly},
-    url = {https://www.biorxiv.org/content/early/2021/03/24/2021.03.24.436838},
+    url = {https://peerj.com/articles/11845},
+    urldate = {2021-07-27},
+    volume = {9},
     year = {2021}
 }
+
 ```

@@ -1,14 +1,19 @@
 def get_citation():
     BIB = """
-@article{Borry2021_pydamage,
-    author = {Borry, Maxime and Huebner, Alexander and Rohrlach, Adam B and Warinner, Christina G},
-    doi = {10.1101/2021.03.24.436838},
-    elocation-id = {2021.03.24.436838},
-    eprint = {https://www.biorxiv.org/content/early/2021/03/24/2021.03.24.436838.full.pdf},
-    journal = {bioRxiv},
-    publisher = {Cold Spring Harbor Laboratory},
+@article{borry_pydamage_2021,
+    author = {Borry, Maxime and Hübner, Alexander and Rohrlach, Adam B. and Warinner, Christina},
+    doi = {10.7717/peerj.11845},
+    issn = {2167-8359},
+    journal = {PeerJ},
+    language = {en},
+    month = {July},
+    note = {Publisher: PeerJ Inc.},
+    pages = {e11845},
+    shorttitle = {PyDamage},
     title = {PyDamage: automated ancient damage identification and estimation for contigs in ancient DNA de novo assembly},
-    url = {https://www.biorxiv.org/content/early/2021/03/24/2021.03.24.436838},
+    url = {https://peerj.com/articles/11845},
+    urldate = {2021-07-27},
+    volume = {9},
     year = {2021}
 }
 """
