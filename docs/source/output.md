@@ -37,7 +37,10 @@ The visual output are PNG files, one per reference contig. They show the frequen
 
 ## Example
 
-* [**Tabular ouput**](https://raw.githubusercontent.com/maxibor/pydamage/master/docs/assets/pydamage_results.csv)
+* **Tabular ouput**
+    * [pydamage_results.csv](https://raw.githubusercontent.com/maxibor/pydamage/master/docs/assets/pydamage_results.csv)
+    * [pydamage_filtered_results.csv](https://raw.githubusercontent.com/maxibor/pydamage/master/docs/assets/pydamage_filtered_results.csv)
+  
 * **Visual output**
 
 ![pydamage_plot](../img/NZ_JHCB02000011.1.png)
