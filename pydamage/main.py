@@ -65,21 +65,7 @@ def pydamage_analyze(
         print(f"Pydamage version {__version__}\n")
     utils.makedir(outdir, force=force)
 
-    mode = utils.check_extension(bam)
-    alf = pysam.AlignmentFile(bam, mode)
-
-    if not alf.has_index():
-        print(
-            f"BAM file {bam} has no index. Sort BAM file and provide index "
-            "before running pydamage."
-        )
-        sys.exit(1)
-
-    refs = list(alf.references)
-
-    if len(refs) == 0:
-        print(f"No aligned sequences in {bam}")
-        return []
+    refs, mode = utils.prepare_bam(bam)
 
     proc = min(len(refs), process)
 

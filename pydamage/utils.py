@@ -5,6 +5,7 @@ import shutil
 from statsmodels.stats.multitest import multipletests
 import pandas as pd
 from typing import Tuple
+from pysam import AlignmentFile
 
 
 def check_extension(filename: str) -> str:
@@ -216,3 +217,33 @@ def create_damage_dict(
                 non_damage_dict[i] = 0
 
     return (damage_dict, non_damage_dict)
+
+def prepare_bam(bam: str) -> Tuple[Tuple, str]:
+    """Checks for file extension, and returns tuple of mapped refs
+
+    Args:
+        bam (str): Path to bam file
+
+    Returns:
+        Tuple: Tuple of mapped references
+        str: bam opening mode
+    """
+    mode = check_extension(bam)
+    alf = AlignmentFile(bam, mode)
+
+    if not alf.has_index():
+        print(
+            f"BAM file {bam} has no index. Sort BAM file and provide index "
+            "before running pydamage."
+        )
+        sys.exit(1)
+
+    present_refs = set()
+    for ref_stat in alf.get_index_statistics():
+        refname = ref_stat[0]
+        nb_mapped_reads = ref_stat[1]
+        if nb_mapped_reads > 0:
+            present_refs.add(refname)
+    alf.close()
+    return tuple(present_refs), mode
+    

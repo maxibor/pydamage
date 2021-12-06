@@ -136,3 +136,5 @@ pydamage_contigs*
 *.bat
 
 pydamage_results
+
+.DS_Store
