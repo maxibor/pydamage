@@ -126,3 +126,4 @@ def damageplot(damage_dict, wlen, outdir):
     fig.suptitle(contig, fontsize=12, y=0.95)
 
     fig.savefig(f"{plotdir}/{contig}.png", dpi=200)
+    plt.close(fig)
