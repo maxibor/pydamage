@@ -79,3 +79,12 @@ class null_model:
             np.array: PMF(x)
         """
         return np.array([p0] * len(x))
+
+
+# Parameters for the predicte accuracy GLM model with a logit link function / logistic regression
+glm_model_params = {
+    "intercept": -1.78842427736877,
+    "actual_cov": 0.0271448079667983,
+    "damage": 20.4193418075295,
+    "contiglength": 4.19608849503652e-05,
+}

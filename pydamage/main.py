@@ -6,7 +6,8 @@ from functools import partial
 from pydamage import damage
 from pydamage.plot import damageplot
 from pydamage.exceptions import PyDamageWarning
-from pydamage.accuracy_model import prepare_data, load_model, fit_model
+from pydamage.accuracy_model import prepare_data, glm_predict
+from pydamage.models import glm_model_params
 import sys
 from tqdm import tqdm
 import warnings
@@ -132,9 +133,8 @@ def pydamage_analyze(
             list(tqdm(p.imap(plot_partial, filt_res), total=len(filt_res)))
     df_pydamage = utils.pandas_processing(res_dict=filt_res, wlen=wlen)
 
-    acc_model = load_model()
     prep_df_glm = prepare_data(df_pydamage)
-    df_glm = fit_model(prep_df_glm, acc_model)
+    df_glm = glm_predict(prep_df_glm, glm_model_params)
 
     df = df_glm.merge(df_pydamage, left_index=True, right_index=True)
 
