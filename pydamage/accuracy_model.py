@@ -1,14 +1,4 @@
-import pkg_resources
-from pypmml import Model
-
-
-def load_model():
-    """Returns the pmml model"""
-    model_path = pkg_resources.resource_stream(
-        __name__, "models/pydamage_glm_model.pmml"
-    )
-    model = Model.load(model_path)
-    return model
+from numpy import exp
 
 
 def prepare_data(pd_df):
@@ -28,13 +18,18 @@ def prepare_data(pd_df):
     return pd_df
 
 
-def fit_model(df, model):
-    """Fit GLM model to data
+def glm_predict(df, model_params):
+    """Predict accuracy
 
     Args:
         df (pandas DataFrame): prepared pydamage results
-        model (pypmml model): GLM accuracy model
+        model_params (dict): model parameters
     """
-    prediction = list(model.predict(df)["Predicted_sig"])
-    df["predicted_accuracy"] = prediction
+    df["predicted_accuracy"] = (
+        model_params["intercept"]
+        + model_params["actual_cov"] * df["actual_cov"]
+        + model_params["damage"] * df["damage"]
+        + model_params["contiglength"] * df["contiglength"]
+    )
+    df["predicted_accuracy"] = 1 / (1 + exp(-df["predicted_accuracy"]))
     return df["predicted_accuracy"].to_frame()
