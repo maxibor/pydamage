@@ -1,2 +1,2 @@
-__version__ = "0.7"
+__version__ = "0.70"
 from pydamage.main import pydamage_analyze
