@@ -64,7 +64,7 @@ def cli(ctx, outdir):
     default=0,
     type=int,
     show_default=True,
-    help="Minimum length of length of reference",
+    help="Minimum of length of reference sequence to consider",
 )
 @click.option(
     "-p",
