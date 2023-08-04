@@ -59,6 +59,14 @@ def cli(ctx, outdir):
     help="Window length (in bp) for damage modeling",
 )
 @click.option(
+    "-m",
+    "--minlen",
+    default=0,
+    type=int,
+    show_default=True,
+    help="Minimum length of length of reference",
+)
+@click.option(
     "-p",
     "--process",
     default=2,
@@ -78,7 +86,7 @@ def cli(ctx, outdir):
     "-g",
     "--group",
     is_flag=True,
-    help="Use entire BAM file as single reference for analyis "
+    help="Use entire BAM file as single reference for analysis "
     "(ignore reference headers)",
 )
 def analyze(ctx, no_args_is_help=True, **kwargs):

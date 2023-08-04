@@ -218,11 +218,12 @@ def create_damage_dict(
 
     return (damage_dict, non_damage_dict)
 
-def prepare_bam(bam: str) -> Tuple[Tuple, str]:
-    """Checks for file extension, and returns tuple of mapped refs
+def prepare_bam(bam: str, minlen: int) -> Tuple[Tuple, str]:
+    """Checks for file extension, and returns tuple of mapped refs of minlen
 
     Args:
         bam (str): Path to bam file
+        minlen(int): minimum reference sequence length threshold
 
     Returns:
         Tuple: Tuple of mapped references
@@ -239,10 +240,10 @@ def prepare_bam(bam: str) -> Tuple[Tuple, str]:
         sys.exit(1)
 
     present_refs = set()
-    for ref_stat in alf.get_index_statistics():
+    for ref_stat,ref_len in zip(alf.get_index_statistics(), alf.lengths):
         refname = ref_stat[0]
         nb_mapped_reads = ref_stat[1]
-        if nb_mapped_reads > 0:
+        if nb_mapped_reads > 0 and ref_len >= minlen:
             present_refs.add(refname)
     alf.close()
     return tuple(present_refs), mode

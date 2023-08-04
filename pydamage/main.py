@@ -5,7 +5,7 @@ import multiprocessing
 from functools import partial
 from pydamage import damage
 from pydamage.plot import damageplot
-from pydamage.exceptions import PyDamageWarning
+from pydamage.exceptions import PyDamageWarning, AlignmentFileError
 from pydamage.accuracy_model import prepare_data, glm_predict
 from pydamage.models import glm_model_params
 import sys
@@ -40,6 +40,7 @@ from pydamage import __version__
 def pydamage_analyze(
     bam,
     wlen=30,
+    minlen=0,
     show_al=False,
     process=1,
     outdir="",
@@ -52,6 +53,7 @@ def pydamage_analyze(
 
     Args:
         bam(str): Path to alignment (sam/bam/cram) file
+        minlen(int): minimum reference sequence length threshold
         wlen(int): window length
         show_al(bool): print alignments representations
         process(int):  Number of  processes for parellel computing
@@ -66,9 +68,9 @@ def pydamage_analyze(
         print(f"Pydamage version {__version__}\n")
     utils.makedir(outdir, force=force)
 
-    refs, mode = utils.prepare_bam(bam)
+    refs, mode = utils.prepare_bam(bam, minlen=minlen)
 
-    proc = min(len(refs), process)
+    proc = max(1, min(len(refs), process))
 
     ##########################
     # Simple loop for debugging
@@ -113,11 +115,14 @@ def pydamage_analyze(
             )
         ]
     else:
-        with multiprocessing.Pool(proc) as p:
-            res = list(tqdm(p.imap(test_damage_partial, refs), total=len(refs)))
-        filt_res = [i for i in res if i]
+        if len(refs) > 0:
+            with multiprocessing.Pool(proc) as p:
+                res = list(tqdm(p.imap(test_damage_partial, refs), total=len(refs)))
+            filt_res = [i for i in res if i]
+        else:
+            raise AlignmentFileError("No reference sequences were found in alignment file")
 
-    print(f"{len(filt_res)} contig(s) successfully analyzed by Pydamage")
+    print(f"{len(filt_res)} contig(s) analyzed by Pydamage")
     if len(filt_res) == 0:
         warnings.warn(
             "No alignments were found, check your alignment file", PyDamageWarning
