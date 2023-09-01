@@ -153,7 +153,7 @@ def df_to_csv(
     df = df.round(3)
     if not outdir:
         outdir = "."
-    df.to_csv(f"{outdir}/{outfile}", index=False)
+    df.to_csv(f"{outdir}/{outfile}")
 
 
 def sort_dict_by_keys(adict: dict) -> dict:
