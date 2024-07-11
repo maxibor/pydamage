@@ -42,6 +42,8 @@ class al_to_damage:
         self.CT = []
         self.damage_bases = []
         self.C_G_bases = []
+        self.G = []
+        self.GA = []
         self.no_mut = []
         for al in self.alignments:
             if al.is_unmapped is False:
@@ -57,8 +59,12 @@ class al_to_damage:
                 )
                 self.C += all_damage["C"]
                 self.CT += all_damage["CT"]
+                self.G += all_damage["G"]
+                self.GA += all_damage["GA"]
                 self.damage_bases += all_damage["CT"]
+                self.damage_bases += all_damage["GA"]
                 self.C_G_bases += all_damage["C"]
+                self.C_G_bases += all_damage["G"]
                 self.no_mut += all_damage["no_mut"]
 
     def compute_damage(self):
@@ -72,6 +78,13 @@ class al_to_damage:
             return_counts=True,
         )
         C_dict = dict(zip(C_pos, C_counts))
+
+        # All G in reference
+        G_pos, G_counts = np.unique(
+            np.sort(self.G),
+            return_counts=True,
+        )
+        G_dict = dict(zip(G_pos, G_counts))
 
         # CtoT transitions
         CT_pos, CT_counts = np.unique(np.sort(self.CT), return_counts=True)
@@ -107,6 +120,8 @@ class al_to_damage:
                 no_mut_dict[i] = 0
             if i not in C_dict:
                 CT_damage_amount.append(0)
+            if i not in G_dict:
+                GA_damage_amount.append(0)
             else:
                 CT_damage_amount.append(CT_dict[i] / C_dict[i])
             if i not in C_G_bases_dict:
@@ -219,6 +234,8 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
             GA_damage,
             all_damage,
         ) = al.compute_damage()
+
+        print(CT_damage)
         # if all_damage:
         model_A = models.damage_model()
         model_B = models.null_model()

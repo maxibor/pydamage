@@ -34,7 +34,7 @@ def damage_al(
     r_string = ""
     q_string = ""
     res = ""
-    base_trans_counts = {"C": [], "CT": [], "no_mut": []}
+    base_trans_counts = {"C": [], "CT": [], "G": [], "GA": [], "no_mut": []}
     for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
         if c[0] in [0, 7, 8]:
@@ -67,6 +67,14 @@ def damage_al(
                     base_trans_counts["CT"].append(i)
                 elif q_char == "C":
                     base_trans_counts["no_mut"].append(i)
+        else:
+            if r_char == "G":
+                base_trans_counts["G"].append(i)
+                if q_char == "A":
+                    base_trans_counts["GA"].append(i)
+                elif q_char == "G":
+                    base_trans_counts["no_mut"].append(i)
+
     if show_al:
         orient = {False: ["5'", "3'"], True: ["3'", "5'"]}
         res += "R   " + r_string + "\t" + ref_name + "\n" + orient[is_reverse][0] + "  "

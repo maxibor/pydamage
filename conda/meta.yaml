@@ -31,7 +31,6 @@ requirements:
     - tqdm>=4.45.0
     - biopython>=1.78
     - kneed>=0.7.0
-    - pypmml>=0.9.7
     
 test:
   commands:
