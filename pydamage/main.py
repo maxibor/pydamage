@@ -75,52 +75,58 @@ def pydamage_analyze(
     ##########################
     # Simple loop for debugging
     ##########################
-    filt_res = []
-    for ref in refs:
-        res = damage.test_damage(
-            bam=bam,
-            ref=ref,
-            wlen=wlen,
-            show_al=show_al,
-            mode=mode,
-            process=process,
-            verbose=verbose,
-        )
-        if res:
-            filt_res.append(res)
-        break
-    ##########################
-    ##########################
+    # filt_res = []
+    # for ref in refs:
+    #     res = damage.test_damage(
+    #         bam=bam,
+    #         ref=ref,
+    #         wlen=wlen,
+    #         show_al=show_al,
+    #         mode=mode,
+    #         process=process,
+    #         verbose=verbose,
+    #     )
+    #     if res:
+    #         filt_res.append(res)
+    #     break
+    ######################
+    # Multiprocessing code
+    ######################
 
-    # test_damage_partial = partial(
-    #     damage.test_damage,
-    #     bam=bam,
-    #     mode=mode,
-    #     wlen=wlen,
-    #     show_al=show_al,
-    #     process=process,
-    #     verbose=verbose,
-    # )
-    # print("Estimating and testing Damage")
-    # if group:
-    #     filt_res = [
-    #         damage.test_damage(
-    #             ref=None,
-    #             bam=bam,
-    #             mode=mode,
-    #             wlen=wlen,
-    #             show_al=show_al,
-    #             process=process,
-    #             verbose=verbose,
-    #         )
-    #     ]
-    # else:
-    #     if len(refs) > 0:
-    #         with multiprocessing.Pool(proc) as p:
-    #             res = list(tqdm(p.imap(test_damage_partial, refs), total=len(refs)))
-    #         filt_res = [i for i in res if i]
-    #     else:
-    #         raise AlignmentFileError("No reference sequences were found in alignment file")
+    test_damage_partial = partial(
+        damage.test_damage,
+        bam=bam,
+        mode=mode,
+        wlen=wlen,
+        show_al=show_al,
+        process=process,
+        verbose=verbose,
+    )
+    print("Estimating and testing Damage")
+    if group:
+        filt_res = [
+            damage.test_damage(
+                ref=None,
+                bam=bam,
+                mode=mode,
+                wlen=wlen,
+                show_al=show_al,
+                process=process,
+                verbose=verbose,
+            )
+        ]
+    else:
+        if len(refs) > 0:
+            with multiprocessing.Pool(proc) as p:
+                res = list(tqdm(p.imap(test_damage_partial, refs), total=len(refs)))
+            filt_res = [i for i in res if i]
+        else:
+            raise AlignmentFileError(
+                "No reference sequences were found in alignment file"
+            )
+
+    ######################
+    ######################
 
     print(f"{len(filt_res)} contig(s) analyzed by Pydamage")
     if len(filt_res) == 0:

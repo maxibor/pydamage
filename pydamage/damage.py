@@ -45,6 +45,7 @@ class al_to_damage:
         self.G = []
         self.GA = []
         self.no_mut = []
+        self.read_dict = {}
         for al in self.alignments:
             if al.is_unmapped is False:
                 all_damage = damage_al(
@@ -61,11 +62,13 @@ class al_to_damage:
                 self.CT += all_damage["CT"]
                 self.G += all_damage["G"]
                 self.GA += all_damage["GA"]
-                self.damage_bases += all_damage["CT"]
-                self.damage_bases += all_damage["GA"]
+                CT_GA = all_damage["CT"] + all_damage["GA"]
+                self.damage_bases += CT_GA
                 self.C_G_bases += all_damage["C"]
                 self.C_G_bases += all_damage["G"]
                 self.no_mut += all_damage["no_mut"]
+                if len(CT_GA) > 0:
+                    self.read_dict[al.query_name] = np.array(CT_GA)
 
     def compute_damage(self):
         """Computes the amount of damage for statistical modelling"""
@@ -77,7 +80,7 @@ class al_to_damage:
             ),
             return_counts=True,
         )
-        C_dict = dict(zip(C_pos, C_counts))
+        C_dict = dict(zip(C_pos, C_counts))  # {position: count at each position}
 
         # All G in reference
         G_pos, G_counts = np.unique(
@@ -89,6 +92,10 @@ class al_to_damage:
         # CtoT transitions
         CT_pos, CT_counts = np.unique(np.sort(self.CT), return_counts=True)
         CT_dict = dict(zip(CT_pos, CT_counts))
+
+        # GtoA transitions
+        GA_pos, GA_counts = np.unique(np.sort(self.GA), return_counts=True)
+        GA_dict = dict(zip(GA_pos, GA_counts))
 
         # All transitions
         damage_bases_pos, damage_bases_counts = np.unique(
@@ -114,16 +121,23 @@ class al_to_damage:
         for i in range(self.wlen):
             if i not in CT_dict:
                 CT_dict[i] = 0
+
             if i not in damage_bases_dict:
                 damage_bases_dict[i] = 0
+
             if i not in no_mut_dict:
                 no_mut_dict[i] = 0
+
             if i not in C_dict:
                 CT_damage_amount.append(0)
+            else:
+                CT_damage_amount.append(CT_dict[i] / C_dict[i])
+
             if i not in G_dict:
                 GA_damage_amount.append(0)
             else:
-                CT_damage_amount.append(CT_dict[i] / C_dict[i])
+                GA_damage_amount.append(GA_dict[i] / G_dict[i])
+
             if i not in C_G_bases_dict:
                 damage_amount.append(0)
             else:
@@ -235,8 +249,6 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
             all_damage,
         ) = al.compute_damage()
 
-        print(CT_damage)
-        # if all_damage:
         model_A = models.damage_model()
         model_B = models.null_model()
         test_res = fit_models(
@@ -258,6 +270,7 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
 
         for i in range(wlen):
             CT_log[f"CtoT-{i}"] = CT_damage[i]
+            GA_log[f"GtoA-{i}"] = GA_damage[i]
         test_res.update(CT_log)
         test_res.update(GA_log)
 

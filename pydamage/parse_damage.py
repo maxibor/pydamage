@@ -21,7 +21,7 @@ def damage_al(
         query (string): query sequence
         cigartuple (tuple): cigar tuple (pysam)
         wlen (int): window length
-        print_al (bool): print alignment
+        show_al (bool): print alignment
     Returns:
         dict : {'C':  [ C pos from 5'],
                 'CT': [ CtoT pos from 5'],

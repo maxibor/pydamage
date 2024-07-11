@@ -178,7 +178,7 @@ def RMSE(residuals: np.ndarray) -> float:
     Returns:
         float: RMSE
     """
-    return np.sqrt(np.mean(residuals ** 2))
+    return np.sqrt(np.mean(residuals**2))
 
 
 def create_damage_dict(
@@ -218,6 +218,7 @@ def create_damage_dict(
 
     return (damage_dict, non_damage_dict)
 
+
 def prepare_bam(bam: str, minlen: int) -> Tuple[Tuple, str]:
     """Checks for file extension, and returns tuple of mapped refs of minlen
 
@@ -240,11 +241,10 @@ def prepare_bam(bam: str, minlen: int) -> Tuple[Tuple, str]:
         sys.exit(1)
 
     present_refs = set()
-    for ref_stat,ref_len in zip(alf.get_index_statistics(), alf.lengths):
+    for ref_stat, ref_len in zip(alf.get_index_statistics(), alf.lengths):
         refname = ref_stat[0]
         nb_mapped_reads = ref_stat[1]
         if nb_mapped_reads > 0 and ref_len >= minlen:
             present_refs.add(refname)
     alf.close()
     return tuple(present_refs), mode
-    
