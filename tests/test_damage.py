@@ -17,6 +17,7 @@ def test_al_to_damage(bamfile):
 
     assert al.C[:10] == [7, 11, 18, 2, 18, 9, 7, 11, 15, 4]
     assert al.CT == [15, 0, 0, 2, 15, 11, 0]
+    assert al.GA == []
     assert al.damage_bases == [15, 0, 0, 2, 15, 11, 0]
     assert al.C_G_bases[:10] == [7, 11, 18, 2, 18, 9, 7, 11, 15, 4]
     assert al.no_mut[:10] == [7, 11, 18, 2, 18, 9, 7, 11, 4, 16]

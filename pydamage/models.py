@@ -31,7 +31,7 @@ class damage_model:
         """
         return ((1 - p) ** x) * p
 
-    def fit(self, x, p, pmin, pmax, wlen=35):
+    def fit(self, x, p, pmin, pmax, wlen=35, **kwargs):
         """Damage model function
 
         Args:
@@ -53,6 +53,7 @@ class damage_model:
         xmax = self._geom_pmf(0, p)
         xmin = self._geom_pmf(wlen - 1, p)
         scaled_geom = ((base_geom - xmin) / (xmax - xmin)) * (pmax - pmin) + pmin
+        scaled_geom[wlen:] = pmin
         return scaled_geom
 
 

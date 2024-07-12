@@ -45,7 +45,7 @@ class al_to_damage:
         self.G = []
         self.GA = []
         self.no_mut = []
-        self.read_dict = {}
+        self.read_dict = {self.reference: dict()}
         for al in self.alignments:
             if al.is_unmapped is False:
                 all_damage = damage_al(
@@ -68,7 +68,7 @@ class al_to_damage:
                 self.C_G_bases += all_damage["G"]
                 self.no_mut += all_damage["no_mut"]
                 if len(CT_GA) > 0:
-                    self.read_dict[al.query_name] = np.array(CT_GA)
+                    self.read_dict[self.reference][al.query_name] = np.array(CT_GA)
 
     def compute_damage(self):
         """Computes the amount of damage for statistical modelling"""
@@ -121,6 +121,8 @@ class al_to_damage:
         for i in range(self.wlen):
             if i not in CT_dict:
                 CT_dict[i] = 0
+            if i not in GA_dict:
+                GA_dict[i] = 0
 
             if i not in damage_bases_dict:
                 damage_bases_dict[i] = 0
@@ -206,7 +208,7 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
     """Prepare data and run LRtest to test for damage
 
     Args:
-        ref (str): name of referene in alignment file
+        ref (str): name of reference in alignment file
         bam (str): bam file
         mode (str): opening mode of alignment file
         wlen (int): window length
@@ -241,6 +243,7 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
 
         al = al_to_damage(reference=ref, al_handle=al_handle, wlen=wlen)
         al.get_damage(show_al=show_al)
+        read_dict = al.read_dict
         (
             mut_count,
             conserved_count,
@@ -284,7 +287,7 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
 
         # print(test_res)
 
-        return check_model_fit(test_res, wlen, verbose)
+        return (check_model_fit(test_res, wlen, verbose), read_dict)
 
     except (ValueError, RuntimeError) as e:
         if verbose:
