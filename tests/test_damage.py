@@ -12,7 +12,9 @@ def bamfile():
 def test_al_to_damage(bamfile):
     from pydamage.damage import al_to_damage
 
-    al = al_to_damage(reference="NZ_JHCB02000002.1", al_handle=bamfile, wlen=20)
+    al = al_to_damage(
+        reference="NZ_JHCB02000002.1", al_handle=bamfile, wlen=20, g2a=False
+    )
     al.get_damage(show_al=False)
 
     assert al.C[:10] == [7, 11, 18, 2, 18, 9, 7, 11, 15, 4]
@@ -68,7 +70,7 @@ def test_check_model_fit():
 def test_test_damage():
     from pydamage.damage import test_damage
 
-    dam = test_damage(
+    dam, read_dict = test_damage(
         ref="NZ_JHCB02000002.1",
         bam="tests/data/aligned.bam",
         mode="rb",
@@ -76,6 +78,7 @@ def test_test_damage():
         wlen=20,
         process=1,
         verbose=False,
+        g2a=False,
     )
     assert dam["CtoT-0"] == pytest.approx(0.13043478260869565)
 
