@@ -3,8 +3,10 @@ import numpy as np
 from array import array
 from pydamage.models import damage_model
 from tqdm import tqdm
+from numba import jit
 
 
+@jit
 def phred_to_prob(qual):
     """Convert Phred quality score to probability
 
@@ -14,7 +16,20 @@ def phred_to_prob(qual):
     Returns:
         np.array(int): Array of read error probabilities
     """
-    return 10 ** (-np.array(qual).astype(int) / 10)
+    return 10 ** (-qual / 10)
+
+
+@jit
+def compute_new_prob(e, d):
+    """Compute new probability of base calling  error accounting for ancient damage
+
+    Args:
+        e (np.array): Array of read error probabilities
+        d (np.array): Array of damage probabilities
+    Returns:
+        np.array(int): Array of new read error probabilities
+    """
+    return np.round(-10 * np.log10(1 - np.multiply(1 - e, 1 - d)), 0).astype(np.int64)
 
 
 def rescale_qual(read_qual, dmg_pmf, damage_bases, reverse):
@@ -27,15 +42,15 @@ def rescale_qual(read_qual, dmg_pmf, damage_bases, reverse):
     Returns:
         np.array(int): Array of rescaled Phred quality scores
     """
-    e = phred_to_prob(read_qual)
+    e = phred_to_prob(np.array(read_qual).astype(np.int64))
     if reverse:
         e = e[::-1]
     d = np.zeros(len(read_qual))
     d[damage_bases] = dmg_pmf[damage_bases]
-    r = np.round(-10 * np.log10(1 - np.multiply(1 - e, 1 - d)), 0).astype(int)
+    r = compute_new_prob(e, d)
     if reverse:
         r = r[::-1]
-    return array("B", r)
+    return r
 
 
 def rescale_bam(bam, threshold, alpha, damage_dict, read_dict, outname):
@@ -71,11 +86,14 @@ def rescale_bam(bam, threshold, alpha, damage_dict, read_dict, outname):
                         for read in al.fetch(ref):
                             if read.query_name in read_dict[ref]:
                                 qual = read.query_qualities
-                                read.query_qualities = rescale_qual(
-                                    qual,
-                                    dmg_pmf,
-                                    read_dict[ref][read.query_name],
-                                    reverse=read.is_reverse,
+                                read.query_qualities = array(
+                                    "B",
+                                    rescale_qual(
+                                        qual,
+                                        dmg_pmf,
+                                        read_dict[ref][read.query_name],
+                                        reverse=read.is_reverse,
+                                    ),
                                 )
                             out.write(read)
                     else:
