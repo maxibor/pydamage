@@ -19,7 +19,7 @@ from pydamage import __version__
 # -- Project information -----------------------------------------------------
 
 project = "pydamage"
-copyright = "2020, Maxime Borry"
+copyright = "2024, Maxime Borry"
 author = "Maxime Borry"
 
 # The full version, including alpha/beta/rc tags
