@@ -17,3 +17,5 @@ dependencies:
   - sphinx-click
   - biopython
   - numba
+  - recommonmark
+  - sphinx-rtd-theme
