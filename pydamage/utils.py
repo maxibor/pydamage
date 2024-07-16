@@ -48,12 +48,13 @@ def makedir(dirpath: str, confirm: bool = True, force: bool = False):
     os.makedirs(dirpath)
 
 
-def pandas_processing(res_dict: dict, wlen: int) -> pd.core.frame.DataFrame:
+def pandas_processing(res_dict: dict, wlen: int, g2a: bool) -> pd.core.frame.DataFrame:
     """Performs Pandas processing of Pydamage results
 
     Args:
         res_dict (dict): Result dictionary of LR test
         wlen(int): window size
+        g2a(bool): Output G to A transitions
     """
     df = pd.DataFrame(res_dict)
     if len(res_dict) == 0:
@@ -64,26 +65,27 @@ def pandas_processing(res_dict: dict, wlen: int) -> pd.core.frame.DataFrame:
         name="qvalue",
     )
     df = df.merge(qvalues, left_index=True, right_index=True, how="outer")
-    df = df[
-        [
-            "p0",
-            "p0_stdev",
-            "p",
-            "p_stdev",
-            "pmin",
-            "pmin_stdev",
-            "pmax",
-            "pmax_stdev",
-            "pvalue",
-            "qvalue",
-            "RMSE",
-            "reference",
-            "nb_reads_aligned",
-            "coverage",
-            "reflen",
-        ]
-        + [f"CtoT-{i}" for i in range(wlen)]
-    ]
+    columns = [
+        "p0",
+        "p0_stdev",
+        "p",
+        "p_stdev",
+        "pmin",
+        "pmin_stdev",
+        "pmax",
+        "pmax_stdev",
+        "pvalue",
+        "qvalue",
+        "RMSE",
+        "reference",
+        "nb_reads_aligned",
+        "coverage",
+        "reflen",
+    ] + [f"CtoT-{i}" for i in range(wlen)]
+    if g2a:
+        columns += [f"GtoA-{i}" for i in range(wlen)]
+
+    df = df[columns]
     df.rename(
         columns={
             "p0": "null_model_p0",
@@ -104,11 +106,15 @@ def pandas_processing(res_dict: dict, wlen: int) -> pd.core.frame.DataFrame:
     return df
 
 
-def pandas_group_processing(res_dict: dict) -> pd.core.frame.DataFrame:
+def pandas_group_processing(
+    res_dict: dict,
+    g2a: bool,
+) -> pd.core.frame.DataFrame:
     """Performs Pandas processing of Pydamage grouped reference results
 
     Args:
         res_dict (dict): Result dictionary of LR test
+        g2a(bool): Output G to A transitions
     """
     filt_dict = {}
     filt_dict["reference"] = str(res_dict["reference"])
@@ -129,7 +135,7 @@ def pandas_group_processing(res_dict: dict) -> pd.core.frame.DataFrame:
     for i in list(res_dict.keys()):
         if str(i).startswith("CtoT"):
             filt_dict[i] = float(res_dict[i])
-        if str(i).startswith("GtoA"):
+        if str(i).startswith("GtoA") and g2a:
             filt_dict[i] = float(res_dict[i])
 
     df = (

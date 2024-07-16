@@ -8,18 +8,19 @@ import numpy as np
 
 
 class al_to_damage:
-    def __init__(self, reference, al_handle, wlen):
+    def __init__(self, reference, al_handle, wlen, g2a):
         """Constructor of the class
 
         Args:
             reference (string): a reference from the indexed bam file
             al_handle(pysam.AlignmentFile)
             wlen (int): window length
-
+            g2a (bool): use GtoA transitions
         """
         self.alignments = al_handle.fetch(reference)
         self.reference = reference
         self.wlen = wlen
+        self.g2a = g2a
         # self.alignments = al_file
 
     # def __repr__(self):
@@ -56,18 +57,23 @@ class al_to_damage:
                     query=al.query_sequence,
                     cigartuple=al.cigartuples,
                     wlen=self.wlen,
+                    g2a=self.g2a,
                     show_al=show_al,
                 )
                 self.C += all_damage["C"]
                 self.CT += all_damage["CT"]
                 self.G += all_damage["G"]
                 self.GA += all_damage["GA"]
-                CT_GA = all_damage["CT"] + all_damage["GA"]
-                self.damage_bases += CT_GA
                 self.C_G_bases += all_damage["C"]
-                self.C_G_bases += all_damage["G"]
+                CT_GA = all_damage["CT"]
+                if self.g2a:
+                    CT_GA += all_damage["GA"]
+                    self.C_G_bases += all_damage["G"]
+                self.damage_bases += CT_GA
                 self.no_mut += all_damage["no_mut"]
-                if len(CT_GA) > 0:
+                if len(CT_GA) > 0 and (
+                    (al.is_reverse and self.g2a) or (not al.is_reverse)
+                ):
                     self.read_dict[self.reference][al.query_name] = np.array(CT_GA)
 
     def compute_damage(self):
@@ -204,7 +210,7 @@ def check_model_fit(model_dict, wlen, verbose):
     return model_dict
 
 
-def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
+def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
     """Prepare data and run LRtest to test for damage
 
     Args:
@@ -212,6 +218,7 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
         bam (str): bam file
         mode (str): opening mode of alignment file
         wlen (int): window length
+        g2a (bool): Use GtoA transitions
         show_al (bool): Show alignment representations
         process (int): Number of process for parallelization
         verbose (bool): Run in verbose mode
@@ -241,7 +248,7 @@ def test_damage(ref, bam, mode, wlen, show_al, process, verbose):
             reflen = al_handle.get_reference_length(ref)
             refname = ref
 
-        al = al_to_damage(reference=ref, al_handle=al_handle, wlen=wlen)
+        al = al_to_damage(reference=ref, al_handle=al_handle, wlen=wlen, g2a=g2a)
         al.get_damage(show_al=show_al)
         read_dict = al.read_dict
         (

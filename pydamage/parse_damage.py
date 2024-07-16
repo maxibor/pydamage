@@ -9,6 +9,7 @@ def damage_al(
     query,
     cigartuple,
     wlen,
+    g2a,
     show_al,
 ):
     """Compute CtoT mutations for a single alignment
@@ -21,6 +22,7 @@ def damage_al(
         query (string): query sequence
         cigartuple (tuple): cigar tuple (pysam)
         wlen (int): window length
+        g2a (bool): plot G to A transitions
         show_al (bool): print alignment
     Returns:
         dict : {'C':  [ C pos from 5'],
@@ -57,17 +59,19 @@ def damage_al(
 
     read_len = len(r_string)
     for i in range(min(read_len, wlen)):
-        r_char = r_string[i].upper()
-        q_char = q_string[i].upper()
         # base_trans_counts[q_char].append(i)
         if is_reverse is False:
+            r_char = r_string[i].upper()
+            q_char = q_string[i].upper()
             if r_char == "C":
                 base_trans_counts["C"].append(i)
                 if q_char == "T":
                     base_trans_counts["CT"].append(i)
                 elif q_char == "C":
                     base_trans_counts["no_mut"].append(i)
-        else:
+        elif g2a:
+            r_char = r_string[::-1][i].upper()
+            q_char = q_string[::-1][i].upper()
             if r_char == "G":
                 base_trans_counts["G"].append(i)
                 if q_char == "A":
