@@ -32,7 +32,15 @@ class NaturalOrderGroup(click.Group):
     show_default=True,
     help="Output directory",
 )
-def cli(ctx, outdir):
+@click.option(
+    "-t",
+    "--threshold",
+    default=0.5,
+    type=float,
+    show_default=True,
+    help="Predicted accuracy filtering threshold. Set to 0 for finding threshold with kneed method",
+)
+def cli(ctx, outdir, threshold):
     """\b
     PyDamage: Damage parameter estimation for ancient DNA
     Author: Maxime Borry
@@ -44,6 +52,7 @@ def cli(ctx, outdir):
     ctx.ensure_object(dict)
 
     ctx.obj["outdir"] = outdir
+    ctx.obj["threshold"] = threshold
     pass
 
 
@@ -89,6 +98,13 @@ def cli(ctx, outdir):
     help="Use entire BAM file as single reference for analysis "
     "(ignore reference headers)",
 )
+@click.option("-n", "--no_ga", is_flag=True, help="Do not use G->A transitions")
+@click.option(
+    "-r",
+    "--rescale",
+    is_flag=True,
+    help="Rescale base quality scores using the PyDamage damage model",
+)
 def analyze(ctx, no_args_is_help=True, **kwargs):
     """\b
     Run the PyDamage analysis
@@ -101,14 +117,6 @@ def analyze(ctx, no_args_is_help=True, **kwargs):
 @cli.command()
 @click.pass_context
 @click.argument("csv", type=click.Path(exists=True))
-@click.option(
-    "-t",
-    "--threshold",
-    default=0.5,
-    type=float,
-    show_default=True,
-    help="Predicted accuracy filtering threshold. Set to 0 for finding threshold with kneed method",
-)
 def filter(ctx, no_args_is_help=True, **kwargs):
     """\b
     Filter PyDamage results on predicted accuracy and qvalue thresholds.

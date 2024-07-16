@@ -29,6 +29,15 @@ The tabular outputs are  comma-separated file (`.csv`) with the following column
 
 Same file as above, but with contigs filtered with `qvalue <= 0.05` and `predicted_accuracy >= threshold` with a user defined filtering threshold (default = 0.5), or determined with the [kneedle](https://ieeexplore.ieee.org/document/5961514) method.
 
+
+### `pydamage_rescaled.bam`
+
+The input alignment file with rescaled base quality scores when running `pydamage analyze` with the `-r` or `--rescale` flag.
+
+The rescaled base calling scores are computed for each read containing ancient DNA damage according to the following formula, with `i` the position in the read, `p_err` the original base calling error probability,`p_pydam` the pydamage computed ancient damage probability, and `p_new` the updated base calling error probability.
+
+`p_new(i) = 1 - (1 - p_err(i)) (1 - p_pydam(i))`
+
 ### Plots
 
 The visual output are PNG files, one per reference contig. They show the frequency of observed C to T, and G to A transition at the 5' end of the sequencing data and overlay it with the fitted models for both the null and the damage model, including 95% confidence intervals. Furthermore, it provides a "residuals versus fitted" plot to help evaluate the fit of the pydamage damage model. Finally, the plot contains informtion on the average coverage along the reference and the p-value calculated from the likelihood-ratio test-statistic using a chi-squared distribution.
