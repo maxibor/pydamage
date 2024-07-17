@@ -251,6 +251,8 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
         al = al_to_damage(reference=ref, al_handle=al_handle, wlen=wlen, g2a=g2a)
         al.get_damage(show_al=show_al)
         read_dict = al.read_dict
+        if len(read_dict.keys()) == 1 and list(read_dict.keys())[0] is None:
+            read_dict[refname] = read_dict.pop(None)
         (
             mut_count,
             conserved_count,

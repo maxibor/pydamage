@@ -178,6 +178,7 @@ def pydamage_analyze(
             alpha=0.05,
             damage_dict=df.to_dict(),
             read_dict=read_dict,
+            grouped=group,
             outname=os.path.join(outdir, "pydamage_rescaled.bam"),
         )
     utils.df_to_csv(df, outdir)

@@ -53,7 +53,7 @@ def rescale_qual(read_qual, dmg_pmf, damage_bases, reverse):
     return r
 
 
-def rescale_bam(bam, threshold, alpha, damage_dict, read_dict, outname):
+def rescale_bam(bam, threshold, alpha, damage_dict, read_dict, grouped, outname):
     """Rescale quality scores in BAM file using damage model
 
     Args:
@@ -62,36 +62,43 @@ def rescale_bam(bam, threshold, alpha, damage_dict, read_dict, outname):
         alpha (float): Q-value threshold
         damage_dict (dict): Damage model parameters
         read_dict (dict): Dictionary of read names
+        grouped (bool): Grouped analysis
         outname (str): Path to output BAM file
     """
+
     with pysam.AlignmentFile(bam, "rb") as al:
         refs = al.references
         with pysam.AlignmentFile(outname, "wb", template=al) as out:
             for ref in tqdm(refs, desc="Rescaling quality scores"):
+                if grouped:
+                    pydam_ref = 'reference'
+                else:
+                    pydam_ref = ref
                 dmg = damage_model()
-                if ref in read_dict:
+                if pydam_ref in read_dict:
                     pass_filter = False
                     if (
                         threshold
-                        and threshold <= damage_dict["predicted_accuracy"][ref]
-                    ) and (alpha and alpha >= damage_dict["qvalue"][ref]):
+                        and threshold <= damage_dict["predicted_accuracy"][pydam_ref]
+                    ) and (alpha and alpha >= damage_dict["qvalue"][pydam_ref]):
                         pass_filter = True
                     if pass_filter:
                         dmg_pmf = dmg.fit(
                             x=np.arange(400),
-                            p=damage_dict["damage_model_p"][ref],
-                            pmin=damage_dict["damage_model_pmin"][ref],
-                            pmax=damage_dict["damage_model_pmax"][ref],
+                            p=damage_dict["damage_model_p"][pydam_ref],
+                            pmin=damage_dict["damage_model_pmin"][pydam_ref],
+                            pmax=damage_dict["damage_model_pmax"][pydam_ref],
                         )
                         for read in al.fetch(ref):
-                            if read.query_name in read_dict[ref]:
+                            if read.query_name in read_dict[pydam_ref]:
                                 qual = read.query_qualities
+                                read.query_sequence = read.query_sequence
                                 read.query_qualities = array(
                                     "B",
                                     rescale_qual(
                                         qual,
                                         dmg_pmf,
-                                        read_dict[ref][read.query_name],
+                                        read_dict[pydam_ref][read.query_name],
                                         reverse=read.is_reverse,
                                     ),
                                 )

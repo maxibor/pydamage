@@ -20,7 +20,6 @@ def damageplot(damage_dict, wlen, plot_g2a, outdir):
         plot_g2a(bool): Plot G to A transitions
         outdir(str): Pydamage result directory
     """
-    print(damage_dict)
     x = np.array(range(wlen))
     # qlen = np.array(range(damage_dict["qlen"]))
     c2t = np.array([damage_dict[f"CtoT-{i}"] for i in x])
@@ -139,7 +138,6 @@ def damageplot(damage_dict, wlen, plot_g2a, outdir):
     ax2.set_xticklabels([int(i) for i in ax2.get_xticks()], fontsize=6, rotation=45)
     ax2.set_yticks(ax2.get_yticks())
     ax2.set_yticklabels([round(i, 3) for i in ax2.get_yticks()], fontsize=6)
-    print("plot", pmin, pmax)
     fig.suptitle(contig, fontsize=12, y=0.95)
 
     fig.savefig(f"{plotdir}/{contig}.png", dpi=200)
