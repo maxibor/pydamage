@@ -24,7 +24,7 @@ __ homepage_
    CLI
    output
    troubleshooting
-   notebooks/rescaling
+   rescaling
 
 
 

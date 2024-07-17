@@ -19,3 +19,4 @@ dependencies:
   - numba
   - recommonmark
   - sphinx-rtd-theme
+  - nbsphinx
