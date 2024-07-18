@@ -3,10 +3,13 @@ import numpy as np
 from array import array
 from pydamage.models import damage_model
 from tqdm import tqdm
-from numba import njit
+from numba import jit
 
 
-@njit(parallel=True)
+@jit(
+    cache=True,
+    fastmath=True,
+)
 def phred_to_prob(qual):
     """Convert Phred quality score to probability
 
@@ -19,7 +22,10 @@ def phred_to_prob(qual):
     return 10 ** (-qual / 10)
 
 
-@njit(parallel=True)
+@jit(
+    cache=True,
+    fastmath=True,
+)
 def compute_new_prob(e, d):
     """Compute new probability of base calling  error accounting for ancient damage
 
