@@ -3,10 +3,10 @@ import numpy as np
 from array import array
 from pydamage.models import damage_model
 from tqdm import tqdm
-from numba import jit
+from numba import njit
 
 
-@jit
+@njit(parallel=True)
 def phred_to_prob(qual):
     """Convert Phred quality score to probability
 
@@ -19,7 +19,7 @@ def phred_to_prob(qual):
     return 10 ** (-qual / 10)
 
 
-@jit
+@njit(parallel=True)
 def compute_new_prob(e, d):
     """Compute new probability of base calling  error accounting for ancient damage
 
@@ -53,7 +53,9 @@ def rescale_qual(read_qual, dmg_pmf, damage_bases, reverse):
     return r
 
 
-def rescale_bam(bam, threshold, alpha, damage_dict, read_dict, grouped, outname):
+def rescale_bam(
+    bam, threshold, alpha, damage_dict, read_dict, grouped, outname, threads
+):
     """Rescale quality scores in BAM file using damage model
 
     Args:
@@ -64,14 +66,15 @@ def rescale_bam(bam, threshold, alpha, damage_dict, read_dict, grouped, outname)
         read_dict (dict): Dictionary of read names
         grouped (bool): Grouped analysis
         outname (str): Path to output BAM file
+        threads(int): Number of threads
     """
 
-    with pysam.AlignmentFile(bam, "rb") as al:
+    with pysam.AlignmentFile(bam, "rb", threads=threads) as al:
         refs = al.references
-        with pysam.AlignmentFile(outname, "wb", template=al) as out:
+        with pysam.AlignmentFile(outname, "wb", template=al, threads=threads) as out:
             for ref in tqdm(refs, desc="Rescaling quality scores"):
                 if grouped:
-                    pydam_ref = 'reference'
+                    pydam_ref = "reference"
                 else:
                     pydam_ref = ref
                 dmg = damage_model()

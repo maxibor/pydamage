@@ -180,6 +180,7 @@ def pydamage_analyze(
             read_dict=read_dict,
             grouped=group,
             outname=os.path.join(outdir, "pydamage_rescaled.bam"),
+            threads=process,
         )
     utils.df_to_csv(df, outdir)
     return df
