@@ -8,7 +8,7 @@ import numpy as np
 
 
 class al_to_damage:
-    def __init__(self, reference, al_handle, wlen, g2a):
+    def __init__(self, reference, al_handle, wlen, g2a, subsample):
         """Constructor of the class
 
         Args:
@@ -16,11 +16,13 @@ class al_to_damage:
             al_handle(pysam.AlignmentFile)
             wlen (int): window length
             g2a (bool): use GtoA transitions
+            subsample(float): subsample reads
         """
         self.alignments = al_handle.fetch(reference)
         self.reference = reference
         self.wlen = wlen
         self.g2a = g2a
+        self.subsample = subsample
         # self.alignments = al_file
 
     # def __repr__(self):
@@ -48,7 +50,9 @@ class al_to_damage:
         self.no_mut = []
         self.read_dict = {self.reference: dict()}
         for al in self.alignments:
-            if al.is_unmapped is False:
+            if al.is_unmapped is False and (
+                self.subsample is None or np.random.rand() < self.subsample
+            ):
                 all_damage = damage_al(
                     reference=al.get_reference_sequence(),
                     read_name=al.query_name,
@@ -210,7 +214,7 @@ def check_model_fit(model_dict, wlen, verbose):
     return model_dict
 
 
-def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
+def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose):
     """Prepare data and run LRtest to test for damage
 
     Args:
@@ -219,6 +223,7 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
         mode (str): opening mode of alignment file
         wlen (int): window length
         g2a (bool): Use GtoA transitions
+        subsample (float): Subsample reads
         show_al (bool): Show alignment representations
         process (int): Number of process for parallelization
         verbose (bool): Run in verbose mode
@@ -235,6 +240,7 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
                     for ref in all_references
                 ]
             )
+
             nb_reads_aligned = np.sum(
                 [al_handle.count(contig=ref) for ref in all_references]
             )
@@ -248,7 +254,13 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
             reflen = al_handle.get_reference_length(ref)
             refname = ref
 
-        al = al_to_damage(reference=ref, al_handle=al_handle, wlen=wlen, g2a=g2a)
+        if subsample:
+            cov = cov * subsample
+            nb_reads_aligned = np.round(nb_reads_aligned * subsample, 0)
+
+        al = al_to_damage(
+            reference=ref, al_handle=al_handle, wlen=wlen, g2a=g2a, subsample=subsample
+        )
         al.get_damage(show_al=show_al)
         read_dict = al.read_dict
         if len(read_dict.keys()) == 1 and list(read_dict.keys())[0] is None:

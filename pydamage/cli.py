@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import click
+from click import option, Option, UsageError
 from pydamage.main import pydamage_analyze
 from pydamage.citation import get_citation
 from pydamage.filter import apply_filter
@@ -19,6 +20,31 @@ class NaturalOrderGroup(click.Group):
 
     def list_commands(self, ctx):
         return self.commands.keys()
+
+
+class MutuallyExclusiveOption(Option):
+    # Credits goes to Stan Chang for this code snippet
+    # https://gist.github.com/stanchan/bce1c2d030c76fe9223b5ff6ad0f03db
+
+    def __init__(self, *args, **kwargs):
+        self.mutually_exclusive = set(kwargs.pop("mutually_exclusive", []))
+        help = kwargs.get("help", "")
+        if self.mutually_exclusive:
+            ex_str = ", ".join(self.mutually_exclusive)
+            kwargs["help"] = help + (
+                " NOTE: This argument is mutually exclusive with "
+                " arguments: [" + ex_str + "]."
+            )
+        super(MutuallyExclusiveOption, self).__init__(*args, **kwargs)
+
+    def handle_parse_result(self, ctx, opts, args):
+        if self.mutually_exclusive.intersection(opts) and self.name in opts:
+            raise UsageError(
+                "Illegal usage: `{}` is mutually exclusive with "
+                "arguments `{}`.".format(self.name, ", ".join(self.mutually_exclusive))
+            )
+
+        return super(MutuallyExclusiveOption, self).handle_parse_result(ctx, opts, args)
 
 
 @click.group(cls=NaturalOrderGroup)
@@ -103,7 +129,17 @@ def cli(ctx, outdir, threshold):
     "-r",
     "--rescale",
     is_flag=True,
+    cls=MutuallyExclusiveOption,
     help="Rescale base quality scores using the PyDamage damage model",
+    mutually_exclusive=["subsample"],
+)
+@click.option(
+    "-s",
+    "--subsample",
+    cls=MutuallyExclusiveOption,
+    type=click.FloatRange(0, 1),
+    help="Subsample a fraction of the reads for damage modeling",
+    mutually_exclusive=["rescale"],
 )
 def analyze(ctx, no_args_is_help=True, **kwargs):
     """\b
