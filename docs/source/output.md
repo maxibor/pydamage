@@ -52,4 +52,4 @@ The visual output are PNG files, one per reference contig. They show the frequen
   
 * **Visual output**
 
-![pydamage_plot](../img/NZ_JHCB02000011.1.png)
+![pydamage_plot](../img/reference.png)
