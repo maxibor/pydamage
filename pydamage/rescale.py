@@ -2,8 +2,10 @@ import pysam
 import numpy as np
 from array import array
 from pydamage.models import damage_model
+from pydamage import __version__
 from tqdm import tqdm
 from numba import jit
+import sys
 
 
 @jit(
@@ -74,10 +76,19 @@ def rescale_bam(
         outname (str): Path to output BAM file
         threads(int): Number of threads
     """
-
     with pysam.AlignmentFile(bam, "rb", threads=threads) as al:
+        hd = al.header.to_dict()
+        hd["PG"].append(
+            {
+                "ID": "pydamage",
+                "PN": "pydamage",
+                "VN": __version__,
+                "CL": " ".join(sys.argv),
+            }
+        )
+        print(hd)
         refs = al.references
-        with pysam.AlignmentFile(outname, "wb", template=al, threads=threads) as out:
+        with pysam.AlignmentFile(outname, "wb", threads=threads, header=hd) as out:
             for ref in tqdm(refs, desc="Rescaling quality scores"):
                 if grouped:
                     pydam_ref = "reference"
