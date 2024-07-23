@@ -62,7 +62,7 @@ def cli(ctx, outdir, threshold):
 @click.option(
     "-w",
     "--wlen",
-    default=20,
+    default=13,
     type=int,
     show_default=True,
     help="Window length (in bp) for damage modeling",
