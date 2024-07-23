@@ -38,8 +38,8 @@ class al_to_damage:
         self.subsample = subsample
         # self.alignments = al_file
 
-    # def __repr__(self):
-    #     return(f"Reference {reference}")
+    def __repr__(self):
+        return(f"Reference {reference}")
 
     def get_damage(self, show_al):
         """Compute CtoT substitutions
@@ -62,19 +62,14 @@ class al_to_damage:
         self.GA = []
         self.no_mut = []
         self.read_dict = {self.reference: dict()}
-<<<<<<< HEAD
         if self.reference is None:
             iterator = tqdm(self.alignments)
         else:
             iterator = self.alignments
         for al in iterator:
-            if al.is_unmapped is False:
-=======
-        for al in self.alignments:
             if al.is_unmapped is False and (
                 self.subsample is None or np.random.rand() < self.subsample
             ):
->>>>>>> 0b1b40b08a969c770524bcecab9151709073f06f
                 all_damage = damage_al(
                     reference=al.get_reference_sequence(),
                     read_name=al.query_name,
@@ -282,96 +277,3 @@ def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose)
                 f" - reflen: {reflen}\n"
             )
         return False
-
-
-# def get_damage_group(get_damage_list):
-#     """Prepare data and run LR test to test for damage on reference grouped
-#     as one.
-
-#     Args:
-#         get_damage_list (list): results of get_damage as list of dict
-#     Returns:
-#         list:[ct_data, ga_data, cc_data, c_data, g_data, all_bases]
-#     """
-
-#     al = al_to_damage(reference=ref, al_handle=al_handle)
-#     (
-#         CT,
-#         GA,
-#         damage_bases,
-#         forward,
-#         reverse,
-#     ) = al.get_damage(wlen=wlen, show_al=show_al)
-
-#     return [
-#         CT,
-#         GA,
-#         damage_bases,
-#         forward,
-#         reverse,
-#         cov,
-#         nb_reads_aligned,
-#         reflen,
-#     ]
-
-
-# def test_damage_group(
-#     ct_data,
-#     ga_data,
-#     damage_bases,
-#     forward,
-#     reverse,
-#     nb_reads_aligned,
-#     cov,
-#     reflen,
-#     wlen,
-#     verbose,
-# ):
-#     """Performs damage test
-
-#     Args:
-#         ct_data (list of int): List of positions from 5' with CtoT transitions
-#         ga_data (list of int): List of positions from 3' with GtoA transitions
-#         damage_bases (list of int): List of positions with damage
-#         forward (list of int): List of positions from 5' where a base is aligned
-#         reverse(list of int): List of positions from 3' where a base is aligned
-#         nb_reads_aligned(int): number of reads aligned
-#         cov(float): average coverage across all references
-#         reflen(int): length of all references
-#         wlen (int): window length
-#         verbose(bool): Verbose
-#     Returns:
-#         dict: Dictionary containing LR test results
-#     """
-#     ref = "reference"
-#     try:
-#         if ct_data:
-#             model_A = models.damage_model()
-#             model_B = models.null_model()
-#             test_res = fit_models(
-#                 ref="reference",
-#                 model_A=model_A,
-#                 model_B=model_B,
-#                 ct_data=ct_data,
-#                 cc_data=cc_data,
-#                 ga_data=ga_data,
-#                 all_bases=all_bases,
-#                 wlen=wlen,
-#                 verbose=verbose,
-#             )
-#             test_res["reference"] = ref
-#             test_res["nb_reads_aligned"] = nb_reads_aligned
-#             test_res["coverage"] = cov
-#             test_res["reflen"] = reflen
-
-#             return check_model_fit(test_res, wlen, verbose)
-
-#     except (ValueError, RuntimeError) as e:
-#         if verbose:
-#             print(f"Model fitting for {ref} failed")
-#             print(f"Model fitting error: {e}")
-#             print(
-#                 f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov} "
-#                 "- reflen: {reflen}\n"
-#             )
-#         return False
