@@ -16,29 +16,6 @@ import warnings
 from pydamage import __version__
 from collections import ChainMap
 
-# def pydamage_analyze(
-#     bam,
-#     wlen=30,
-#     show_al=False,
-#     process=1,
-#     outdir="",
-#     plot=False,
-#     verbose=False,
-#     force=False,
-#     group=False,
-# ):
-
-#     if group:
-#         pydamage_analyze_group(
-#             bam, wlen, show_al, process, outdir, plot, verbose, force
-#         )
-
-#     else:
-#         pydamage_analyze_multi(
-#             bam, wlen, show_al, process, outdir, plot, verbose, force
-#         )
-
-
 def pydamage_analyze(
     bam,
     wlen=30,
