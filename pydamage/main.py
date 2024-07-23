@@ -52,6 +52,7 @@ def pydamage_analyze(
     force=False,
     group=False,
     rescale=False,
+    subsample=None,
     no_ga=False,
 ):
     """Runs the pydamage analysis for each reference separately
@@ -69,12 +70,16 @@ def pydamage_analyze(
         group(bool): Use entire BAM file as single reference for analysis
         plot(bool): Write damage fitting plots to disk
         rescale(bool): Rescale base quality scores using the PyDamage damage model
+        subsample(float): Subsample a fraction of the reads for damage modelling
         no_ga(bool): Do not use G->A transitions
     Returns:
         pd.DataFrame: pandas DataFrame containg pydamage results
 
     """
     g2a = not no_ga
+    if subsample and rescale:
+        raise ValueError("Cannot use subsample and rescale together")
+
     if verbose:
         print(f"Pydamage version {__version__}\n")
     utils.makedir(outdir, force=force)
@@ -110,6 +115,7 @@ def pydamage_analyze(
         mode=mode,
         wlen=wlen,
         g2a=g2a,
+        subsample=subsample,
         show_al=show_al,
         process=process,
         verbose=verbose,
@@ -122,6 +128,7 @@ def pydamage_analyze(
             mode=mode,
             wlen=wlen,
             g2a=g2a,
+            subsample=subsample,
             show_al=show_al,
             process=process,
             verbose=verbose,
