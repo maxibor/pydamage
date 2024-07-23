@@ -13,7 +13,7 @@ def test_al_to_damage(bamfile):
     from pydamage.damage import al_to_damage
 
     al = al_to_damage(
-        reference="NZ_JHCB02000002.1", al_handle=bamfile, wlen=20, g2a=False
+        reference="NZ_JHCB02000002.1", al_handle=bamfile, wlen=20, g2a=False, subsample=False
     )
     al.get_damage(show_al=False)
 
@@ -75,6 +75,7 @@ def test_test_damage():
         bam="tests/data/aligned.bam",
         mode="rb",
         show_al=False,
+        subsample=False,
         wlen=20,
         process=1,
         verbose=False,
