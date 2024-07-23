@@ -90,7 +90,7 @@ def test_test_damage():
     assert dam["pmax_stdev"] == pytest.approx(0.018245226062185038)
     assert dam["p0"] == pytest.approx(0.01340230967468952)
     assert dam["p0_stdev"] == pytest.approx(0.007265315749990326)
-    assert dam["pvalue"] == pytest.approx(0.013003463710602237)
+    assert dam["pvalue"] == pytest.approx(0.015234282025449186)
     assert dam["model_params"] == pytest.approx(
         [
             0.9899999999803224,

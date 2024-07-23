@@ -5,7 +5,20 @@ from pydamage.parse_damage import damage_al
 from pydamage.model_fit import fit_models
 from pydamage import models
 import numpy as np
+from numba import jit
+from tqdm import tqdm
 
+def sort_count_array_dict(int_array):
+    """Sorts and counts unique values in an array
+
+    Args:
+        int_array (np.array): Array of integers
+    Returns:
+        np.array: sorted unique values
+        np.array: counts of unique values
+    """
+    pos, counts = np.unique(int_array, return_counts=True)
+    return pos, counts
 
 class al_to_damage:
     def __init__(self, reference, al_handle, wlen, g2a):
@@ -47,7 +60,11 @@ class al_to_damage:
         self.GA = []
         self.no_mut = []
         self.read_dict = {self.reference: dict()}
-        for al in self.alignments:
+        if self.reference is None:
+            iterator = tqdm(self.alignments)
+        else:
+            iterator = self.alignments
+        for al in iterator:
             if al.is_unmapped is False:
                 all_damage = damage_al(
                     reference=al.get_reference_sequence(),
@@ -80,90 +97,53 @@ class al_to_damage:
         """Computes the amount of damage for statistical modelling"""
 
         # All C in reference
-        C_pos, C_counts = np.unique(
-            np.sort(
-                self.C,
-            ),
-            return_counts=True,
-        )
-        C_dict = dict(zip(C_pos, C_counts))  # {position: count at each position}
+        C_pos, C_counts = sort_count_array_dict(np.array(self.C, dtype="uint32"))
 
         # All G in reference
-        G_pos, G_counts = np.unique(
-            np.sort(self.G),
-            return_counts=True,
-        )
-        G_dict = dict(zip(G_pos, G_counts))
+        G_pos, G_counts = sort_count_array_dict(np.array(self.G, dtype="uint32"))
 
         # CtoT transitions
-        CT_pos, CT_counts = np.unique(np.sort(self.CT), return_counts=True)
-        CT_dict = dict(zip(CT_pos, CT_counts))
+        CT_pos, CT_counts = sort_count_array_dict(np.array(self.CT, dtype="uint32"))
 
         # GtoA transitions
-        GA_pos, GA_counts = np.unique(np.sort(self.GA), return_counts=True)
-        GA_dict = dict(zip(GA_pos, GA_counts))
+        GA_pos, GA_counts = sort_count_array_dict(np.array(self.GA, dtype="uint32"))
 
         # All transitions
-        damage_bases_pos, damage_bases_counts = np.unique(
-            np.sort(self.damage_bases), return_counts=True
-        )
-        damage_bases_dict = dict(zip(damage_bases_pos, damage_bases_counts))
+        damage_bases_pos, damage_bases_counts = sort_count_array_dict(np.array(self.damage_bases, dtype="uint32"))
 
         # All C and G in reference
-        C_G_bases_pos, C_G_bases_counts = np.unique(
-            np.sort(self.C_G_bases), return_counts=True
-        )
-        C_G_bases_dict = dict(zip(C_G_bases_pos, C_G_bases_counts))
+        C_G_bases_pos, C_G_bases_counts = sort_count_array_dict(np.array(self.C_G_bases, dtype="uint32"))
 
         # All conserved C and G
-        no_mut_pos, no_mut_counts = np.unique(np.sort(self.no_mut), return_counts=True)
-        no_mut_dict = dict(zip(no_mut_pos, no_mut_counts))
+        no_mut_pos, no_mut_counts = sort_count_array_dict(np.array(self.no_mut, dtype="uint32"))
 
-        CT_damage_amount = []
-        GA_damage_amount = []
-        damage_amount = []
+        CT_damage_amount = np.zeros(self.wlen)
+        CT_damage_amount[CT_pos] = CT_counts / C_counts[CT_pos]
 
-        # Checking for non covered positions
-        for i in range(self.wlen):
-            if i not in CT_dict:
-                CT_dict[i] = 0
-            if i not in GA_dict:
-                GA_dict[i] = 0
+        GA_damage_amount = np.zeros(self.wlen)
+        GA_damage_amount[GA_pos] = GA_counts / G_counts[GA_pos]
 
-            if i not in damage_bases_dict:
-                damage_bases_dict[i] = 0
+        damage_amount = np.zeros(self.wlen)
+        damage_amount[damage_bases_pos] = damage_bases_counts / C_G_bases_counts[damage_bases_pos]
 
-            if i not in no_mut_dict:
-                no_mut_dict[i] = 0
+        _ = np.zeros(self.wlen, dtype="uint32")
+        _[damage_bases_pos] = damage_bases_counts
+        damage_bases_counts = _
 
-            if i not in C_dict:
-                CT_damage_amount.append(0)
-            else:
-                CT_damage_amount.append(CT_dict[i] / C_dict[i])
-
-            if i not in G_dict:
-                GA_damage_amount.append(0)
-            else:
-                GA_damage_amount.append(GA_dict[i] / G_dict[i])
-
-            if i not in C_G_bases_dict:
-                damage_amount.append(0)
-            else:
-                damage_amount.append(damage_bases_dict[i] / C_G_bases_dict[i])
+        _ = np.zeros(self.wlen, dtype="uint32")
+        _[no_mut_pos] = no_mut_counts
+        no_mut_counts = _
 
         return (
-            np.array(
-                list(damage_bases_dict.values())
-            ),  # Number of CtoT and GtoA per position
-            np.array(
-                list(no_mut_dict.values())
-            ),  # Number of conserved C and G per position
-            np.array(CT_damage_amount),
-            np.array(GA_damage_amount),
-            np.array(damage_amount),
+            damage_bases_counts,  # Number of CtoT and GtoA per position
+            no_mut_counts,  # Number of conserved C and G per position
+            CT_damage_amount,
+            GA_damage_amount,
+            damage_amount,
         )
 
 
+@jit
 def avg_coverage_contig(pysam_cov):
     """Computes average coverage of a reference
 
@@ -172,13 +152,11 @@ def avg_coverage_contig(pysam_cov):
     Returns:
         float: mean coverage of reference
     """
-    A = np.array(pysam_cov[0], dtype=int)
-    C = np.array(pysam_cov[1], dtype=int)
-    G = np.array(pysam_cov[2], dtype=int)
-    T = np.array(pysam_cov[3], dtype=int)
-    cov_all_bases = A + C + G + T
-    cov = np.mean(cov_all_bases)
-    return cov
+    return (
+        np.mean(
+            np.sum(pysam_cov, axis=0)
+        )
+    )
 
 
 def check_model_fit(model_dict, wlen, verbose):
@@ -197,16 +175,6 @@ def check_model_fit(model_dict, wlen, verbose):
             print(f"Unreliable model fit for {model_dict['reference']}")
         return False
 
-    # Check that all the first wlen bases are covered
-    # if len(model_dict["base_cov"]) < wlen:
-    #     return False
-    # if np.any(np.array(model_dict["base_cov"][:wlen]) == 0):
-    #     if verbose:
-    #         print(
-    #             f"Could not reliably fit a model to {model_dict['reference']}"
-    #             "because of too few reads aligned"
-    #         )
-    #     return False
     return model_dict
 
 
@@ -229,11 +197,11 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
     try:
         if ref is None:
             all_references = al_handle.references
-            cov = np.mean(
-                [
-                    avg_coverage_contig(al_handle.count_coverage(contig=ref))
-                    for ref in all_references
-                ]
+            cov = avg_coverage_contig(
+                np.concatenate(
+                    [np.array(al_handle.count_coverage(contig=ref), dtype="uint16") for ref in all_references], 
+                    axis=1
+                )
             )
             nb_reads_aligned = np.sum(
                 [al_handle.count(contig=ref) for ref in all_references]
@@ -243,7 +211,7 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
             )
             refname = "reference"
         else:
-            cov = avg_coverage_contig(al_handle.count_coverage(contig=ref))
+            cov = avg_coverage_contig(np.array(al_handle.count_coverage(contig=ref), dtype="uint16"))
             nb_reads_aligned = al_handle.count(contig=ref)
             reflen = al_handle.get_reference_length(ref)
             refname = ref
@@ -286,16 +254,6 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
         test_res.update(CT_log)
         test_res.update(GA_log)
 
-        # for i in range(qlen):
-        #     if i not in ydata_counts:
-        #         ydata_counts[i] = np.nan
-        #     if f"CtoT-{i}" not in ctot_out:
-        #         ctot_out[f"CtoT-{i}"] = np.nan
-        #     if f"GtoA-{i}" not in gtoa_out:
-        #         gtoa_out[f"GtoA-{i}"] = np.nan
-
-        # print(test_res)
-
         return (check_model_fit(test_res, wlen, verbose), read_dict)
 
     except (ValueError, RuntimeError) as e:
@@ -304,7 +262,7 @@ def test_damage(ref, bam, mode, wlen, g2a, show_al, process, verbose):
             print(f"Model fitting error: {e}")
             print(
                 f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov}"
-                " - reflen: {reflen}\n"
+                f" - reflen: {reflen}\n"
             )
         return False
 
