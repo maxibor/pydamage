@@ -146,7 +146,7 @@ class al_to_damage:
         )
 
 
-@jit
+@jit(parallel=True)
 def avg_coverage_contig(pysam_cov):
     """Computes average coverage of a reference
 
@@ -201,18 +201,20 @@ def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose)
     try:
         if ref is None:
             all_references = al_handle.references
+            print("Computing coverage")
             cov = avg_coverage_contig(
                 np.concatenate(
-                    [np.array(al_handle.count_coverage(contig=ref), dtype="uint16") for ref in all_references], 
+                    [np.array(al_handle.count_coverage(contig=ref), dtype="uint16") for ref in tqdm(all_references)], 
                     axis=1
                 )
             )
-
+            print("Getting number of reads aligned")
             nb_reads_aligned = np.sum(
-                [al_handle.count(contig=ref) for ref in all_references]
+                [al_handle.count(contig=ref) for ref in tqdm(all_references)]
             )
+            print("Getting reference length")
             reflen = np.sum(
-                [al_handle.get_reference_length(ref) for ref in all_references]
+                [al_handle.get_reference_length(ref) for ref in tqdm(all_references)]
             )
             refname = "reference"
         else:
