@@ -36,10 +36,9 @@ class al_to_damage:
         self.wlen = wlen
         self.g2a = g2a
         self.subsample = subsample
-        # self.alignments = al_file
 
     def __repr__(self):
-        return(f"Reference {reference}")
+        return(f"Reference {self.reference}")
 
     def get_damage(self, show_al):
         """Compute CtoT substitutions
@@ -68,7 +67,7 @@ class al_to_damage:
             iterator = self.alignments
         for al in iterator:
             if al.is_unmapped is False and (
-                self.subsample is None or np.random.rand() < self.subsample
+                not self.subsample or np.random.rand() < self.subsample
             ):
                 all_damage = damage_al(
                     reference=al.get_reference_sequence(),
