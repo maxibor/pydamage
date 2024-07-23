@@ -170,7 +170,6 @@ def pydamage_analyze(
 
     df = df_glm.merge(df_pydamage, left_index=True, right_index=True)
 
-    rescale = True
     if rescale:
         rescale_bam(
             bam=bam,
