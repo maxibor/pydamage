@@ -56,6 +56,9 @@ def pydamage_analyze(
     if subsample and rescale:
         raise ValueError("Cannot use subsample and rescale together")
 
+    if no_ga and rescale:
+        logging.warning("G to A transitions will not be used for rescaling !")
+
     if verbose:
         logging.info(f"Pydamage version {__version__}\n")
     utils.makedir(outdir, force=force)
