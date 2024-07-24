@@ -3,10 +3,11 @@
 import pysam
 from pydamage.parse_damage import damage_al
 from pydamage.model_fit import fit_models
+from pydamage.contig_stats import get_contig_stats, get_ref_stats
 from pydamage import models
 import numpy as np
-from numba import jit
 from tqdm import tqdm
+import logging
 
 def sort_count_array_dict(int_array):
     """Sorts and counts unique values in an array
@@ -62,7 +63,7 @@ class al_to_damage:
         self.no_mut = []
         self.read_dict = {self.reference: dict()}
         if self.reference is None:
-            iterator = tqdm(self.alignments)
+            iterator = tqdm(self.alignments, desc="Compute damage for entire reference")
         else:
             iterator = self.alignments
         for al in iterator:
@@ -146,20 +147,7 @@ class al_to_damage:
         )
 
 
-@jit(parallel=True)
-def avg_coverage_contig(pysam_cov):
-    """Computes average coverage of a reference
 
-    Args:
-        pysam_cov (np.array): Four dimensional array of coverage for each base
-    Returns:
-        float: mean coverage of reference
-    """
-    return (
-        np.mean(
-            np.sum(pysam_cov, axis=0)
-        )
-    )
 
 
 def check_model_fit(model_dict, wlen, verbose):
@@ -175,7 +163,7 @@ def check_model_fit(model_dict, wlen, verbose):
     # Check that no fitted parameters or stdev are infinite
     if np.isinf(np.array(model_dict["model_params"])).any():
         if verbose:
-            print(f"Unreliable model fit for {model_dict['reference']}")
+            logging.warning(f"Unreliable model fit for {model_dict['reference']}")
         return False
 
     return model_dict
@@ -200,27 +188,11 @@ def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose)
     al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
     try:
         if ref is None:
-            all_references = al_handle.references
-            print("Computing coverage")
-            cov = avg_coverage_contig(
-                np.concatenate(
-                    [np.array(al_handle.count_coverage(contig=ref), dtype="uint16") for ref in tqdm(all_references)], 
-                    axis=1
-                )
-            )
-            print("Getting number of reads aligned")
-            nb_reads_aligned = np.sum(
-                [al_handle.count(contig=ref) for ref in tqdm(all_references)]
-            )
-            print("Getting reference length")
-            reflen = np.sum(
-                [al_handle.get_reference_length(ref) for ref in tqdm(all_references)]
-            )
+            logging.info("Computing alignment stats for entire reference")
+            reflen, cov, nb_reads_aligned = get_ref_stats(bam)
             refname = "reference"
         else:
-            cov = avg_coverage_contig(np.array(al_handle.count_coverage(contig=ref), dtype="uint16"))
-            nb_reads_aligned = al_handle.count(contig=ref)
-            reflen = al_handle.get_reference_length(ref)
+            reflen, cov, nb_reads_aligned = get_contig_stats(al_handle, ref)
             refname = ref
 
         if subsample:
@@ -241,6 +213,8 @@ def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose)
             GA_damage,
             all_damage,
         ) = al.compute_damage()
+
+        al_handle.close()
 
         model_A = models.damage_model()
         model_B = models.null_model()
@@ -266,15 +240,15 @@ def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose)
             GA_log[f"GtoA-{i}"] = GA_damage[i]
         test_res.update(CT_log)
         test_res.update(GA_log)
-
         return (check_model_fit(test_res, wlen, verbose), read_dict)
 
     except (ValueError, RuntimeError) as e:
         if verbose:
-            print(f"Model fitting for {ref} failed")
-            print(f"Model fitting error: {e}")
-            print(
+            logging.warning(f"Model fitting for {ref} failed")
+            logging.warning(f"Model fitting error: {e}")
+            logging.warning(
                 f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov}"
                 f" - reflen: {reflen}\n"
             )
+        al_handle.close()
         return False

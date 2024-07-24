@@ -86,7 +86,6 @@ def rescale_bam(
                 "CL": " ".join(sys.argv),
             }
         )
-        print(hd)
         refs = al.references
         with pysam.AlignmentFile(outname, "wb", threads=threads, header=hd) as out:
             for ref in tqdm(refs, desc="Rescaling quality scores"):

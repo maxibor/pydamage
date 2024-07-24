@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import pysam
 from pydamage import utils
 import multiprocessing
 from functools import partial
@@ -10,11 +9,11 @@ from pydamage.accuracy_model import prepare_data, glm_predict
 from pydamage.rescale import rescale_bam
 from pydamage.models import glm_model_params
 import os
-import sys
 from tqdm import tqdm
 import warnings
 from pydamage import __version__
 from collections import ChainMap
+import logging
 
 def pydamage_analyze(
     bam,
@@ -58,7 +57,7 @@ def pydamage_analyze(
         raise ValueError("Cannot use subsample and rescale together")
 
     if verbose:
-        print(f"Pydamage version {__version__}\n")
+        logging.info(f"Pydamage version {__version__}\n")
     utils.makedir(outdir, force=force)
 
     refs, mode = utils.prepare_bam(bam, minlen=minlen)
@@ -98,7 +97,7 @@ def pydamage_analyze(
         verbose=verbose,
     )
     if group:
-        print("Estimating and testing Damage")
+        logging.info("Estimating and testing Damage")
         filt_res, read_dict = damage.test_damage(
             ref=None,
             bam=bam,
@@ -133,14 +132,15 @@ def pydamage_analyze(
     ######################
     ######################
 
-    print(f"{len(filt_res)} contig(s) analyzed by Pydamage")
+    if not group:
+        logging.info(f"{len(filt_res)} contig(s) analyzed by Pydamage")
     if len(filt_res) == 0:
         warnings.warn(
             "No alignments were found, check your alignment file", PyDamageWarning
         )
 
     if plot and len(filt_res) > 0:
-        print("\nGenerating Pydamage plots")
+        logging.info("Generating Pydamage plots")
         plotdir = f"{outdir}/plots"
         utils.makedir(plotdir, confirm=False)
 
@@ -153,7 +153,8 @@ def pydamage_analyze(
     df_glm = glm_predict(prep_df_glm, glm_model_params)
 
     df = df_glm.merge(df_pydamage, left_index=True, right_index=True)
-
+    utils.df_to_csv(df, outdir)
+    
     if rescale:
         rescale_bam(
             bam=bam,
@@ -165,5 +166,5 @@ def pydamage_analyze(
             outname=os.path.join(outdir, "pydamage_rescaled.bam"),
             threads=process,
         )
-    utils.df_to_csv(df, outdir)
+    
     return df

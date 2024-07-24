@@ -6,7 +6,7 @@ from statsmodels.stats.multitest import multipletests
 import pandas as pd
 from typing import Tuple
 from pysam import AlignmentFile
-
+import logging
 
 def check_extension(filename: str) -> str:
     """Check alignment file format to give correct open mode
@@ -38,7 +38,7 @@ def makedir(dirpath: str, confirm: bool = True, force: bool = False):
     """
     if os.path.exists(dirpath):
         if confirm and force is False:
-            print(
+            logging.warning(
                 f"Result directory, {dirpath}, already exists, it will be overwritten"
             )
             if input("Do You Want To Continue? (y|n) ").lower() != "y":
@@ -240,7 +240,7 @@ def prepare_bam(bam: str, minlen: int) -> Tuple[Tuple, str]:
     alf = AlignmentFile(bam, mode)
 
     if not alf.has_index():
-        print(
+        logging.error(
             f"BAM file {bam} has no index. Sort BAM file and provide index "
             "before running pydamage."
         )

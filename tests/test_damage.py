@@ -26,10 +26,10 @@ def test_al_to_damage(bamfile):
 
 
 def test_avg_coverage():
-    from pydamage.damage import avg_coverage_contig
+    from pydamage.contig_stats import compute_coverage_sum
 
     cov = np.array([[1, 4, 5, 3], [2, 5, 6, 7], [5, 6, 3, 1], [2, 4, 8, 1]], np.int32)
-    assert avg_coverage_contig(cov) == 15.75
+    assert compute_coverage_sum(cov) == 63
 
 
 def test_check_model_fit():
