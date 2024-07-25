@@ -163,6 +163,7 @@ def pydamage_analyze(
             bam=bam,
             threshold=threshold,
             alpha=0.05,
+            wlen=wlen,
             damage_dict=df.to_dict(),
             read_dict=read_dict,
             grouped=group,

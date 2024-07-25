@@ -62,7 +62,7 @@ def rescale_qual(read_qual, dmg_pmf, damage_bases, reverse):
 
 
 def rescale_bam(
-    bam, threshold, alpha, damage_dict, read_dict, grouped, outname, threads
+    bam, threshold, alpha, wlen, damage_dict, read_dict, grouped, outname, threads
 ):
     """Rescale quality scores in BAM file using damage model
 
@@ -70,6 +70,7 @@ def rescale_bam(
         bam (str): Path to BAM file
         threshold (float): Predicted accuracy threshold
         alpha (float): Q-value threshold
+        wlen (int): Window size for damage model
         damage_dict (dict): Damage model parameters
         read_dict (dict): Dictionary of read names
         grouped (bool): Grouped analysis
@@ -95,15 +96,13 @@ def rescale_bam(
                     pydam_ref = ref
                 dmg = damage_model()
                 if pydam_ref in read_dict:
-                    pass_filter = False
                     if (
                         threshold
-                        and threshold <= damage_dict["predicted_accuracy"][pydam_ref]
+                        and 
+                        threshold <= damage_dict["predicted_accuracy"][pydam_ref]
                     ) and (alpha and alpha >= damage_dict["qvalue"][pydam_ref]):
-                        pass_filter = True
-                    if pass_filter:
                         dmg_pmf = dmg.fit(
-                            x=np.arange(400),
+                            x=np.arange(wlen),
                             p=damage_dict["damage_model_p"][pydam_ref],
                             pmin=damage_dict["damage_model_pmin"][pydam_ref],
                             pmax=damage_dict["damage_model_pmax"][pydam_ref],
