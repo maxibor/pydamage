@@ -19,7 +19,7 @@ from pydamage import __version__
 # -- Project information -----------------------------------------------------
 
 project = "pydamage"
-copyright = "2020, Maxime Borry"
+copyright = "2024, Maxime Borry"
 author = "Maxime Borry"
 
 # The full version, including alpha/beta/rc tags
@@ -42,6 +42,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx_click.ext",
     "recommonmark",
+    "nbsphinx",
 ]
 
 
@@ -76,7 +77,7 @@ html_theme = "sphinx_rtd_theme"
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = [".rst", ".md", ".ipynb"]
+source_suffix = [".rst", ".md"]
 
 # The master toctree document.
 master_doc = "index"

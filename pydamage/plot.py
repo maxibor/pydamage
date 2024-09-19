@@ -11,20 +11,21 @@ from scipy.stats import probplot
 use("Agg")
 
 
-def damageplot(damage_dict, wlen, outdir):
+def damageplot(damage_dict, wlen, plot_g2a, outdir):
     """Draw pydamage plots
 
     Args:
         damage_dict(dict): pydamage result dictionary
         wlen (int): window length
-        qlen(int): query length
+        plot_g2a(bool): Plot G to A transitions
         outdir(str): Pydamage result directory
     """
     x = np.array(range(wlen))
     # qlen = np.array(range(damage_dict["qlen"]))
     c2t = np.array([damage_dict[f"CtoT-{i}"] for i in x])
+    if plot_g2a:
+        g2a = np.array([damage_dict[f"GtoA-{i}"] for i in x])
     y = c2t
-    # g2a = np.array([damage_dict[f"GtoA-{i}"] for i in x])
     p0 = damage_dict["p0"]
     p0_stdev = damage_dict["p0_stdev"]
     p = damage_dict["p"]
@@ -97,9 +98,24 @@ def damageplot(damage_dict, wlen, outdir):
 
     ## Plot real data
 
-    ax.plot(x, c2t, color="#bd0d45", alpha=0.2, label="C to T transitions")
+    ax.plot(
+        x,
+        c2t,
+        color="#bd0d45",
+        alpha=0.2,
+        label="C to T transitions from 5' end (forward)",
+    )
 
-    ax.set_xlabel("Base from 5'", fontsize=10)
+    if plot_g2a:
+        ax.plot(
+            x,
+            g2a,
+            color="#0000FF",
+            alpha=0.2,
+            label="G to A transitions from 3' end (reverse)",
+        )
+
+    ax.set_xlabel("Position in read'", fontsize=10)
     ax.set_ylabel("Substitution frequency", fontsize=10)
     ax.set_xticks(np.arange(x[0], x[-1], 5))
     ax.set_xticklabels(ax.get_xticks(), rotation=45, fontsize=6)
@@ -109,7 +125,7 @@ def damageplot(damage_dict, wlen, outdir):
 
     left, bottom, width, height = [0.65, 0.4, 0.2, 0.2]
     ax2 = fig.add_axes([left, bottom, width, height])
-
+    ax2.set_ylim([-pmax, pmax])
     fitted = x
     smoothed = lowess(residuals, fitted)
     ax2.scatter(fitted, residuals, marker=".", color="black")
@@ -122,7 +138,6 @@ def damageplot(damage_dict, wlen, outdir):
     ax2.set_xticklabels([int(i) for i in ax2.get_xticks()], fontsize=6, rotation=45)
     ax2.set_yticks(ax2.get_yticks())
     ax2.set_yticklabels([round(i, 3) for i in ax2.get_yticks()], fontsize=6)
-
     fig.suptitle(contig, fontsize=12, y=0.95)
 
     fig.savefig(f"{plotdir}/{contig}.png", dpi=200)

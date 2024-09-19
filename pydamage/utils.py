@@ -6,7 +6,7 @@ from statsmodels.stats.multitest import multipletests
 import pandas as pd
 from typing import Tuple
 from pysam import AlignmentFile
-
+import logging
 
 def check_extension(filename: str) -> str:
     """Check alignment file format to give correct open mode
@@ -38,7 +38,7 @@ def makedir(dirpath: str, confirm: bool = True, force: bool = False):
     """
     if os.path.exists(dirpath):
         if confirm and force is False:
-            print(
+            logging.warning(
                 f"Result directory, {dirpath}, already exists, it will be overwritten"
             )
             if input("Do You Want To Continue? (y|n) ").lower() != "y":
@@ -48,12 +48,13 @@ def makedir(dirpath: str, confirm: bool = True, force: bool = False):
     os.makedirs(dirpath)
 
 
-def pandas_processing(res_dict: dict, wlen: int) -> pd.core.frame.DataFrame:
+def pandas_processing(res_dict: dict, wlen: int, g2a: bool) -> pd.core.frame.DataFrame:
     """Performs Pandas processing of Pydamage results
 
     Args:
         res_dict (dict): Result dictionary of LR test
         wlen(int): window size
+        g2a(bool): Output G to A transitions
     """
     df = pd.DataFrame(res_dict)
     if len(res_dict) == 0:
@@ -64,26 +65,27 @@ def pandas_processing(res_dict: dict, wlen: int) -> pd.core.frame.DataFrame:
         name="qvalue",
     )
     df = df.merge(qvalues, left_index=True, right_index=True, how="outer")
-    df = df[
-        [
-            "p0",
-            "p0_stdev",
-            "p",
-            "p_stdev",
-            "pmin",
-            "pmin_stdev",
-            "pmax",
-            "pmax_stdev",
-            "pvalue",
-            "qvalue",
-            "RMSE",
-            "reference",
-            "nb_reads_aligned",
-            "coverage",
-            "reflen",
-        ]
-        + [f"CtoT-{i}" for i in range(wlen)]
-    ]
+    columns = [
+        "p0",
+        "p0_stdev",
+        "p",
+        "p_stdev",
+        "pmin",
+        "pmin_stdev",
+        "pmax",
+        "pmax_stdev",
+        "pvalue",
+        "qvalue",
+        "RMSE",
+        "reference",
+        "nb_reads_aligned",
+        "coverage",
+        "reflen",
+    ] + [f"CtoT-{i}" for i in range(wlen)]
+    if g2a:
+        columns += [f"GtoA-{i}" for i in range(wlen)]
+
+    df = df[columns]
     df.rename(
         columns={
             "p0": "null_model_p0",
@@ -104,11 +106,15 @@ def pandas_processing(res_dict: dict, wlen: int) -> pd.core.frame.DataFrame:
     return df
 
 
-def pandas_group_processing(res_dict: dict) -> pd.core.frame.DataFrame:
+def pandas_group_processing(
+    res_dict: dict,
+    g2a: bool,
+) -> pd.core.frame.DataFrame:
     """Performs Pandas processing of Pydamage grouped reference results
 
     Args:
         res_dict (dict): Result dictionary of LR test
+        g2a(bool): Output G to A transitions
     """
     filt_dict = {}
     filt_dict["reference"] = str(res_dict["reference"])
@@ -129,7 +135,7 @@ def pandas_group_processing(res_dict: dict) -> pd.core.frame.DataFrame:
     for i in list(res_dict.keys()):
         if str(i).startswith("CtoT"):
             filt_dict[i] = float(res_dict[i])
-        if str(i).startswith("GtoA"):
+        if str(i).startswith("GtoA") and g2a:
             filt_dict[i] = float(res_dict[i])
 
     df = (
@@ -178,7 +184,7 @@ def RMSE(residuals: np.ndarray) -> float:
     Returns:
         float: RMSE
     """
-    return np.sqrt(np.mean(residuals ** 2))
+    return np.sqrt(np.mean(residuals**2))
 
 
 def create_damage_dict(
@@ -218,6 +224,7 @@ def create_damage_dict(
 
     return (damage_dict, non_damage_dict)
 
+
 def prepare_bam(bam: str, minlen: int) -> Tuple[Tuple, str]:
     """Checks for file extension, and returns tuple of mapped refs of minlen
 
@@ -233,18 +240,17 @@ def prepare_bam(bam: str, minlen: int) -> Tuple[Tuple, str]:
     alf = AlignmentFile(bam, mode)
 
     if not alf.has_index():
-        print(
+        logging.error(
             f"BAM file {bam} has no index. Sort BAM file and provide index "
             "before running pydamage."
         )
         sys.exit(1)
 
     present_refs = set()
-    for ref_stat,ref_len in zip(alf.get_index_statistics(), alf.lengths):
+    for ref_stat, ref_len in zip(alf.get_index_statistics(), alf.lengths):
         refname = ref_stat[0]
         nb_mapped_reads = ref_stat[1]
         if nb_mapped_reads > 0 and ref_len >= minlen:
             present_refs.add(refname)
     alf.close()
     return tuple(present_refs), mode
-    

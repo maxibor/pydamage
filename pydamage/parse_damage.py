@@ -9,6 +9,7 @@ def damage_al(
     query,
     cigartuple,
     wlen,
+    g2a,
     show_al,
 ):
     """Compute CtoT mutations for a single alignment
@@ -21,7 +22,8 @@ def damage_al(
         query (string): query sequence
         cigartuple (tuple): cigar tuple (pysam)
         wlen (int): window length
-        print_al (bool): print alignment
+        g2a (bool): plot G to A transitions
+        show_al (bool): print alignment
     Returns:
         dict : {'C':  [ C pos from 5'],
                 'CT': [ CtoT pos from 5'],
@@ -34,7 +36,7 @@ def damage_al(
     r_string = ""
     q_string = ""
     res = ""
-    base_trans_counts = {"C": [], "CT": [], "no_mut": []}
+    base_trans_counts = {"C": [], "CT": [], "G": [], "GA": [], "no_mut": []}
     for c in cigartuple:
         # [M, =, X] - alignment match (can be a sequence match or mismatch)
         if c[0] in [0, 7, 8]:
@@ -57,16 +59,26 @@ def damage_al(
 
     read_len = len(r_string)
     for i in range(min(read_len, wlen)):
-        r_char = r_string[i].upper()
-        q_char = q_string[i].upper()
         # base_trans_counts[q_char].append(i)
         if is_reverse is False:
+            r_char = r_string[i].upper()
+            q_char = q_string[i].upper()
             if r_char == "C":
                 base_trans_counts["C"].append(i)
                 if q_char == "T":
                     base_trans_counts["CT"].append(i)
                 elif q_char == "C":
                     base_trans_counts["no_mut"].append(i)
+        elif g2a:
+            r_char = r_string[::-1][i].upper()
+            q_char = q_string[::-1][i].upper()
+            if r_char == "G":
+                base_trans_counts["G"].append(i)
+                if q_char == "A":
+                    base_trans_counts["GA"].append(i)
+                elif q_char == "G":
+                    base_trans_counts["no_mut"].append(i)
+
     if show_al:
         orient = {False: ["5'", "3'"], True: ["3'", "5'"]}
         res += "R   " + r_string + "\t" + ref_name + "\n" + orient[is_reverse][0] + "  "

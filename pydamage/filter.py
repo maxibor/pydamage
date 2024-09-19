@@ -3,7 +3,7 @@ from numpy import arange
 from pydamage.utils import df_to_csv
 from pandas import read_csv
 import os
-
+import logging
 
 def define_threshold(pydam_df, min_knee=0.5, alpha=0.05):
     """Find kneedle point in PyDamage results
@@ -32,8 +32,6 @@ def define_threshold(pydam_df, min_knee=0.5, alpha=0.05):
         direction="decreasing",
         online=True,
     )
-    print(thresholds)
-    print(nb_contigs)
     return kneedle.knee
 
 
@@ -63,13 +61,13 @@ def apply_filter(csv, threshold, outdir, alpha=0.05):
     outfile = "pydamage_filtered_results.csv"
     if threshold == 0:
         threshold = define_threshold(df)
-        print(f"Optimal prediction accuracy threshold found to be: {threshold}")
+        logging.info(f"Optimal prediction accuracy threshold found to be: {threshold}")
     filt_df = filter_pydamage_results(df, acc_thresh=threshold)
-    print(
+    logging.info(
         f"Filtering PyDamage results with qvalue <= {alpha} and predicted_accuracy >= {threshold}"
     )
     if not os.path.exists(outdir):
         os.mkdir(outdir)
     df_to_csv(filt_df, outdir, outfile)
-    print(f"Filtered PyDamage results written to {outdir}/{outfile}")
+    logging.info(f"Filtered PyDamage results written to {outdir}/{outfile}")
     return filt_df

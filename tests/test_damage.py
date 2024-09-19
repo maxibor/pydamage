@@ -12,21 +12,24 @@ def bamfile():
 def test_al_to_damage(bamfile):
     from pydamage.damage import al_to_damage
 
-    al = al_to_damage(reference="NZ_JHCB02000002.1", al_handle=bamfile, wlen=20)
+    al = al_to_damage(
+        reference="NZ_JHCB02000002.1", al_handle=bamfile, wlen=20, g2a=False, subsample=False
+    )
     al.get_damage(show_al=False)
 
     assert al.C[:10] == [7, 11, 18, 2, 18, 9, 7, 11, 15, 4]
     assert al.CT == [15, 0, 0, 2, 15, 11, 0]
+    assert al.GA == []
     assert al.damage_bases == [15, 0, 0, 2, 15, 11, 0]
     assert al.C_G_bases[:10] == [7, 11, 18, 2, 18, 9, 7, 11, 15, 4]
     assert al.no_mut[:10] == [7, 11, 18, 2, 18, 9, 7, 11, 4, 16]
 
 
 def test_avg_coverage():
-    from pydamage.damage import avg_coverage_contig
+    from pydamage.contig_stats import compute_coverage_sum
 
     cov = np.array([[1, 4, 5, 3], [2, 5, 6, 7], [5, 6, 3, 1], [2, 4, 8, 1]], np.int32)
-    assert avg_coverage_contig(cov) == 15.75
+    assert compute_coverage_sum(cov) == 63
 
 
 def test_check_model_fit():
@@ -67,14 +70,16 @@ def test_check_model_fit():
 def test_test_damage():
     from pydamage.damage import test_damage
 
-    dam = test_damage(
+    dam, read_dict = test_damage(
         ref="NZ_JHCB02000002.1",
         bam="tests/data/aligned.bam",
         mode="rb",
         show_al=False,
+        subsample=False,
         wlen=20,
         process=1,
         verbose=False,
+        g2a=False,
     )
     assert dam["CtoT-0"] == pytest.approx(0.13043478260869565)
 
@@ -86,7 +91,7 @@ def test_test_damage():
     assert dam["pmax_stdev"] == pytest.approx(0.018245226062185038)
     assert dam["p0"] == pytest.approx(0.01340230967468952)
     assert dam["p0_stdev"] == pytest.approx(0.007265315749990326)
-    assert dam["pvalue"] == pytest.approx(0.013003463710602237)
+    assert dam["pvalue"] == pytest.approx(0.015234282025449186)
     assert dam["model_params"] == pytest.approx(
         [
             0.9899999999803224,

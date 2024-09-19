@@ -26,7 +26,7 @@ setup(
     url="https://github.com/maxibor/pydamage",
     long_description_content_type="text/markdown",
     license="GNU-GPLv3",
-    python_requires=">=3.6",
+    python_requires=">=3.10",
     install_requires=[
         "click",
         "numpy",
@@ -38,6 +38,7 @@ setup(
         "tqdm",
         "biopython",
         "kneed",
+        "numba",
     ],
     packages=find_packages(include=["pydamage"]),
     entry_points={"console_scripts": ["pydamage = pydamage.cli:cli"]},

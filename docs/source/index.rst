@@ -24,6 +24,7 @@ __ homepage_
    CLI
    output
    troubleshooting
+   rescaling
 
 
 
