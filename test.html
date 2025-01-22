@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ADRSM geometric</title>
+    <script src="https://unpkg.com/mathjs@5.2.3/dist/math.min.js"></script>
+
+    <script src="https://cdn.plot.ly/plotly-1.35.2.min.js"></script>
+
+    <style>
+        input[type=text] {
+      width: 300px;
+    }
+    input {
+      padding: 6px;
+    }
+    body, html, input {
+      font-family: sans-serif;
+      font-size: 11pt;
+
+    }
+    form {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+    <p>
+        <h1>Plotting aDNA simulated damage with geometric distribution for ADRSM</h1>
+    </p>
+    <form id="form">
+        <label for="eq">damage_model_p</label>
+        <input type="number" id="param" step="0.01" min="0.01" max="1" value="0.5" />
+        <label for="eq">Sequence size:</label>
+        <input type="number" id="seqsize" min="20" max="100" value="30" />
+        <label for="eq">damage_model_pmax</label>
+        <input type="number" id="maxproba" step="0.01" min="0.01" max="1" value="0.3" /> 
+        <input type="number" id="minproba" step="0.01" min="0" max="1" value="0" />       
+        <input type="submit" value="Draw" />
+    </form>
+
+    <div id="plot"></div>
+
+    <script>
+        function draw() {
+            try {
+                // compile the expression once
+                const param = document.getElementById('param').value
+                const seqsize = document.getElementById('seqsize').value
+                const maxproba = document.getElementById('maxproba').value
+                const minproba = document.getElementById('minproba').value
+
+                // evaluate the expression repeatedly for different values of x
+                const xValues = math.range(1, seqsize, 1).toArray()
+                const yValues = xValues.map(function (x) {
+                    res = ((1 - param) ** (x - 1)) * param
+                    return (res)
+                })
+
+                themin = math.min(yValues)
+                themax = math.max(yValues)
+                // minproba = 0
+                const nValues = yValues.map(function (x) {
+                    std = (x - themin) / (themax - themin)
+                    res = std * (maxproba - minproba) + minproba
+                    return (res)
+                })
+
+
+                // render the plot using plotly
+                const trace1 = {
+                    x: xValues,
+                    y: nValues,
+                    type: 'scatter'
+                }
+
+                var layout = {
+                    title: 'aDNA simulated damage with geometric distribution for ADRSM',
+                    xaxis: {
+                        title: 'nucleotide position'
+                    },
+                    yaxis: {
+                        title: 'probability',
+                        range: [0, 1]
+                    }
+                };
+                const data = [trace1]
+                Plotly.newPlot('plot', data, layout)
+            }
+            catch (err) {
+                console.error(err)
+                alert(err)
+            }
+        }
+
+        document.getElementById('form').onsubmit = function (event) {
+            event.preventDefault()
+            draw()
+        }
+
+        draw()
+    </script>
+
+</body>
+
+</html>
