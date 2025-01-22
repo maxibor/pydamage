@@ -196,69 +196,69 @@ def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose)
         dict: Dictionary containing LR test results
     """
     al_handle = pysam.AlignmentFile(bam, mode=mode, threads=process)
-    # try:
-    if ref is None:
-        logging.info("Computing alignment stats for entire reference")
-        reflen, cov, nb_reads_aligned = get_ref_stats(bam)
-        refname = "reference"
-    else:
-        reflen, cov, nb_reads_aligned = get_contig_stats(al_handle, ref)
-        refname = ref
+    try:
+        if ref is None:
+            logging.info("Computing alignment stats for entire reference")
+            reflen, cov, nb_reads_aligned = get_ref_stats(bam)
+            refname = "reference"
+        else:
+            reflen, cov, nb_reads_aligned = get_contig_stats(al_handle, ref)
+            refname = ref
 
-    if subsample:
-        cov = cov * subsample
-        nb_reads_aligned = np.round(nb_reads_aligned * subsample, 0)
+        if subsample:
+            cov = cov * subsample
+            nb_reads_aligned = np.round(nb_reads_aligned * subsample, 0)
 
-    al = al_to_damage(
-        reference=ref, al_handle=al_handle, wlen=wlen, g2a=g2a, subsample=subsample
-    )
-    al.get_damage(show_al=show_al)
-    read_dict = al.read_dict
-    if len(read_dict.keys()) == 1 and list(read_dict.keys())[0] is None:
-        read_dict[refname] = read_dict.pop(None)
-    (
-        mut_count,
-        conserved_count,
-        CT_damage,
-        GA_damage,
-        all_damage,
-    ) = al.compute_damage()
+        al = al_to_damage(
+            reference=ref, al_handle=al_handle, wlen=wlen, g2a=g2a, subsample=subsample
+        )
+        al.get_damage(show_al=show_al)
+        read_dict = al.read_dict
+        if len(read_dict.keys()) == 1 and list(read_dict.keys())[0] is None:
+            read_dict[refname] = read_dict.pop(None)
+        (
+            mut_count,
+            conserved_count,
+            CT_damage,
+            GA_damage,
+            all_damage,
+        ) = al.compute_damage()
 
-    al_handle.close()
+        al_handle.close()
 
-    model_A = models.damage_model()
-    model_B = models.null_model()
-    test_res = fit_models(
-        ref=ref,
-        model_A=model_A,
-        model_B=model_B,
-        damage=all_damage,
-        mut_count=mut_count,
-        conserved_count=conserved_count,
-        verbose=verbose,
-    )
-    test_res["reference"] = refname
-    test_res["nb_reads_aligned"] = nb_reads_aligned
-    test_res["coverage"] = cov
-    test_res["reflen"] = reflen
+        model_A = models.damage_model()
+        model_B = models.null_model()
+        test_res = fit_models(
+            ref=ref,
+            model_A=model_A,
+            model_B=model_B,
+            damage=all_damage,
+            mut_count=mut_count,
+            conserved_count=conserved_count,
+            verbose=verbose,
+        )
+        test_res["reference"] = refname
+        test_res["nb_reads_aligned"] = nb_reads_aligned
+        test_res["coverage"] = cov
+        test_res["reflen"] = reflen
 
-    CT_log = {}
-    GA_log = {}
+        CT_log = {}
+        GA_log = {}
 
-    for i in range(wlen):
-        CT_log[f"CtoT-{i}"] = CT_damage[i]
-        GA_log[f"GtoA-{i}"] = GA_damage[i]
-    test_res.update(CT_log)
-    test_res.update(GA_log)
-    return (check_model_fit(test_res, wlen, verbose), read_dict)
+        for i in range(wlen):
+            CT_log[f"CtoT-{i}"] = CT_damage[i]
+            GA_log[f"GtoA-{i}"] = GA_damage[i]
+        test_res.update(CT_log)
+        test_res.update(GA_log)
+        return (check_model_fit(test_res, wlen, verbose), read_dict)
 
-    # except (ValueError, RuntimeError) as e:
-    #     if verbose:
-    #         logging.warning(f"Model fitting for {ref} failed")
-    #         logging.warning(f"Model fitting error: {e}")
-    #         logging.warning(
-    #             f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov}"
-    #             f" - reflen: {reflen}\n"
-    #         )
-    #     al_handle.close()
-    #     return False, read_dict
+    except (ValueError, RuntimeError) as e:
+        if verbose:
+            logging.warning(f"Model fitting for {ref} failed")
+            logging.warning(f"Model fitting error: {e}")
+            logging.warning(
+                f"nb_reads_aligned: {nb_reads_aligned} - coverage: {cov}"
+                f" - reflen: {reflen}\n"
+            )
+        al_handle.close()
+        return False, read_dict
