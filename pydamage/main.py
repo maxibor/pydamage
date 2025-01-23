@@ -76,6 +76,8 @@ def pydamage_analyze(
     #         bam=bam,
     #         ref=ref,
     #         wlen=wlen,
+    #         g2a=g2a,
+    #         subsample=subsample,
     #         show_al=show_al,
     #         mode=mode,
     #         process=process,

@@ -121,14 +121,24 @@ class al_to_damage:
         # All conserved C and G
         no_mut_pos, no_mut_counts = sort_count_array_dict(np.array(self.no_mut, dtype="uint32"))
 
+        
         CT_damage_amount = np.zeros(self.wlen)
-        CT_damage_amount[CT_pos] = CT_counts / C_counts[CT_pos]
+        C_pos_dict = {pos: i for i, pos in enumerate(C_pos)}
+        CT_pos_indices = [C_pos_dict[pos] for pos in CT_pos]
+        CT_damage_amount[CT_pos] = CT_counts / C_counts[CT_pos_indices]
 
         GA_damage_amount = np.zeros(self.wlen)
-        GA_damage_amount[GA_pos] = GA_counts / G_counts[GA_pos]
+        G_pos_dict = {pos: i for i, pos in enumerate(G_pos)}
+        GA_pos_indices = [G_pos_dict[pos] for pos in GA_pos]
+        
+        GA_damage_amount[GA_pos] = GA_counts / G_counts[GA_pos_indices]
+        
 
         damage_amount = np.zeros(self.wlen)
-        damage_amount[damage_bases_pos] = damage_bases_counts / C_G_bases_counts[damage_bases_pos]
+        CG_pos_dict = {pos: i for i, pos in enumerate(C_G_bases_pos)}
+        CG_pos_indices = [CG_pos_dict[pos] for pos in damage_bases_pos]
+        damage_amount[damage_bases_pos] = damage_bases_counts / C_G_bases_counts[CG_pos_indices]
+
 
         _ = np.zeros(self.wlen, dtype="uint32")
         _[damage_bases_pos] = damage_bases_counts
@@ -251,4 +261,4 @@ def test_damage(ref, bam, mode, wlen, g2a, subsample, show_al, process, verbose)
                 f" - reflen: {reflen}\n"
             )
         al_handle.close()
-        return False
+        return False, read_dict

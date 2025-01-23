@@ -10,26 +10,26 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip_ci]')"
     steps:
       - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: mamba-org/setup-micromamba@v2
         with:
-          auto-update-conda: true
-          mamba-version: "*"
-          channels: conda-forge,bioconda,defaults
-          channel-priority: true
           environment-file: environment.yml
-          activate-environment: pydamage
+          environment-name: pydamage
+          init-shell: >-
+            bash
+          cache-environment: true
+          post-cleanup: 'all'
       - name: Test with pytest
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           pip install -e .
           pip install pytest
           pytest
       - name: Check pydamage help message
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           pydamage --help
       - name: Check pydamage on test data
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           pydamage analyze --verbose tests/data/aligned.bam
           pydamage filter pydamage_results/pydamage_results.csv

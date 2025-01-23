@@ -2,7 +2,6 @@ name: pydamage
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - click
   - numpy
