@@ -5,11 +5,68 @@ from pydamage.models import damage_model, null_model
 from statsmodels.nonparametric.smoothers_lowess import lowess
 from pydamage import utils
 import numpy as np
-from os import makedirs
+from os import makedirs, path
 from scipy.stats import probplot
+from pandas import read_csv
+from pysam import FastxFile
+import logging
+
+plt.set_loglevel('WARNING')
 
 use("Agg")
 
+def bin_plot(csv, fasta, outdir, **kwargs):
+    """
+    Plot aDNA smile plot for a bin
+    Args:
+        csv (str): Path to PyDamage result file
+        fasta (str): Path to bin fasta file
+        outdir (str): Output directory
+    """
+
+    df = read_csv(csv)
+    pydam_refs = set(df["reference"])
+    binname = path.splitext(path.basename(fasta))[0]
+    contigs = set()
+    with FastxFile(fasta) as fh:
+        for entry in fh:
+            contigs.add(entry.name)
+    
+    intersect = contigs.intersection(pydam_refs)
+    union = contigs.union(pydam_refs)
+    if union != intersect:
+        logging.warning(f"{len(union - intersect)} contigs are not shared between fasta and pydamage results")
+    df = df[df["reference"].isin(intersect)]
+    nb_reads = df["nb_reads_aligned"].sum()
+    nb_contigs = df["reference"].nunique()
+    reflen = df["reflen"].sum()
+    coverage = str(round((df['coverage'] * df['reflen']).sum() / reflen, 2))
+    df_ct = df.filter(regex="CtoT.*")
+    df_ct.columns = df_ct.columns.str.replace("CtoT-", "")
+    ct_mean = df_ct.mean(axis=0)
+    ct_std = df_ct.std(axis=0)
+    df_ga = df.filter(regex="GtoA.*")
+    df_ga.columns = df_ga.columns.str.replace("GtoA-", "")
+    ga_mean = df_ga.mean(axis=0)
+    ga_std = df_ga.std(axis=0)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(10, 5))
+    title = f"{fasta}\nNumber of reads: {nb_reads} | Number of contigs: {nb_contigs} | Bin length: {reflen} | Coverage: {coverage}"
+    fig.suptitle(title)
+    ax1.plot(ct_mean, label="C to T transitions from 5' end (forward)", color="#bd0d45")
+    ax1.fill_between(
+        ct_mean.index, ct_mean - ct_std, ct_mean + ct_std, alpha=0.2, color="#bd0d45"
+    )
+    ax1.set_xlabel("Position in read from 5'", fontsize=10)
+    ax1.set_ylabel("Substitution frequency", fontsize=10)
+    ax2.plot(ga_mean, label="G to A transitions from 3' end (reverse)", color="#0000FF")
+    ax2.fill_between(
+        ga_mean.index, ga_mean - ga_std, ga_mean + ga_std, alpha=0.2, color="#0000FF"
+    )
+    ax2.set_xlabel("Position in read from 3'", fontsize=10)
+    ax2.invert_xaxis()
+    fig.savefig(f"{outdir}/{binname}.png", dpi=300)
+    
 
 def damageplot(damage_dict, wlen, plot_g2a, outdir):
     """Draw pydamage plots
