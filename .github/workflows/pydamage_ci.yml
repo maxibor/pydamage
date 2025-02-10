@@ -23,7 +23,7 @@ jobs:
         run: |
           pip install -e .
           pip install pytest
-          pytest
+          python -m pytest
       - name: Check pydamage help message
         shell: bash -el {0}
         run: |
