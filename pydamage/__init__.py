@@ -1,4 +1,4 @@
-__version__ = "0.90"
+__version__ = "1.0"
 from pydamage.main import pydamage_analyze
 import logging
 
