@@ -48,6 +48,12 @@ conda activate pydamage
 pip install -e .
 ```
 
+Running tests
+
+```bash
+python -m pytest
+```
+
 
 ## Quick start
 

@@ -15,7 +15,7 @@ plt.set_loglevel('WARNING')
 
 use("Agg")
 
-def bin_plot(csv, fasta, outdir, **kwargs):
+def bin_plot(csv, fasta, outdir, write_fig = True, **kwargs):
     """
     Plot aDNA smile plot for a bin
     Args:
@@ -65,7 +65,10 @@ def bin_plot(csv, fasta, outdir, **kwargs):
     )
     ax2.set_xlabel("Position in read from 3'", fontsize=10)
     ax2.invert_xaxis()
-    fig.savefig(f"{outdir}/{binname}.png", dpi=300)
+    if write_fig:
+        fig.savefig(f"{outdir}/{binname}.png", dpi=300)
+
+    return ct_mean, ct_std, ga_mean, ga_std
     
 
 def damageplot(damage_dict, wlen, plot_g2a, outdir):

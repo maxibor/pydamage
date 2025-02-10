@@ -175,7 +175,8 @@ def binplot(ctx, no_args_is_help=True, **kwargs):
     FASTA: path to bin fasta file
     """
 
-    bin_plot(**kwargs, **ctx.obj)
+    ct_mean, ct_std, ga_mean, ga_std = bin_plot(**kwargs, **ctx.obj)
+    print(ct_mean, ct_std, ga_mean, ga_std)
 
 
 @cli.command()
