@@ -5,6 +5,7 @@ from click import option, Option, UsageError
 from pydamage.main import pydamage_analyze
 from pydamage.citation import get_citation
 from pydamage.filter import apply_filter
+from pydamage.plot import bin_plot
 from pydamage import __version__
 from collections import OrderedDict
 
@@ -162,6 +163,19 @@ def filter(ctx, no_args_is_help=True, **kwargs):
 
     apply_filter(**kwargs, **ctx.obj)
 
+@cli.command()
+@click.pass_context
+@click.argument("csv", type=click.Path(exists=True))
+@click.argument("fasta", type=click.Path(exists=True))
+def binplot(ctx, no_args_is_help=True, **kwargs):
+    """\b
+    Plot Damage patterns for a given bin fasta file
+
+    CSV: path to PyDamage result file\n
+    FASTA: path to bin fasta file
+    """
+
+    ct_mean, ct_std, ga_mean, ga_std = bin_plot(**kwargs, **ctx.obj)
 
 @cli.command()
 def cite():
