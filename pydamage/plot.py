@@ -51,22 +51,37 @@ def bin_plot(csv, fasta, outdir, write_fig = True, **kwargs):
     ga_std = df_ga.std(axis=0)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(10, 5))
-    title = f"{fasta}\nNumber of reads: {nb_reads} | Number of contigs: {nb_contigs} | Bin length: {reflen} | Coverage: {coverage}"
-    fig.suptitle(title)
-    ax1.plot(ct_mean, label="C to T transitions from 5' end (forward)", color="#bd0d45")
+    title = f"{fasta}\nNumber of reads: {nb_reads} | Number of contigs: {nb_contigs} | Bin length: {reflen} | Coverage: {coverage}\n"
+    fig.suptitle(title, fontsize=11)
+    ax1.plot(ct_mean, color="#bd0d45", label='mean')
     ax1.fill_between(
-        ct_mean.index, ct_mean - ct_std, ct_mean + ct_std, alpha=0.2, color="#bd0d45"
+        ct_mean.index, ct_mean - ct_std, ct_mean + ct_std, alpha=0.2, color="#bd0d45", label='± 1 SD'
     )
     ax1.set_xlabel("Position in read from 5'", fontsize=10)
+    ax1.set_xticks(ax1.get_xticks())
+    ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
+    ax1.legend()
+    ax1.set_title("C to T substitution frequency", fontsize=8)
     ax1.set_ylabel("Substitution frequency", fontsize=10)
-    ax2.plot(ga_mean, label="G to A transitions from 3' end (reverse)", color="#0000FF")
-    ax2.fill_between(
-        ga_mean.index, ga_mean - ga_std, ga_mean + ga_std, alpha=0.2, color="#0000FF"
-    )
     ax2.set_xlabel("Position in read from 3'", fontsize=10)
-    ax2.invert_xaxis()
+    ax2.set_title("G to A substitution frequency", fontsize=8)
+    
+    if len(ga_mean) > 0:
+        ax2.plot(ga_mean, color="#0000FF", label='mean')
+        ax2.fill_between(
+            ga_mean.index, ga_mean - ga_std, ga_mean + ga_std, alpha=0.2, color="#0000FF",  label='± 1 SD'
+        )
+        ax2.invert_xaxis()
+        ax2.set_xticks(ax2.get_xticks())
+        ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
+        ax2.legend()
+    else:
+        ax2.set_xticks(ax1.get_xticks())
+        ax2.set_xticklabels([None]*len(ax2.get_xticklabels()))
     if write_fig:
         fig.savefig(f"{outdir}/{binname}.png", dpi=300)
+
+    logging.info(f"Wrote PyDamage bin plot to {outdir}/{binname}.png")
 
     return ct_mean, ct_std, ga_mean, ga_std
     
