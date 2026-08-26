@@ -41,8 +41,24 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
     "sphinx_click.ext",
-    "recommonmark",
+    "myst_parser",
     "nbsphinx",
+    "IPython.sphinxext.ipython_console_highlighting",
+]
+
+# Enable MyST extensions for GitHub Flavored Markdown features (tables, admonitions, etc.)
+myst_enable_extensions = [
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "linkify",
+    "replacements",
+    "smartquotes",
+    "substitution",
+    "tasklist",
 ]
 
 
@@ -57,6 +73,12 @@ language = "en"
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# If pandoc is not installed on local machine, exclude notebooks to allow local builds
+import shutil
+if not shutil.which("pandoc"):
+    exclude_patterns.extend(["*.ipynb", "**/*.ipynb"])
+
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -70,10 +92,10 @@ exclude_patterns = []
 html_theme = "sphinx_rtd_theme"
 
 # The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
-source_suffix = [".rst", ".md"]
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 
 # The master toctree document.
 master_doc = "index"
