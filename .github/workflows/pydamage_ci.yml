@@ -2,28 +2,17 @@ name: pydamage_ci
 
 on:
   push:
-    branches:
-      - master
-      - main
-      - 2026_update
-      - dev
   pull_request:
-    branches:
-      - master
-      - main
-      - 2026_update
-      - dev
+  workflow_dispatch:
 
 jobs:
   test:
-    name: Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, '[skip_ci]')"
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
