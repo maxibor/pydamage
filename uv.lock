@@ -2376,6 +2376,7 @@ dev = [
 docs = [
     { name = "ipython", version = "8.39.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "ipython", version = "9.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "linkify-it-py" },
     { name = "myst-parser", version = "4.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "myst-parser", version = "5.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "nbsphinx" },
@@ -2391,6 +2392,7 @@ dev = [
     { name = "ipython", version = "8.39.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "ipython", version = "9.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "line-profiler" },
+    { name = "linkify-it-py" },
     { name = "memray" },
     { name = "myst-parser", version = "4.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "myst-parser", version = "5.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -2406,6 +2408,7 @@ dev = [
 docs = [
     { name = "ipython", version = "8.39.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "ipython", version = "9.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "linkify-it-py" },
     { name = "myst-parser", version = "4.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "myst-parser", version = "5.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "nbsphinx" },
@@ -2423,6 +2426,7 @@ requires-dist = [
     { name = "ipython", marker = "extra == 'docs'" },
     { name = "kneed", specifier = ">=0.7.0" },
     { name = "line-profiler", marker = "extra == 'dev'", specifier = ">=4.0.0" },
+    { name = "linkify-it-py", marker = "extra == 'docs'" },
     { name = "matplotlib", specifier = ">=3.4.0" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "nbsphinx", marker = "extra == 'docs'" },
@@ -2445,6 +2449,7 @@ provides-extras = ["dev", "docs"]
 dev = [
     { name = "ipython" },
     { name = "line-profiler", specifier = ">=4.0.0" },
+    { name = "linkify-it-py" },
     { name = "memray", specifier = ">=1.20.0" },
     { name = "myst-parser", specifier = ">=2.0.0" },
     { name = "nbsphinx" },
@@ -2456,6 +2461,7 @@ dev = [
 ]
 docs = [
     { name = "ipython" },
+    { name = "linkify-it-py" },
     { name = "myst-parser", specifier = ">=2.0.0" },
     { name = "nbsphinx" },
     { name = "sphinx", specifier = ">=7.0.0" },

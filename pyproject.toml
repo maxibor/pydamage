@@ -49,6 +49,7 @@ docs = [
     "myst-parser>=2.0.0",
     "nbsphinx",
     "ipython",
+    "linkify-it-py",
 ]
 
 [dependency-groups]
@@ -66,6 +67,7 @@ docs = [
     "myst-parser>=2.0.0",
     "nbsphinx",
     "ipython",
+    "linkify-it-py",
 ]
 
 [project.scripts]
