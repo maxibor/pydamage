@@ -77,41 +77,6 @@ pydamage binplot result_directory/pydamage_results.csv bin.fasta
 
 ---
 
-## Benchmarks: 2026 Update vs Master
-
-Direct head-to-head empirical measurements comparing the legacy `master` branch and the `2026_update` branch on the standard test dataset (`tests/data/aligned.bam`, 31 contigs, 17,504 reads) using Python 3.12:
-
-### Pure Algorithmic Compute Time (In-Memory Processing)
-
-| Worker Processes | `master` (Legacy) | `2026_update` (New) | Speedup |
-| :--- | :--- | :--- | :--- |
-| **`p=1` (Single process)** | 1,786.10 ms (17.4 contigs/s) | **179.73 ms (172.5 contigs/s)** | **9.94x faster** |
-| **`p=2` (2 workers)** | 1,748.45 ms (17.7 contigs/s) | **114.93 ms (269.7 contigs/s)** | **15.21x faster** |
-| **`p=4` (4 workers)** | 1,769.95 ms (17.5 contigs/s) | **68.67 ms (451.4 contigs/s)** | **25.78x faster** |
-| **`p=8` (8 workers)** | 2,525.63 ms (12.3 contigs/s) | **57.85 ms (535.8 contigs/s)** | **43.66x faster** |
-
-### End-to-End CLI Execution (Including CLI Startup & I/O)
-
-| CLI Workload / Configuration | `master` (Legacy) | `2026_update` (New) | Speedup |
-| :--- | :--- | :--- | :--- |
-| **`pydamage analyze -p 1` (Single process)** | 2.83 s | **1.01 s** | **2.81x faster** |
-| **`pydamage analyze -p 2` (2 workers)** | 2.86 s | **0.94 s** | **3.05x faster** |
-| **`pydamage analyze -p 4` (4 workers)** | 2.85 s | **0.93 s** | **3.08x faster** |
-| **`pydamage analyze -p 8` (8 workers)** | 3.73 s | **0.90 s** | **4.16x faster** |
-| **`pydamage analyze -p 4 --plot` (Plotting)** | 4.37 s | **1.64 s** | **2.66x faster** |
-| **`pydamage analyze -p 1 -r` (BAM Rescaling)** | 3.01 s | **1.17 s** | **2.57x faster** |
-| **`pydamage cite` (Citation)** | 1.07 s | **0.81 s** | **1.32x faster** |
-| **`pydamage --help` (CLI Help)** | 1.05 s | **0.80 s** | **1.31x faster** |
-
-### Key Improvements
-1. **Single-Pass BAM Traversal**: Base coverage, aligned read count, and damage transitions are computed in one traversal (`al_to_damage.get_damage`), eliminating 2 redundant BAM scans per contig.
-2. **Persistent Worker BAM Handles**: Worker pools initialize a persistent `pysam.AlignmentFile` handle once upon startup, eliminating thousands of repeated file open/close cycles across contigs.
-3. **Zero-Allocation In-Place Mutation**: Replaced temporary dictionary/list allocations in `damage_al` with in-place accumulators, removing >210,000 allocations per standard run.
-4. **Vectorized NumPy PMF**: Replaced `np.vectorize` with pure array operations in `damage_model.fit`.
-5. **Zero-Overhead Single Process Execution**: Fast-path for `-p 1` executes sequentially without `multiprocessing.Pool` spawn delay.
-
----
-
 ## Documentation
 
 Full documentation is available at [pydamage.readthedocs.io](https://pydamage.readthedocs.io).
