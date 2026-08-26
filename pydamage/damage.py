@@ -75,8 +75,6 @@ class al_to_damage:
         """Extract substitution positions and calculate alignment coverage in a single pass."""
         self.C = []
         self.CT = []
-        self.damage_bases = []
-        self.C_G_bases = []
         self.G = []
         self.GA = []
         self.no_mut = []
@@ -116,7 +114,8 @@ class al_to_damage:
                         qpos += length
 
             if not self.subsample or np.random.rand() < self.subsample:
-                all_damage = damage_al(
+                ct_ga_read = [] if need_read_dict else None
+                damage_al(
                     reference=al.get_reference_sequence(),
                     read_name=al.query_name,
                     is_reverse=al.is_reverse,
@@ -126,30 +125,23 @@ class al_to_damage:
                     wlen=self.wlen,
                     g2a=self.g2a,
                     show_al=show_al,
+                    C_list=self.C,
+                    CT_list=self.CT,
+                    G_list=self.G,
+                    GA_list=self.GA,
+                    no_mut_list=self.no_mut,
+                    ct_ga_out=ct_ga_read,
                 )
 
-                c_list = all_damage["C"]
-                ct_list = all_damage["CT"]
-                g_list = all_damage["G"]
-                ga_list = all_damage["GA"]
-                no_mut_list = all_damage["no_mut"]
+                if need_read_dict and ct_ga_read and ((al.is_reverse and self.g2a) or not al.is_reverse):
+                    self.read_dict[self.reference][al.query_name] = np.array(ct_ga_read)
 
-                self.C.extend(c_list)
-                self.CT.extend(ct_list)
-                self.G.extend(g_list)
-                self.GA.extend(ga_list)
-                self.C_G_bases.extend(c_list)
-
-                ct_ga = list(ct_list)
-                if self.g2a:
-                    ct_ga.extend(ga_list)
-                    self.C_G_bases.extend(g_list)
-
-                self.damage_bases.extend(ct_ga)
-                self.no_mut.extend(no_mut_list)
-
-                if need_read_dict and ct_ga and ((al.is_reverse and self.g2a) or not al.is_reverse):
-                    self.read_dict[self.reference][al.query_name] = np.array(ct_ga)
+        if self.g2a:
+            self.C_G_bases = self.C + self.G
+            self.damage_bases = self.CT + self.GA
+        else:
+            self.C_G_bases = list(self.C)
+            self.damage_bases = list(self.CT)
 
     def compute_damage(self) -> tuple:
         """Computes damage frequencies and counts per position across the window."""
