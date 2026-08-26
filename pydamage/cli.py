@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
-import click
-from click import option, Option, UsageError
-from pydamage.main import pydamage_analyze
-from pydamage.citation import get_citation
-from pydamage.filter import apply_filter
-from pydamage.plot import bin_plot
-from pydamage import __version__
 from collections import OrderedDict
+import logging
+import click
+from click import Option, UsageError
+
+from pydamage import __version__
 
 
 class NaturalOrderGroup(click.Group):
@@ -29,12 +27,14 @@ class MutuallyExclusiveOption(Option):
 
     def __init__(self, *args, **kwargs):
         self.mutually_exclusive = set(kwargs.pop("mutually_exclusive", []))
-        help = kwargs.get("help", "")
+        help_text = kwargs.get("help", "")
         if self.mutually_exclusive:
             ex_str = ", ".join(self.mutually_exclusive)
-            kwargs["help"] = help + (
-                " NOTE: This argument is mutually exclusive with "
-                " arguments: [" + ex_str + "]."
+            kwargs["help"] = (
+                help_text
+                + " NOTE: This argument is mutually exclusive with arguments: ["
+                + ex_str
+                + "]."
             )
         super(MutuallyExclusiveOption, self).__init__(*args, **kwargs)
 
@@ -44,7 +44,6 @@ class MutuallyExclusiveOption(Option):
                 "Illegal usage: `{}` is mutually exclusive with "
                 "arguments `{}`.".format(self.name, ", ".join(self.mutually_exclusive))
             )
-
         return super(MutuallyExclusiveOption, self).handle_parse_result(ctx, opts, args)
 
 
@@ -75,12 +74,10 @@ def cli(ctx, outdir, threshold):
     Homepage & Documentation: github.com/maxibor/pydamage
 
     """
-
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     ctx.ensure_object(dict)
-
     ctx.obj["outdir"] = outdir
     ctx.obj["threshold"] = threshold
-    pass
 
 
 @cli.command()
@@ -111,7 +108,7 @@ def cli(ctx, outdir, threshold):
     help="Number of processes for parallel computing",
 )
 @click.option(
-    "-s", "--show_al", is_flag=True, help="Display alignments representations"
+    "--show_al", is_flag=True, help="Display alignments representations"
 )
 @click.option("-pl", "--plot", is_flag=True, help="Write damage fitting plots to disk")
 @click.option("-vv", "--verbose", is_flag=True, help="Verbose mode")
@@ -148,6 +145,7 @@ def analyze(ctx, no_args_is_help=True, **kwargs):
 
     BAM: path to BAM/SAM/CRAM alignment file. MD tags need to be set.
     """
+    from pydamage.main import pydamage_analyze
     pydamage_analyze(**kwargs, **ctx.obj)
 
 
@@ -160,8 +158,9 @@ def filter(ctx, no_args_is_help=True, **kwargs):
 
     CSV: path to PyDamage result file
     """
-
+    from pydamage.filter import apply_filter
     apply_filter(**kwargs, **ctx.obj)
+
 
 @cli.command()
 @click.pass_context
@@ -174,12 +173,14 @@ def binplot(ctx, no_args_is_help=True, **kwargs):
     CSV: path to PyDamage result file\n
     FASTA: path to bin fasta file
     """
+    from pydamage.plot import bin_plot
+    bin_plot(**kwargs, **ctx.obj)
 
-    ct_mean, ct_std, ga_mean, ga_std = bin_plot(**kwargs, **ctx.obj)
 
 @cli.command()
 def cite():
     """Get pydamage citation in bibtex format"""
+    from pydamage.citation import get_citation
     get_citation()
 
 

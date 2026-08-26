@@ -1,88 +1,111 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from pydamage.optim import optim
-from scipy.stats import binom
-from pydamage.utils import sort_dict_by_keys, RMSE, create_damage_dict
-from pydamage.likelihood_ratio import LR
+from scipy.optimize import curve_fit
+from scipy.stats import binom, chi2
+from pydamage.utils import RMSE
+
+
+def optim(function, parameters: list, xdata: np.ndarray, ydata: np.ndarray, bounds: tuple, loss: str = "huber") -> tuple:
+    """Find optimal parameters given data using curve_fit.
+
+    Args:
+        function (callable): Function to optimize
+        parameters (list): Parameter names
+        xdata (np.ndarray): Independent variable values
+        ydata (np.ndarray): Dependent variable values
+        bounds (tuple): ((min_params...), (max_params...))
+        loss (str): Loss function for robust estimation
+
+    Returns:
+        tuple: (popt_dict, perr_dict)
+    """
+    popt, pcov = curve_fit(function, xdata=xdata, ydata=ydata, bounds=bounds, loss=loss)
+    perr = np.sqrt(np.diag(pcov))
+    popt_dict = {k: float(v) for (k, v) in zip(parameters, popt)}
+    perr_dict = {f"{k}_stdev": float(v) for (k, v) in zip(parameters, perr)}
+    return popt_dict, perr_dict
+
+
+def LR(L0: np.ndarray, L1: np.ndarray, df: int) -> tuple:
+    """Performs likelihood ratio test between null model L0 and alternative model L1.
+
+    Args:
+        L0 (np.ndarray): Log-likelihood of null model
+        L1 (np.ndarray): Log-likelihood of alternative model
+        df (int): Degrees of freedom (difference in number of parameters)
+
+    Returns:
+        tuple: (LR_lambda, pvalue)
+    """
+    LR_lambda = float(-2 * (np.sum(L0) - np.sum(L1)))
+    LR_lambda = max(0.0, LR_lambda)
+    pval = float(1.0 - chi2.cdf(LR_lambda, df))
+    return LR_lambda, pval
 
 
 def fit_models(
-    ref,
+    ref: str,
     model_A,
     model_B,
-    damage,
-    mut_count,
-    conserved_count,
-    verbose,
-):
-    """Performs model fitting and runs Likelihood ratio test
+    damage: np.ndarray,
+    mut_count: np.ndarray,
+    conserved_count: np.ndarray,
+    verbose: bool = False,
+) -> dict:
+    """Performs model fitting and runs Likelihood Ratio test.
 
     Args:
-        ref (str): name of referene in alignment file
-        model_A (pydamage.models): Pydamage H1 Damage model
-        model_B (pydamage.models): Pydamage H0 Null model
-        damage (np.array of float): Amount of damage at each position where CtoT or GtoA (if reversed) transitions were observed
-        mut_count(np.array of int): Number of CtoT and GtoA per position
-        conserved_count(np.array of int): Number of conserved C and G per position
-        verbose (bool): verbose mode
-    """
-    #################
-    # MODEL FITTING #
-    #################
+        ref (str): Name of reference in alignment file
+        model_A (pydamage.models.damage_model): PyDamage H1 Damage model
+        model_B (pydamage.models.null_model): PyDamage H0 Null model
+        damage (np.ndarray): Amount of damage at each position
+        mut_count (np.ndarray): Number of mutations per position
+        conserved_count (np.ndarray): Number of conserved bases per position
+        verbose (bool): Verbose output
 
-    # Only fitting model to interval [0,wlen]
+    Returns:
+        dict: Fitted parameters and test statistics
+    """
     xdata = np.arange(damage.size)
 
-    res = {}
+    # 1. Fit Damage Model (H1)
     optim_A, stdev_A = optim(
-        function=model_A.fit,  # damage model
+        function=model_A.fit,
         parameters=model_A.kwds,
         xdata=xdata,
         ydata=damage,
         bounds=model_A.bounds,
     )
-    if optim_A["pmax"] < optim_A["pmin"]:  # making sure that fitting makes sense
+    if optim_A["pmax"] < optim_A["pmin"]:
         optim_A["pmax"] = optim_A["pmin"]
 
+    # 2. Fit Null Model (H0)
     optim_B, stdev_B = optim(
-        function=model_B.fit,  # null model
+        function=model_B.fit,
         parameters=model_B.kwds,
         xdata=xdata,
         ydata=damage,
         bounds=model_B.bounds,
     )
 
-    ##########################
-    # LIKELIHOOD CALCULATION #
-    ##########################
-
-    # position of sites where C in reference
+    # 3. Binomial Likelihoods
     c_sites = xdata
-    # counts of conserved positions at each site
     c2c_count_per_site = conserved_count
-    # counts of CtoT and GtoA mutations at each site
     binom_k = mut_count
-    # all C per site
     binom_n = c2c_count_per_site + binom_k
 
-    # Likelihood for model A - Damage Model
-    binom_p_damage = model_A.fit(c_sites, **optim_A)
+    binom_p_damage = np.clip(model_A.fit(c_sites, **optim_A), 1e-15, 1.0 - 1e-15)
     LA = binom.logpmf(k=binom_k, n=binom_n, p=binom_p_damage)
 
-    # Likelihood for model B - Null Model
-    binom_p_null = model_B.fit(c_sites, **optim_B)
+    binom_p_null = np.clip(model_B.fit(c_sites, **optim_B), 1e-15, 1.0 - 1e-15)
     LB = binom.logpmf(k=binom_k, n=binom_n, p=binom_p_null)
 
-    # Difference of number of paramters between model A and model B
+    # 4. Likelihood Ratio Test
     pdiff = len(model_A.kwds) - len(model_B.kwds)
-
-    ################
-    # LR TEST #
-    ################
-
     LR_lambda, pval = LR(L0=LB, L1=LA, df=pdiff)
 
+    res = {}
     res.update(optim_A)
     res.update(stdev_A)
     res.update(optim_B)
@@ -96,6 +119,7 @@ def fit_models(
             + list(stdev_B.values())
         }
     )
-    res["residuals"] = damage - model_A.fit(x=xdata, **optim_A)
+    fitted_vals = model_A.fit(x=xdata, **optim_A)
+    res["residuals"] = damage - fitted_vals
     res["RMSE"] = RMSE(res["residuals"])
     return res

@@ -1,29 +1,31 @@
-from kneed import KneeLocator
-from numpy import arange
-from pydamage.utils import df_to_csv
-from pandas import read_csv
-import os
+#!/usr/bin/env python3
+
 import logging
+import os
+from kneed import KneeLocator
+import numpy as np
+import pandas as pd
 
-def define_threshold(pydam_df, min_knee=0.5, alpha=0.05):
-    """Find kneedle point in PyDamage results
+from pydamage.utils import df_to_csv
 
-    Finding the kneedle point to get the optimal
-    tradeoff between FP and FN, for the predicted
-    accurary threshold
+
+def define_threshold(pydam_df: pd.DataFrame, min_knee: float = 0.5, alpha: float = 0.05) -> float:
+    """Find kneedle point in PyDamage results for the predicted accuracy threshold.
 
     Args:
-        pydam_df (pandas df): pydamage results
-        min_knee (float, optional): Min predicted_accuracy threshold.
-        alpha(float, optional): Alpha q-value threshold
+        pydam_df (pd.DataFrame): PyDamage results
+        min_knee (float): Minimum predicted accuracy threshold
+        alpha (float): Maximum q-value threshold
+
+    Returns:
+        float: Optimal threshold value
     """
-    thresholds = [i.round(2) for i in arange(min_knee, 1, 0.01)]
-    nb_contigs = list()
-    nb_contigs = []
-    for i in thresholds:
-        nb_contigs.append(
-            pydam_df.query(f"predicted_accuracy >= {i} & qvalue <= {alpha}").shape[0]
-        )
+    thresholds = [round(float(i), 2) for i in np.arange(min_knee, 1.0, 0.01)]
+    nb_contigs = [
+        pydam_df.query(f"predicted_accuracy >= {t} & qvalue <= {alpha}").shape[0]
+        for t in thresholds
+    ]
+
     kneedle = KneeLocator(
         thresholds,
         nb_contigs,
@@ -32,42 +34,29 @@ def define_threshold(pydam_df, min_knee=0.5, alpha=0.05):
         direction="decreasing",
         online=True,
     )
-    return kneedle.knee
+    return float(kneedle.knee) if kneedle.knee is not None else min_knee
 
 
-def filter_pydamage_results(pydam_df, acc_thresh, alpha=0.05):
-    """Filter pydamage results on pred_accuracy and qvalue
-
-    Args:
-        pydam_df (pandas df): pydamage results
-        acc_thresh (float): predicted accuracy threshold
-        alpha (float, optional): Alpha q-value threshold. Defaults to 0.05.
-    """
-
+def filter_pydamage_results(pydam_df: pd.DataFrame, acc_thresh: float, alpha: float = 0.05) -> pd.DataFrame:
+    """Filter PyDamage results by predicted accuracy and q-value thresholds."""
     return pydam_df.query(f"predicted_accuracy >= {acc_thresh} & qvalue <= {alpha}")
 
 
-def apply_filter(csv, threshold, outdir, alpha=0.05):
-    """Apply pydamage filtering
-
-    Args:
-        csv (str): path to pydamage result file
-        threshold(float): Treshold value. 0 is for finding threshold with kneed method
-        outdir (str): Path to output directory
-        alpha (float, optional): Alpha q-value threshold. Defaults to 0.05.
-    """
-
-    df = read_csv(csv)
+def apply_filter(csv: str, threshold: float, outdir: str, alpha: float = 0.05) -> pd.DataFrame:
+    """Apply PyDamage filtering to result CSV file and write output."""
+    df = pd.read_csv(csv)
     outfile = "pydamage_filtered_results.csv"
-    if threshold == 0:
-        threshold = define_threshold(df)
+
+    if threshold == 0 or threshold is None:
+        threshold = define_threshold(df, alpha=alpha)
         logging.info(f"Optimal prediction accuracy threshold found to be: {threshold}")
-    filt_df = filter_pydamage_results(df, acc_thresh=threshold)
-    logging.info(
-        f"Filtering PyDamage results with qvalue <= {alpha} and predicted_accuracy >= {threshold}"
-    )
-    if not os.path.exists(outdir):
-        os.mkdir(outdir)
+
+    filt_df = filter_pydamage_results(df, acc_thresh=threshold, alpha=alpha)
+    logging.info(f"Filtering PyDamage results with qvalue <= {alpha} and predicted_accuracy >= {threshold}")
+
+    if outdir and not os.path.exists(outdir):
+        os.makedirs(outdir, exist_ok=True)
+
     df_to_csv(filt_df, outdir, outfile)
     logging.info(f"Filtered PyDamage results written to {outdir}/{outfile}")
     return filt_df
