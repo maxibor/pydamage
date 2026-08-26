@@ -1,12 +1,30 @@
 name: pydamage_ci
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - main
+      - 2026_update
+      - dev
+  pull_request:
+    branches:
+      - master
+      - main
+      - 2026_update
+      - dev
 
 jobs:
-  pydamage_ci:
-    name: pydamage_testing
-    runs-on: 'ubuntu-latest'
+  test:
+    name: Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, '[skip_ci]')"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -16,26 +34,36 @@ jobs:
           version: "latest"
           enable-cache: true
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
-          uv sync --all-groups
+          uv sync --all-groups --python ${{ matrix.python-version }}
 
-      - name: Test with pytest
+      - name: Run Unit Tests
         run: |
-          uv run pytest
+          uv run pytest tests/test_unit_models.py tests/test_unit_parsing.py tests/test_damage.py tests/test_models_optim.py tests/test_parse.py tests/test_plot.py -v
 
-      - name: Check pydamage help message
+      - name: Run Integration Tests
+        run: |
+          uv run pytest tests/test_integration.py -v
+
+      - name: Run CLI Tests
+        run: |
+          uv run pytest tests/test_cli.py -v
+
+      - name: Run Full Pytest Suite
+        run: |
+          uv run pytest -v
+
+      - name: Validate CLI End-to-End Execution
         run: |
           uv run pydamage --help
-
-      - name: Check pydamage on test data
-        run: |
+          uv run pydamage cite
           uv run pydamage analyze --verbose tests/data/aligned.bam
           uv run pydamage filter pydamage_results/pydamage_results.csv
           uv run pydamage analyze -f -g tests/data/aligned.bam
-          uv run pydamage cite
+          uv run pydamage binplot tests/data/pydamage_results_sequence.csv tests/data/sequence.fa
