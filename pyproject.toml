@@ -43,9 +43,10 @@ dev = [
     "line-profiler>=4.0.0",
 ]
 docs = [
+    "sphinx>=7.0.0",
     "sphinx-click",
-    "recommonmark",
     "sphinx-rtd-theme",
+    "recommonmark",
     "nbsphinx",
 ]
 
